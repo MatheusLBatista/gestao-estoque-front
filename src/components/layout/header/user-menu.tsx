@@ -15,10 +15,6 @@ export default function UserMenu() {
   const [open, setOpen] = useState(false);
 
   return (
-    // <div className="flex items-center space-x-3 cursor-pointer">
-
-    // </div>
-
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <div className="flex items-center space-x-3 cursor-pointer">
