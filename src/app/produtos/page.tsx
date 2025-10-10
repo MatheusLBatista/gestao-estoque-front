@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { TabelaProdutos } from "@/components/tabela"
+import Header from "@/components/layout/header"
+import Footer from "@/components/layout/footer"
 
 
 //http://localhost:5011
@@ -54,24 +56,30 @@ export default function ProdutosPage() {
   }, [])
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Gestão de Produtos</h1>
-      </div>
-
-      {erro && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
-          {erro}
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      
+      <main className="flex-1 container mx-auto p-6">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold">Estoque de Produtos</h1>
         </div>
-      )}
 
-      {carregando ? (
-        <div className="text-center py-8">
-          <p>Carregando produtos...</p>
-        </div>
-      ) : (
-        <TabelaProdutos produtos={produtos} />
-      )}
+        {erro && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+            {erro}
+          </div>
+        )}
+
+        {carregando ? (
+          <div className="text-center py-8">
+            <p>Carregando produtos...</p>
+          </div>
+        ) : (
+          <TabelaProdutos produtos={produtos} />
+        )}
+      </main>
+
+      <Footer />
     </div>
   )
 }
