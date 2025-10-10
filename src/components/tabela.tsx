@@ -17,9 +17,6 @@ export function TabelaProdutos({ produtos }: TabelaProdutosProps) {
 
   return (
     <div className="bg-white rounded-lg shadow">
-      <div className="px-6 py-4 border-b">
-        <h2 className="text-xl font-semibold">Lista de Produtos ({produtos.length} itens)</h2>
-      </div>
       <Table>
         <TableHeader>
           <TableRow>
