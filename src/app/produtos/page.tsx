@@ -16,7 +16,7 @@ export default function ProdutosPage() {
 
     try {
       const accessToken =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZGMyZTk3OGE0NWIwMmM2ZDA0N2JmOCIsImlhdCI6MTc2MDAzOTY2OCwiZXhwIjoxNzYwMTI2MDY4fQ.QJI4iM9iBKqwfjtlm2QIFPpgujrHfKQ6SE8xxgK17tA";
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZGMyZTk3OGE0NWIwMmM2ZDA0N2JmOCIsImlhdCI6MTc2MDMxMzYxNywiZXhwIjoxNzYwNDAwMDE3fQ.npotO-694DrgQ3S0Sbe8Vb6y9CEVvCLOFZk2kZv4uCA";
 
       const response = await fetch("http://localhost:5011/produtos", {
         method: "GET",
