@@ -20,7 +20,7 @@ export function ItemsPerPage({
   totalItems,
 }: ItemsPerPageProps) {
   return (
-    <p className="text-xs text-neutral-500 flex items-center gap-2">
+    <div className="text-xs text-neutral-500 flex items-center gap-2">
       <span>Exibindo</span>
       {
         <Select
@@ -48,6 +48,6 @@ export function ItemsPerPage({
           className="w-4 h-4 text-neutral-400 cursor-pointer hover:text-neutral-600"
         />
       </div>
-    </p>
+    </div>
   );
 }

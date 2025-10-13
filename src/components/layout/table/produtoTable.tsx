@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import { CustomPagination } from "../pagination/paginationWrapper";
 import { ItemsPerPage } from "../pagination/itemsPerPage";
+import { ProdutosFilter } from "../filters/produtosFilter";
 
 export interface Produto {
   _id: string;
@@ -36,7 +37,9 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   return (
-    <>
+    <>    
+      <ProdutosFilter />
+
       <div className="bg-white rounded-lg shadow">
         <Table>
           <TableHeader>
