@@ -1,70 +1,41 @@
+"use client";
+
 import Link from "next/link";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
+import { usePathname } from "next/navigation";
 
 export default function Navigation() {
+  const pathname = usePathname() || "/";
+
+  const items = [
+    { label: "Produtos", href: "/produtos" },
+    { label: "Movimentações", href: "/movimentacoes" },
+    { label: "Fornecedores", href: "/fornecedores" },
+    { label: "Funcionários", href: "/funcionarios" },
+  ];
+
   return (
-    <Menubar className="bg-transparent border-none text-white">
-      <MenubarMenu>
-        <MenubarTrigger className="text-white hover:bg-blue-700 data-[state=open]:bg-blue-700">
-          Produtos
-        </MenubarTrigger>
-        <MenubarContent>
-          <MenubarItem>
-            <Link href="/produtos">Gerenciar Produtos</Link>
-          </MenubarItem>
-          <MenubarItem>
-            <Link href="/produtos/novo">Adicionar Produto</Link>
-          </MenubarItem>
-        </MenubarContent>
-      </MenubarMenu>
-
-      <MenubarMenu>
-        <MenubarTrigger className="text-white hover:bg-blue-700 data-[state=open]:bg-blue-700">
-          Movimentações
-        </MenubarTrigger>
-        <MenubarContent>
-          <MenubarItem>
-            <Link href="/movimentacoes">Gerenciar Movimentações</Link>
-          </MenubarItem>
-          <MenubarItem>
-            <Link href="/movimentacoes/novo">Adicionar Movimentação</Link>
-          </MenubarItem>
-        </MenubarContent>
-      </MenubarMenu>
-
-      <MenubarMenu>
-        <MenubarTrigger className="text-white hover:bg-blue-700 data-[state=open]:bg-blue-700">
-          Fornecedores
-        </MenubarTrigger>
-        <MenubarContent>
-          <MenubarItem>
-            <Link href="/fornecedores">Gerenciar Fornecedores</Link>
-          </MenubarItem>
-          <MenubarItem>
-            <Link href="/fornecedores/novo">Adicionar Fornecedor</Link>
-          </MenubarItem>
-        </MenubarContent>
-      </MenubarMenu>
-
-      <MenubarMenu>
-        <MenubarTrigger className="text-white hover:bg-blue-700 data-[state=open]:bg-blue-700">
-          Funcionários
-        </MenubarTrigger>
-        <MenubarContent>
-          <MenubarItem>
-            <Link href="/funcionarios">Gerenciar Funcionários</Link>
-          </MenubarItem>
-          <MenubarItem>
-            <Link href="/funcionarios/novo">Adicionar Funcionário</Link>
-          </MenubarItem>
-        </MenubarContent>
-      </MenubarMenu>
-    </Menubar>
+    <nav>
+      <ul className="flex items-center space-x-4">
+        {items.map((item) => {
+          const isActive =
+            pathname === item.href || pathname.startsWith(item.href + "/");
+          return (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  isActive
+                    ? "bg-blue-700 text-white"
+                    : "text-white hover:bg-blue-700/80"
+                }`}
+                aria-current={isActive ? "page" : undefined}
+              >
+                {item.label}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }

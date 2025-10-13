@@ -7,6 +7,7 @@ export default function Footer() {
             <p className="text-xs">
               Gestão de estoque - H&R - ADS 2025/2 © Todos direitos reservados.
             </p>
+            {/* TODO: implementar links de redes sociais */}
           </div>
         </div>
       </div>
