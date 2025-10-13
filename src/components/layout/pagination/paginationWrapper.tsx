@@ -49,7 +49,7 @@ export function CustomPagination({
                 className={`
                   ${
                     active
-                      ? "bg-blue-500 text-white"
+                      ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
                       : "text-neutral-500 hover:bg-blue-50"
                   }
                   `}

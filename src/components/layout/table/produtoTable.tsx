@@ -10,6 +10,7 @@ import { useState } from "react";
 import { CustomPagination } from "../pagination/paginationWrapper";
 import { ItemsPerPage } from "../pagination/itemsPerPage";
 import { ProdutosFilter } from "../filters/produtosFilter";
+import CadastrarButton from "@/components/ui/cadastrarButton";
 
 export interface Produto {
   _id: string;
@@ -37,8 +38,11 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   return (
-    <>    
-      <ProdutosFilter />
+    <>
+      <div className="flex flex-row place-content-between pb-2">
+        <ProdutosFilter />
+        <CadastrarButton />
+      </div>
 
       <div className="bg-white rounded-lg shadow">
         <Table>
@@ -97,10 +101,11 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
 
       <div className="flex justify-between">
         <div className="px-4 py-6 flex items-center">
-          <ItemsPerPage 
+          <ItemsPerPage
             perPage={perPage}
             setPerPage={setPerPage}
-            totalItems={Number(produtos.length)} />
+            totalItems={Number(produtos.length)}
+          />
         </div>
 
         <CustomPagination
