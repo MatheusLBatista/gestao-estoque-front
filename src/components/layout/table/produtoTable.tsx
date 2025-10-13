@@ -1,13 +1,4 @@
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -16,8 +7,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
-import { Printer } from "lucide-react";
-import { CustomPagination } from "../pagination";
+import { CustomPagination } from "../pagination/paginationWrapper";
+import { ItemsPerPage } from "../pagination/itemsPerPage";
 
 export interface Produto {
   _id: string;
@@ -103,32 +94,10 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
 
       <div className="flex justify-between">
         <div className="px-4 py-6 flex items-center">
-          <p className="text-xs text-neutral-500 flex items-center gap-2">
-            <span>Exibindo</span>
-            {
-              <Select
-                value={String(perPage)}
-                onValueChange={(v) => setPerPage(Number(v))}
-              >
-                <SelectTrigger className="w-[73px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {Array.from({ length: 100 }, (_, i) => (
-                      <SelectItem key={i + 1} value={String(i + 1)}>
-                        {i + 1}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            }
-            <span>de {produtos.length}</span>
-          </p>
-          <div className="flex px-3">
-            <Printer className="w-4 h-4 text-neutral-400 cursor-pointer hover:text-neutral-600" />
-          </div>
+          <ItemsPerPage 
+            perPage={perPage}
+            setPerPage={setPerPage}
+            totalItems={Number(produtos.length)} />
         </div>
 
         <CustomPagination
