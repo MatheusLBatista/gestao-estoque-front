@@ -15,6 +15,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { useState } from "react";
 import { Printer } from "lucide-react";
 
@@ -38,17 +47,13 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
   if (!produtos.length) return null;
 
   const [perPage, setPerPage] = useState<number>(10);
+  const [totalPages, setTotalPages] = useState<number>(
+    Math.ceil(produtos.length / perPage)
+  );
 
   return (
     <>
       <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b">
-          <h2 className="text-xl font-semibold">
-            Lista de Produtos ({produtos.length} itens)
-          </h2>
-          {/* adicionar botões de filtros*/}
-        </div>
-
         <Table>
           <TableHeader>
             <TableRow>
@@ -82,8 +87,12 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                 <TableCell className="text-center text-neutral-700">
                   {produto.categoria}
                 </TableCell>
-                <TableCell className="text-center text-neutral-700">{produto.marca}</TableCell>
-                <TableCell className="text-center text-neutral-700">{produto.estoque}</TableCell>
+                <TableCell className="text-center text-neutral-700">
+                  {produto.marca}
+                </TableCell>
+                <TableCell className="text-center text-neutral-700">
+                  {produto.estoque}
+                </TableCell>
                 <TableCell className="text-center text-neutral-700">
                   R$ {produto.custo.toFixed(2)}
                 </TableCell>
@@ -99,33 +108,57 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
         </Table>
       </div>
 
-      <div className="px-4 py-6 flex items-center">
-        <p className="text-xs text-neutral-500 flex items-center gap-2">
-          <span>Exibindo</span>
-          {
-            <Select
-              value={String(perPage)}
-              onValueChange={(v) => setPerPage(Number(v))}
-            >
-              <SelectTrigger className="w-[73px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {Array.from({ length: 100 }, (_, i) => (
-                    <SelectItem key={i + 1} value={String(i + 1)}>
-                      {i + 1}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          }
-          <span>de {produtos.length}</span>
-        </p>
-        <div className="flex px-3">
-          <Printer className="w-4 h-4 text-neutral-400 cursor-pointer hover:text-neutral-600" />
+      <div className="flex justify-between">
+        <div className="px-4 py-6 flex items-center">
+          <p className="text-xs text-neutral-500 flex items-center gap-2">
+            <span>Exibindo</span>
+            {
+              <Select
+                value={String(perPage)}
+                onValueChange={(v) => setPerPage(Number(v))}
+              >
+                <SelectTrigger className="w-[73px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {Array.from({ length: 100 }, (_, i) => (
+                      <SelectItem key={i + 1} value={String(i + 1)}>
+                        {i + 1}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            }
+            <span>de {produtos.length}</span>
+          </p>
+          <div className="flex px-3">
+            <Printer className="w-4 h-4 text-neutral-400 cursor-pointer hover:text-neutral-600" />
+          </div>
         </div>
+
+        <Pagination>
+          <PaginationContent className="text-neutral-500">
+            <PaginationItem>
+              <PaginationPrevious className="w-1 bg-muted/50 hover:bg-blue-100" href="#" />
+            </PaginationItem>
+            {Array.from({ length: totalPages }, (_, i) => {
+              return (
+                <PaginationItem key={i}>
+                  <PaginationLink href="#" className="bg-blue-500 text-white">
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
+            <PaginationItem>
+              {/* {ajustar lógica dos elementos sem hover} */}
+              <PaginationLink className="bg-muted/50 hover:bg-blue-100">2</PaginationLink>
+            </PaginationItem>
+            <PaginationNext className="w-1 bg-muted/50 hover:bg-blue-100" href="#" />
+          </PaginationContent>
+        </Pagination>
       </div>
     </>
   );
