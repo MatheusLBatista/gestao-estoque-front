@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
-import { TypographyH2 } from "@/components/layout/subtitle/subtitle";
+import { TypographyH2 } from "@/components/layout/subtitle";
 import { useState } from "react";
 import TabelaProdutos from "@/components/layout/table/produtoTable";
 import { Produto } from "@/components/layout/table/produtoTable";

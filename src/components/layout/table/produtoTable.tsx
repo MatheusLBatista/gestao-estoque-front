@@ -15,17 +15,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import { useState } from "react";
 import { Printer } from "lucide-react";
+import { CustomPagination } from "../pagination";
 
 export interface Produto {
   _id: string;
@@ -50,6 +42,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
   const [totalPages, setTotalPages] = useState<number>(
     Math.ceil(produtos.length / perPage)
   );
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   return (
     <>
@@ -138,27 +131,11 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
           </div>
         </div>
 
-        <Pagination>
-          <PaginationContent className="text-neutral-500">
-            <PaginationItem>
-              <PaginationPrevious className="w-1 bg-muted/50 hover:bg-blue-100" href="#" />
-            </PaginationItem>
-            {Array.from({ length: totalPages }, (_, i) => {
-              return (
-                <PaginationItem key={i}>
-                  <PaginationLink href="#" className="bg-blue-500 text-white">
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              );
-            })}
-            <PaginationItem>
-              {/* {ajustar lógica dos elementos sem hover} */}
-              <PaginationLink className="bg-muted/50 hover:bg-blue-100">2</PaginationLink>
-            </PaginationItem>
-            <PaginationNext className="w-1 bg-muted/50 hover:bg-blue-100" href="#" />
-          </PaginationContent>
-        </Pagination>
+        <CustomPagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </>
   );
