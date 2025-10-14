@@ -44,7 +44,17 @@ export interface Produto {
   codigo_produto: string;
   descricao: string;
   marca: string;
-  fornecedores: { id: string; nome_fornecedor: string }[];
+  fornecedores: {
+    _id: string;
+    cnpj: string;
+    data_cadastro: string;
+    data_ultima_atualizacao: string;
+    email: string;
+    endereco: any[];
+    nome_fornecedor: string;
+    status: boolean;
+    telefone: string;
+  };
   custo: number;
   preco?: number;
   categoria: string;
@@ -171,12 +181,8 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                         <FieldLabel>Nome do fornecedor*</FieldLabel>
                         <Input
                           value={
-                            selectedProduct.fornecedores &&
-                            selectedProduct.fornecedores.length > 0
-                              ? selectedProduct.fornecedores
-                                  .map((f) => f.nome_fornecedor)
-                                  .join(", ")
-                              : "-"
+                            selectedProduct.fornecedores?.nome_fornecedor ||
+                            "Sem fornecedor"
                           }
                           readOnly={true}
                         />
@@ -212,9 +218,6 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                           value={selectedProduct.codigo_produto ?? "-"}
                           readOnly={true}
                         />
-                        <FieldDescription className="text-[10px] mx-2 my-0">
-                          O código criado deve ser único
-                        </FieldDescription>
                       </Field>
                     </div>
 
@@ -265,7 +268,9 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                         </FieldLabel>
                         <Input
                           id="data_cadastro"
-                          value={AdjustDate(selectedProduct.data_cadastro) ?? "-"}
+                          value={
+                            AdjustDate(selectedProduct.data_cadastro) ?? "-"
+                          }
                           readOnly={true}
                         />
                       </Field>
@@ -276,7 +281,10 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                         </FieldLabel>
                         <Input
                           id="data_ultima_entrada"
-                          value={AdjustDate(selectedProduct.data_ultima_entrada) ?? "-"}
+                          value={
+                            AdjustDate(selectedProduct.data_ultima_entrada) ??
+                            "-"
+                          }
                           readOnly={true}
                         />
                       </Field>

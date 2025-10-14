@@ -28,6 +28,7 @@ export default function ProdutosPage() {
       });
 
       const result = await response.json();
+      console.log(result)
       const data: Produto[] = result.data?.docs || result.data || [];
       setProdutos(data);
     } catch (err) {
