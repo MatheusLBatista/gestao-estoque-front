@@ -11,6 +11,7 @@ import { CustomPagination } from "../pagination/paginationWrapper";
 import { ItemsPerPage } from "../pagination/itemsPerPage";
 import { ProdutosFilter } from "../filters/produtosFilter";
 import CadastrarButton from "@/components/ui/cadastrarButton";
+import { CadastroProduto } from "../popUp/produtoCadastro";
 
 export interface Produto {
   _id: string;
@@ -41,7 +42,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
     <>
       <div className="flex flex-row place-content-between pb-2">
         <ProdutosFilter />
-        <CadastrarButton />
+        <CadastroProduto />
       </div>
 
       <div className="bg-white rounded-lg shadow">
