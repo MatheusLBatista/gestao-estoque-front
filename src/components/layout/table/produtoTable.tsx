@@ -37,6 +37,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { AdjustDate } from "@/lib/adjustDate";
 import { AdjustPrice } from "@/lib/adjustPrice";
+import { Pencil } from 'lucide-react';
 
 export interface Produto {
   _id: string;
@@ -134,7 +135,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                   {produto.estoque}
                 </TableCell>
                 <TableCell className="cursor-pointer text-center text-neutral-700">
-                  R$ {produto.custo.toFixed(2)}
+                  {AdjustPrice(produto.custo)}
                 </TableCell>
                 <TableCell
                   className="cursor-pointer max-w-xs truncate text-neutral-700"
@@ -149,12 +150,13 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
       </div>
 
       <Dialog open={open} onOpenChange={(val) => setOpen(val)}>
-        <DialogContent className="gap-8">
+        <DialogContent className="gap-4">
           <DialogHeader className="flex flex-col gap-4 py-2 border-b">
             <DialogTitle>
               {selectedProduct ? (
-                <div className="bold text-1xl">
+                <div className="bold text-1xl flex gap-4">
                   {selectedProduct.nome_produto}
+                  <Pencil className="cursor-pointer w-4 h-4" />
                 </div>
               ) : (
                 <div>Nenhum produto selecionado.</div>
