@@ -5,7 +5,7 @@ import Header from "@/components/layout/header";
 import { TypographyH2 } from "@/components/layout/subtitle";
 import { useState, useEffect } from "react";
 import TabelaProdutos from "@/components/layout/table/produtoTable";
-import { Produto } from "@/components/layout/table/produtoTable";
+import { Produto } from "../../lib/Produto";
 
 export default function ProdutosPage() {
   const [produtos, setProdutos] = useState<Produto[]>([]);

@@ -38,32 +38,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { AdjustDate } from "@/lib/adjustDate";
 import { AdjustPrice } from "@/lib/adjustPrice";
 import { Pencil } from 'lucide-react';
-
-export interface Produto {
-  _id: string;
-  nome_produto: string;
-  codigo_produto: string;
-  descricao: string;
-  marca: string;
-  fornecedores: {
-    _id: string;
-    cnpj: string;
-    data_cadastro: string;
-    data_ultima_atualizacao: string;
-    email: string;
-    endereco: any[];
-    nome_fornecedor: string;
-    status: boolean;
-    telefone: string;
-  };
-  custo: number;
-  preco?: number;
-  categoria: string;
-  estoque: number;
-  estoque_min: number;
-  data_cadastro: string;
-  data_ultima_entrada: string;
-}
+import { ProdutoEdicao } from "../popUp/produtoEdicao";
+import { Produto } from "../../../lib/Produto";
 
 interface TabelaProdutosProps {
   produtos: Produto[];
@@ -79,6 +55,8 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [open, setOpen] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Produto | null>(null);
+  const [editOpen, setEditOpen] = useState<boolean>(false);
+  const [editProduct, setEditProduct] = useState<Produto | null>(null);
 
   return (
     <>
@@ -156,7 +134,15 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
               {selectedProduct ? (
                 <div className="bold text-1xl flex gap-4">
                   {selectedProduct.nome_produto}
-                  <Pencil className="cursor-pointer w-4 h-4" />
+                  <Pencil 
+                    className="cursor-pointer w-4 h-4 hover:text-blue-600" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpen(false);
+                      setEditProduct(selectedProduct);
+                      setEditOpen(true);
+                    }}
+                  />
                 </div>
               ) : (
                 <div>Nenhum produto selecionado.</div>
@@ -335,6 +321,12 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
           onPageChange={setCurrentPage}
         />
       </div>
+
+      <ProdutoEdicao 
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        produto={editProduct}
+      />
     </>
   );
 }
