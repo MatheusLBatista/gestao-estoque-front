@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { AdjustDate } from "@/lib/adjustDate";
+import { AdjustPrice } from "@/lib/adjustPrice";
 
 export interface Produto {
   _id: string;
@@ -236,7 +237,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                           id="preco"
                           value={
                             selectedProduct.preco !== undefined
-                              ? `R$${selectedProduct.preco.toFixed(2)}`
+                              ? `${AdjustPrice(selectedProduct.preco)}`
                               : "-"
                           }
                           readOnly={true}
@@ -249,7 +250,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                           id="custo"
                           value={
                             typeof selectedProduct.custo === "number"
-                              ? `R$${selectedProduct.custo.toFixed(2)}`
+                              ? `${AdjustPrice(selectedProduct.custo)}`
                               : "-"
                           }
                           readOnly={true}
@@ -290,16 +291,16 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
             )}
           </div>
 
-          <div className="flex flex-row pt-4 border-t">
-            <div className="flex flex-row justify-between">
+          <div className="pt-4 border-t">
+            <div className="flex flex-row justify-center gap-1">
               <Button
-                className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
+                className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
                 onClick={() => window.print()}
               >
                 <Printer className="w-4 h-4" /> Imprimir
               </Button>
               <Button
-                className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
+                className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
                 onClick={() => console.log("Novo produto")}
               >
                 <PackagePlus className="w-4 h-4" /> Novo Produto
