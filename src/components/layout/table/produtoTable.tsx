@@ -22,6 +22,19 @@ import { CadastroProduto } from "../popUp/produtoCadastro";
 import { Printer, PackagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSeparator,
+  FieldSet,
+  FieldTitle,
+} from "@/components/ui/field";
+import { Textarea } from "@/components/ui/textarea";
 
 export interface Produto {
   _id: string;
@@ -29,10 +42,13 @@ export interface Produto {
   codigo_produto: string;
   descricao: string;
   marca: string;
+  fornecedores: { id: string; nome_fornecedor: string }[];
   custo: number;
+  preco?: number;
   categoria: string;
   estoque: number;
   estoque_min: number;
+  data_cadastro: string;
   data_ultima_entrada: string;
 }
 
@@ -121,60 +137,150 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
       </div>
 
       <Dialog open={open} onOpenChange={(val) => setOpen(val)}>
-        <DialogContent className="max-w-lg gap-6">
-          <DialogHeader className="flex flex-col gap-2 py-2 border-b">
-            <DialogTitle>Detalhes do produto</DialogTitle>
-            <DialogDescription>
-              Informações detalhadas do produto selecionado.
-            </DialogDescription>
+        <DialogContent className="gap-8">
+          <DialogHeader className="flex flex-col gap-4 py-2 border-b">
+            <DialogTitle>
+              {selectedProduct ? (
+                <div className="bold text-1xl">
+                  {selectedProduct.nome_produto}
+                </div>
+              ) : (
+                <div>Nenhum produto selecionado.</div>
+              )}
+            </DialogTitle>
+            <DialogDescription>Informações do produto</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3 text-sm text-neutral-700">
             {selectedProduct ? (
               <>
-                <div className="flex justify-between">
-                  {/* <div className="text-xs text-neutral-400">
-                    ID: {selectedProduct._id}
-                  </div> */}
-                  <div>
-                    <strong className="text-neutral-900">Nome:</strong>{" "}
-                    {selectedProduct.nome_produto}
-                  </div>
-                  
-                  <div>
-                    <strong className="text-neutral-900">Código:</strong>{" "}
-                    {selectedProduct.codigo_produto}
-                  </div>
-                </div>
+                <FieldSet className="pointer-events-none">
+                  <FieldGroup>
+                    <Field>
+                      <FieldLabel>Nome do produto*</FieldLabel>
+                      <Input
+                        value={selectedProduct.nome_produto}
+                        readOnly={true}
+                      />
+                    </Field>
 
-                <div className="flex justify-between">
-                  <div>
-                    <strong className="text-neutral-900">Marca:</strong>{" "}
-                    {selectedProduct.marca}
-                  </div>
-                  <div>
-                    <strong className="text-neutral-900">Categoria:</strong>{" "}
-                    {selectedProduct.categoria}
-                  </div>
-                </div>
+                    <div className="flex flex-row gap-1">
+                      <Field>
+                        <FieldLabel>Nome do fornecedor*</FieldLabel>
+                        <Input
+                          value={
+                            selectedProduct.fornecedores &&
+                            selectedProduct.fornecedores.length > 0
+                              ? selectedProduct.fornecedores
+                                  .map((f) => f.nome_fornecedor)
+                                  .join(", ")
+                              : "-"
+                          }
+                          readOnly={true}
+                        />
+                      </Field>
+                      <Field>
+                        <FieldLabel htmlFor="estoque">
+                          Estoque mínimo*
+                        </FieldLabel>
+                        <Input
+                          id="estoque"
+                          autoComplete="off"
+                          value={String(selectedProduct.estoque_min ?? "-")}
+                          readOnly={true}
+                        />
+                      </Field>
+                    </div>
 
-                <div className="flex justify-between">
-                  <div>
-                    <strong className="text-neutral-900">Estoque:</strong>{" "}
-                    {selectedProduct.estoque}
-                  </div>
-                  <div>
-                    <strong className="text-neutral-900">Custo:</strong> R${" "}
-                    {selectedProduct.custo.toFixed(2)}
-                  </div>
-                </div>
+                    <div className="flex flex-row gap-1">
+                      <Field>
+                        <FieldLabel htmlFor="marca">Marca*</FieldLabel>
+                        <Input
+                          id="marca"
+                          autoComplete="off"
+                          value={selectedProduct.marca ?? "-"}
+                          readOnly={true}
+                        />
+                      </Field>
+                      <Field>
+                        <FieldLabel htmlFor="codigo">Código*</FieldLabel>
+                        <Input
+                          id="codigo"
+                          autoComplete="off"
+                          value={selectedProduct.codigo_produto ?? "-"}
+                          readOnly={true}
+                        />
+                        <FieldDescription className="text-[10px] mx-2 my-0">
+                          O código criado deve ser único
+                        </FieldDescription>
+                      </Field>
+                    </div>
 
-                <div>
-                  <strong className="text-neutral-900">Descrição:</strong>
-                  <p className="whitespace-pre-wrap text-neutral-700 mt-1">
-                    {selectedProduct.descricao || "Sem descrição."}
-                  </p>
-                </div>
+                    <div>
+                      <Field>
+                        <FieldLabel htmlFor="descricao">Descrição</FieldLabel>
+                        <Textarea
+                          className="h-[120px]"
+                          id="descricao"
+                          autoComplete="off"
+                          value={selectedProduct.descricao ?? ""}
+                          readOnly={true}
+                        />
+                      </Field>
+                    </div>
+                    <div className="flex flex-row gap-1">
+                      <Field>
+                        <FieldLabel htmlFor="preco">Preço</FieldLabel>
+                        <Input
+                          id="preco"
+                          value={
+                            selectedProduct.preco !== undefined
+                              ? `R$${selectedProduct.preco.toFixed(2)}`
+                              : "-"
+                          }
+                          readOnly={true}
+                        />
+                      </Field>
+
+                      <Field>
+                        <FieldLabel htmlFor="custo">Custo</FieldLabel>
+                        <Input
+                          id="custo"
+                          value={
+                            typeof selectedProduct.custo === "number"
+                              ? `R$${selectedProduct.custo.toFixed(2)}`
+                              : "-"
+                          }
+                          readOnly={true}
+                        />
+                      </Field>
+                    </div>
+
+                    <div className="flex flex-row gap-1">
+                      <Field>
+                        <FieldLabel htmlFor="data_cadastro">
+                          Data de cadastro
+                        </FieldLabel>
+                        <Input
+                          id="data_cadastro"
+                          value={selectedProduct.data_cadastro ?? "-"}
+                          readOnly={true}
+                        />
+                      </Field>
+
+                      <Field>
+                        <FieldLabel htmlFor="data_ultima_entrada">
+                          Última entrada
+                        </FieldLabel>
+                        <Input
+                          id="data_ultima_entrada"
+                          value={selectedProduct.data_ultima_entrada ?? "-"}
+                          readOnly={true}
+                        />
+                      </Field>
+                    </div>
+                  </FieldGroup>
+                </FieldSet>
               </>
             ) : (
               <div className="text-neutral-500">
@@ -183,16 +289,16 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
             )}
           </div>
 
-          <div className="flex flex-row justify-between pt-4 border-t">
-            <div className="flex gap-2">
+          <div className="flex flex-row pt-4 border-t">
+            <div className="flex flex-row justify-between">
               <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
-                onClick={() => console.log("Imprimir produto")}
+                className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
+                onClick={() => window.print()}
               >
                 <Printer className="w-4 h-4" /> Imprimir
               </Button>
               <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
+                className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
                 onClick={() => console.log("Novo produto")}
               >
                 <PackagePlus className="w-4 h-4" /> Novo Produto
