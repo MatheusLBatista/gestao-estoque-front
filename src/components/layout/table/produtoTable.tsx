@@ -35,6 +35,7 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
+import { AdjustDate } from "@/lib/adjustDate";
 
 export interface Produto {
   _id: string;
@@ -263,7 +264,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                         </FieldLabel>
                         <Input
                           id="data_cadastro"
-                          value={selectedProduct.data_cadastro ?? "-"}
+                          value={AdjustDate(selectedProduct.data_cadastro) ?? "-"}
                           readOnly={true}
                         />
                       </Field>
@@ -274,7 +275,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                         </FieldLabel>
                         <Input
                           id="data_ultima_entrada"
-                          value={selectedProduct.data_ultima_entrada ?? "-"}
+                          value={AdjustDate(selectedProduct.data_ultima_entrada) ?? "-"}
                           readOnly={true}
                         />
                       </Field>
