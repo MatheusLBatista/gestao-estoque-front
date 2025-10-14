@@ -16,6 +16,7 @@ import { CadastroProduto } from "../popUp/produtoCadastro";
 export interface Produto {
   _id: string;
   nome_produto: string;
+  codigo_produto: string;
   descricao: string;
   marca: string;
   custo: number;
@@ -56,7 +57,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                 Categoria
               </TableHead>
               <TableHead className="text-center text-neutral-500">
-                Marca
+                Código
               </TableHead>
               <TableHead className="text-center text-neutral-500">
                 Estoque
@@ -73,23 +74,23 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
           <TableBody>
             {produtos.map((produto) => (
               <TableRow key={produto._id}>
-                <TableCell className="font-medium text-center text-neutral-700">
+                <TableCell className="cursor-pointer font-medium text-center text-neutral-700">
                   {produto.nome_produto}
                 </TableCell>
-                <TableCell className="text-center text-neutral-700">
+                <TableCell className="cursor-pointer text-center text-neutral-700">
                   {produto.categoria}
                 </TableCell>
-                <TableCell className="text-center text-neutral-700">
-                  {produto.marca}
+                <TableCell className="cursor-pointer text-center text-neutral-700">
+                  {produto.codigo_produto}
                 </TableCell>
-                <TableCell className="text-center text-neutral-700">
+                <TableCell className="cursor-pointer text-center text-neutral-700">
                   {produto.estoque}
                 </TableCell>
-                <TableCell className="text-center text-neutral-700">
+                <TableCell className="cursor-pointer text-center text-neutral-700">
                   R$ {produto.custo.toFixed(2)}
                 </TableCell>
                 <TableCell
-                  className="max-w-xs truncate text-neutral-700"
+                  className="cursor-pointer max-w-xs truncate text-neutral-700"
                   title={produto.descricao}
                 >
                   {produto.descricao}
