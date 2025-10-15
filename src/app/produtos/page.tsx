@@ -5,7 +5,7 @@ import Header from "@/components/layout/header";
 import { TypographyH2 } from "@/components/layout/subtitle";
 import { useState, useEffect } from "react";
 import TabelaProdutos from "@/components/layout/table/produtoTable";
-import { Produto } from "@/components/layout/table/produtoTable";
+import { Produto } from "../../lib/Produto";
 
 export default function ProdutosPage() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
@@ -16,7 +16,7 @@ export default function ProdutosPage() {
 
     try {
       const accessToken =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZGMyZTk3OGE0NWIwMmM2ZDA0N2JmOCIsImlhdCI6MTc2MDMxMzYxNywiZXhwIjoxNzYwNDAwMDE3fQ.npotO-694DrgQ3S0Sbe8Vb6y9CEVvCLOFZk2kZv4uCA";
+        process.env.NEXT_PUBLIC_ACCESS_TOKEN || "";
 
         // TODO:carregar automaticamente 20 produtos ficará mais harmônico na tabela
       const response = await fetch("http://localhost:5011/produtos/?limite=20", {
@@ -28,6 +28,7 @@ export default function ProdutosPage() {
       });
 
       const result = await response.json();
+      console.log(result)
       const data: Produto[] = result.data?.docs || result.data || [];
       setProdutos(data);
     } catch (err) {
