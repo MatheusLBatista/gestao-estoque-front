@@ -10,19 +10,11 @@ import { useState } from "react";
 import { CustomPagination } from "../pagination/paginationWrapper";
 import { ItemsPerPage } from "../pagination/itemsPerPage";
 import { ProdutosFilter } from "../filters/produtosFilter";
-import CadastrarButton from "@/components/ui/cadastrarButton";
-
-export interface Produto {
-  _id: string;
-  nome_produto: string;
-  descricao: string;
-  marca: string;
-  custo: number;
-  categoria: string;
-  estoque: number;
-  estoque_min: number;
-  data_ultima_entrada: string;
-}
+import { CadastroProduto } from "../popUp/produto/produtoCadastro";
+import { ProdutoEdicao } from "../popUp/produto/produtoEdicao";
+import { Produto } from "../../../lib/Produto";
+import { ProdutoListagem } from "../popUp/produto/produtoListagem";
+import { AdjustPrice } from "@/lib/adjustPrice";
 
 interface TabelaProdutosProps {
   produtos: Produto[];
@@ -37,11 +29,25 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
   );
   const [currentPage, setCurrentPage] = useState<number>(1);
 
+  const [open, setOpen] = useState<boolean>(false);
+  const [selectedProduct, setSelectedProduct] = useState<Produto | null>(null);
+
+  const [editOpen, setEditOpen] = useState<boolean>(false);
+  const [editProduct, setEditProduct] = useState<Produto | null>(null);
+
+  const [cadastroOpen, setCadastroOpen] = useState<boolean>(false);
+
   return (
     <>
+      {/* Filtro e botão de cadastro */}
       <div className="flex flex-row place-content-between pb-2">
         <ProdutosFilter />
-        <CadastrarButton />
+        <CadastroProduto
+          color="green"
+          size="1/8"
+          open={cadastroOpen}
+          onOpenChange={(value) => setCadastroOpen(value)}
+        />
       </div>
 
       <div className="bg-white rounded-lg shadow">
@@ -55,7 +61,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                 Categoria
               </TableHead>
               <TableHead className="text-center text-neutral-500">
-                Marca
+                Código
               </TableHead>
               <TableHead className="text-center text-neutral-500">
                 Estoque
@@ -71,7 +77,14 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
 
           <TableBody>
             {produtos.map((produto) => (
-              <TableRow key={produto._id}>
+              <TableRow
+                key={produto._id}
+                onClick={() => {
+                  setSelectedProduct(produto);
+                  setOpen(true);
+                }}
+                className="hover:bg-slate-50 cursor-pointer"
+              >
                 <TableCell className="font-medium text-center text-neutral-700">
                   {produto.nome_produto}
                 </TableCell>
@@ -79,16 +92,16 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                   {produto.categoria}
                 </TableCell>
                 <TableCell className="text-center text-neutral-700">
-                  {produto.marca}
+                  {produto.codigo_produto}
                 </TableCell>
                 <TableCell className="text-center text-neutral-700">
                   {produto.estoque}
                 </TableCell>
                 <TableCell className="text-center text-neutral-700">
-                  R$ {produto.custo.toFixed(2)}
+                  {AdjustPrice(produto.custo)}
                 </TableCell>
                 <TableCell
-                  className="max-w-xs truncate text-neutral-700"
+                  className="max-w-xs truncate text-center text-neutral-700"
                   title={produto.descricao}
                 >
                   {produto.descricao}
@@ -99,6 +112,30 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
         </Table>
       </div>
 
+      <ProdutoListagem
+        open={open}
+        produto={selectedProduct}
+        onOpenChange={(value) => {
+          setOpen(value);
+          if (!value) setSelectedProduct(null);
+        }}
+        onEditar={(produto) => {
+          setOpen(false);
+          setEditProduct(produto);
+          setEditOpen(true);
+        }}
+        onCadastrar={() => {
+          setOpen(false);
+          setCadastroOpen(true);
+        }}
+      />
+
+      <ProdutoEdicao
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        produto={editProduct}
+      />
+
       <div className="flex justify-between">
         <div className="px-4 py-6 flex items-center">
           <ItemsPerPage
@@ -108,11 +145,13 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
           />
         </div>
 
-        <CustomPagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-        />
+        <div>
+          <CustomPagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       </div>
     </>
   );
