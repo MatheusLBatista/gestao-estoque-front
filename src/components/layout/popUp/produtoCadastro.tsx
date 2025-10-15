@@ -35,28 +35,47 @@ import { Textarea } from "@/components/ui/textarea";
 import { PackagePlus } from "lucide-react";
 import { BotaoCadastrar } from "@/components/ui/cadastrarButton";
 
+interface CadastroProdutoProps {
+  color: "green" | "blue";
+  size: "1/8" | "1/2";
+  onTrigger?: () => void;
+  open?: boolean;
+  onOpenChange?: (value: boolean) => void;
+}
+
 export function CadastroProduto({
   color,
   size,
-}: {
-  color: "green" | "blue";
-  size: "1/8" | "1/2";
-}) {
-  const [open, setOpen] = useState<boolean>(false);
+  onTrigger,
+  open: controlledOpen,
+  onOpenChange,
+}: CadastroProdutoProps) {
+  const [internalOpen, setInternalOpen] = useState<boolean>(false);
+  const isControlled = controlledOpen !== undefined;
+  const dialogOpen = isControlled ? controlledOpen : internalOpen;
+
+  const handleOpenChange = (value: boolean) => {
+    if (!isControlled) {
+      setInternalOpen(value);
+    }
+    onOpenChange?.(value);
+  };
 
   const save = () => {
     toast.success("Produto cadastrado com sucesso!", {
       description: "O produto foi salvo e adicionado à lista.",
     });
 
-    setOpen(false);
+    handleOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <BotaoCadastrar
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            onTrigger?.();
+          }}
           color={color}
           size={size}
         />
@@ -149,7 +168,7 @@ export function CadastroProduto({
         </FieldSet>
         <div className="flex flex-row gap-2 justify-end">
           <Button
-            onClick={() => setOpen(false)}
+            onClick={() => handleOpenChange(false)}
             className="cursor-pointer text-black bg-transparent border hover:bg-neutral-50"
             data-slot="dialog-close"
           >

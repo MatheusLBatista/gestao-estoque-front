@@ -57,12 +57,18 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
   const [selectedProduct, setSelectedProduct] = useState<Produto | null>(null);
   const [editOpen, setEditOpen] = useState<boolean>(false);
   const [editProduct, setEditProduct] = useState<Produto | null>(null);
+  const [cadastroOpen, setCadastroOpen] = useState<boolean>(false);
 
   return (
     <>
       <div className="flex flex-row place-content-between pb-2">
         <ProdutosFilter />
-        <CadastroProduto color="green" size="1/8" />
+        <CadastroProduto
+          color="green"
+          size="1/8"
+          open={cadastroOpen}
+          onOpenChange={(value) => setCadastroOpen(value)}
+        />
       </div>
 
       <div className="bg-white rounded-lg shadow">
@@ -314,7 +320,14 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
               >
                 <Printer className="w-4 h-4" /> Imprimir
               </Button>
-              <CadastroProduto color="blue" size="1/2" />
+              <BotaoCadastrar
+                color="blue"
+                size="1/2"
+                onClick={() => {
+                  setOpen(false);
+                  setCadastroOpen(true);
+                }}
+              />
             </div>
           </div>
         </DialogContent>
