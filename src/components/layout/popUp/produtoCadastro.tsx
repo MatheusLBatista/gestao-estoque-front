@@ -35,7 +35,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { PackagePlus } from "lucide-react";
 import { BotaoCadastrar } from "@/components/ui/cadastrarButton";
 
-export function CadastroProduto({ color, size }: { color: "green" | "blue"; size: "eighth" | "half" }) {
+export function CadastroProduto({
+  color,
+  size,
+}: {
+  color: "green" | "blue";
+  size: "1/8" | "1/2";
+}) {
   const [open, setOpen] = useState<boolean>(false);
 
   const save = () => {
@@ -49,7 +55,11 @@ export function CadastroProduto({ color, size }: { color: "green" | "blue"; size
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <BotaoCadastrar onClick={() => setOpen(true)} color={color} size={size} />
+        <BotaoCadastrar
+          onClick={() => setOpen(true)}
+          color={color}
+          size={size}
+        />
       </DialogTrigger>
 
       <DialogContent className="gap-8">

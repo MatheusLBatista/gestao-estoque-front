@@ -1,19 +1,23 @@
-import { Button } from "@/components/ui/button"
-import { PackagePlus } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { PackagePlus } from "lucide-react";
 
 interface BotaoCadastrarProps {
-  onClick: () => void
-  color?: "green" | "blue"
-  size?: "half" | "eighth"
+  onClick: () => void;
+  color?: "green" | "blue";
+  size?: "1/2" | "1/8";
 }
 
-export function BotaoCadastrar({ onClick, color = "green", size = "half" }: BotaoCadastrarProps) {
+export function BotaoCadastrar({
+  onClick,
+  color = "green",
+  size = "1/2",
+}: BotaoCadastrarProps) {
   const colorClasses =
     color === "green"
       ? "bg-green-600 hover:bg-green-700"
-      : "bg-blue-600 hover:bg-blue-700"
+      : "bg-blue-600 hover:bg-blue-700";
 
-  const sizeClasses = size === "half" ? "w-1/2" : "w-1/8"
+  const sizeClasses = size === "1/2" ? "w-1/2" : "w-1/8";
 
   return (
     <Button
@@ -23,5 +27,5 @@ export function BotaoCadastrar({ onClick, color = "green", size = "half" }: Bota
       <PackagePlus className="w-4 h-4 mr-1" />
       Cadastrar
     </Button>
-  )
+  );
 }

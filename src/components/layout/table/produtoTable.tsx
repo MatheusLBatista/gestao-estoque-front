@@ -37,7 +37,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { AdjustDate } from "@/lib/adjustDate";
 import { AdjustPrice } from "@/lib/adjustPrice";
-import { Pencil } from 'lucide-react';
+import { Pencil } from "lucide-react";
 import { ProdutoEdicao } from "../popUp/produtoEdicao";
 import { Produto } from "../../../lib/Produto";
 
@@ -62,7 +62,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
     <>
       <div className="flex flex-row place-content-between pb-2">
         <ProdutosFilter />
-        <CadastroProduto color="green" size="eighth" />
+        <CadastroProduto color="green" size="1/8" />
       </div>
 
       <div className="bg-white rounded-lg shadow">
@@ -134,8 +134,8 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
               {selectedProduct ? (
                 <div className="bold text-1xl flex gap-4">
                   {selectedProduct.nome_produto}
-                  <Pencil 
-                    className="cursor-pointer w-4 h-4 hover:text-blue-600" 
+                  <Pencil
+                    className="cursor-pointer w-4 h-4 hover:text-blue-600"
                     onClick={(e) => {
                       e.stopPropagation();
                       setOpen(false);
@@ -176,9 +176,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                         />
                       </Field>
                       <Field>
-                        <FieldLabel htmlFor="categoria">
-                          Categoria*
-                        </FieldLabel>
+                        <FieldLabel htmlFor="categoria">Categoria*</FieldLabel>
                         <Input
                           id="categoria"
                           autoComplete="off"
@@ -192,9 +190,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                       <Field>
                         <FieldLabel>Estoque*</FieldLabel>
                         <Input
-                          value={
-                            selectedProduct.estoque ?? "-"
-                          }
+                          value={selectedProduct.estoque ?? "-"}
                           readOnly={true}
                         />
                       </Field>
@@ -318,10 +314,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
               >
                 <Printer className="w-4 h-4" /> Imprimir
               </Button>
-              <CadastroProduto 
-                color="blue"
-                size="half"
-              />
+              <CadastroProduto color="blue" size="1/2" />
             </div>
           </div>
         </DialogContent>
@@ -343,7 +336,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
         />
       </div>
 
-      <ProdutoEdicao 
+      <ProdutoEdicao
         open={editOpen}
         onOpenChange={setEditOpen}
         produto={editProduct}
