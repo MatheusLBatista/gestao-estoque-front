@@ -176,6 +176,29 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                         />
                       </Field>
                       <Field>
+                        <FieldLabel htmlFor="categoria">
+                          Categoria*
+                        </FieldLabel>
+                        <Input
+                          id="categoria"
+                          autoComplete="off"
+                          value={String(selectedProduct.categoria ?? "-")}
+                          readOnly={true}
+                        />
+                      </Field>
+                    </div>
+
+                    <div className="flex flex-row gap-1">
+                      <Field>
+                        <FieldLabel>Estoque*</FieldLabel>
+                        <Input
+                          value={
+                            selectedProduct.estoque ?? "-"
+                          }
+                          readOnly={true}
+                        />
+                      </Field>
+                      <Field>
                         <FieldLabel htmlFor="estoque">
                           Estoque mínimo*
                         </FieldLabel>
@@ -213,7 +236,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
                       <Field>
                         <FieldLabel htmlFor="descricao">Descrição</FieldLabel>
                         <Textarea
-                          className="h-[120px]"
+                          className="h-[60px]"
                           id="descricao"
                           autoComplete="off"
                           value={selectedProduct.descricao ?? ""}

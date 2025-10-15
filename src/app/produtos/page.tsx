@@ -16,7 +16,7 @@ export default function ProdutosPage() {
 
     try {
       const accessToken =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZGMyZTk3OGE0NWIwMmM2ZDA0N2JmOCIsImlhdCI6MTc2MDQwMTE2OCwiZXhwIjoxNzYwNDg3NTY4fQ.A3nAiXMiZ54tqJaSQ8ZZ7tGNpQ-HDBphDTir_9DjMpo";
+        process.env.NEXT_PUBLIC_ACCESS_TOKEN || "";
 
         // TODO:carregar automaticamente 20 produtos ficará mais harmônico na tabela
       const response = await fetch("http://localhost:5011/produtos/?limite=20", {
