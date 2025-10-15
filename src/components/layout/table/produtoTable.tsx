@@ -17,7 +17,7 @@ import {
 import { CustomPagination } from "../pagination/paginationWrapper";
 import { ItemsPerPage } from "../pagination/itemsPerPage";
 import { ProdutosFilter } from "../filters/produtosFilter";
-import CadastrarButton from "@/components/ui/cadastrarButton";
+import { BotaoCadastrar } from "@/components/ui/cadastrarButton";
 import { CadastroProduto } from "../popUp/produtoCadastro";
 import { Printer, PackagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -62,7 +62,7 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
     <>
       <div className="flex flex-row place-content-between pb-2">
         <ProdutosFilter />
-        <CadastroProduto />
+        <CadastroProduto color="green" size="eighth" />
       </div>
 
       <div className="bg-white rounded-lg shadow">
@@ -318,12 +318,10 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
               >
                 <Printer className="w-4 h-4" /> Imprimir
               </Button>
-              <Button
-                className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
-                onClick={() => console.log("Novo produto")}
-              >
-                <PackagePlus className="w-4 h-4" /> Novo Produto
-              </Button>
+              <CadastroProduto 
+                color="blue"
+                size="half"
+              />
             </div>
           </div>
         </DialogContent>

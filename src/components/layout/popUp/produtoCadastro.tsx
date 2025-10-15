@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Save } from "lucide-react";
+import { Bot, Package, Save } from "lucide-react";
 import { toast } from "sonner";
 import {
   InputGroup,
@@ -32,8 +32,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { PackagePlus } from "lucide-react";
+import { BotaoCadastrar } from "@/components/ui/cadastrarButton";
 
-export function CadastroProduto() {
+export function CadastroProduto({ color, size }: { color: "green" | "blue"; size: "eighth" | "half" }) {
   const [open, setOpen] = useState<boolean>(false);
 
   const save = () => {
@@ -47,12 +49,7 @@ export function CadastroProduto() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          className="cursor-pointer text-white bg-green-600 hover:bg-green-700"
-          onClick={() => setOpen(true)}
-        >
-          Cadastrar
-        </Button>
+        <BotaoCadastrar onClick={() => setOpen(true)} color={color} size={size} />
       </DialogTrigger>
 
       <DialogContent className="gap-8">
