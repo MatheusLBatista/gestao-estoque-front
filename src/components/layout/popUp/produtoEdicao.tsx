@@ -20,6 +20,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Produto } from "../../../lib/Produto";
+import { AdjustDate } from "@/lib/adjustDate";
+import { AdjustPrice } from "@/lib/adjustPrice";
 
 interface ProdutoEdicaoProps {
   open: boolean;
@@ -34,11 +36,13 @@ export function ProdutoEdicao({
 }: ProdutoEdicaoProps) {
   const [formData, setFormData] = useState({
     nome_produto: "",
+    id_fornecedor: "",
     marca: "",
     codigo_produto: "",
     descricao: "",
     custo: "",
     preco: "",
+    estoque: "",
     estoque_min: "",
     categoria: "",
   });
@@ -47,11 +51,13 @@ export function ProdutoEdicao({
     if (produto) {
       setFormData({
         nome_produto: produto.nome_produto || "",
+        id_fornecedor: produto.fornecedores._id || "",
         marca: produto.marca || "",
         codigo_produto: produto.codigo_produto || "",
         descricao: produto.descricao || "",
         custo: produto.custo ? produto.custo.toString() : "",
         preco: produto.preco ? produto.preco.toString() : "",
+        estoque: produto.estoque ? produto.estoque.toString() : "",
         estoque_min: produto.estoque_min ? produto.estoque_min.toString() : "",
         categoria: produto.categoria || "",
       });
@@ -91,134 +97,154 @@ export function ProdutoEdicao({
         <FieldSet>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="edit_nome">Nome do produto*</FieldLabel>
+              <FieldLabel>Nome do produto*</FieldLabel>
               <Input
-                id="edit_nome"
+                readOnly={true}
+                className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
                 value={formData.nome_produto}
                 onChange={(e) =>
                   handleInputChange("nome_produto", e.target.value)
                 }
-                placeholder="Digite o nome do produto"
               />
             </Field>
 
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-row gap-1">
               <Field>
-                <FieldLabel htmlFor="edit_marca">Marca*</FieldLabel>
+                <FieldLabel>ID do fornecedor*</FieldLabel>
                 <Input
-                  id="edit_marca"
-                  value={formData.marca}
-                  onChange={(e) => handleInputChange("marca", e.target.value)}
-                  placeholder="Digite a marca"
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="edit_codigo">Código*</FieldLabel>
-                <Input
-                  id="edit_codigo"
-                  value={formData.codigo_produto}
+                  readOnly={true}
+                  className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
+                  value={formData.id_fornecedor || "Sem fornecedor"}
                   onChange={(e) =>
-                    handleInputChange("codigo_produto", e.target.value)
+                    handleInputChange("id_fornecedor", e.target.value)
                   }
-                  placeholder="Digite o código"
-                />
-                <FieldDescription className="text-[10px] mx-2 my-0">
-                  O código deve ser único
-                </FieldDescription>
-              </Field>
-            </div>
-
-            <div className="flex flex-row gap-2">
-              <Field>
-                <FieldLabel htmlFor="edit_custo">Custo*</FieldLabel>
-                <Input
-                  id="edit_custo"
-                  value={formData.custo}
-                  onChange={(e) => handleInputChange("custo", e.target.value)}
-                  placeholder="0,00"
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="edit_preco">Preço</FieldLabel>
+                <FieldLabel htmlFor="categoria">Categoria*</FieldLabel>
                 <Input
-                  id="edit_preco"
-                  value={formData.preco}
-                  onChange={(e) => handleInputChange("preco", e.target.value)}
-                  placeholder="0,00"
-                />
-              </Field>
-            </div>
-
-            <div className="flex flex-row gap-2">
-              <Field>
-                <FieldLabel htmlFor="edit_categoria">Categoria*</FieldLabel>
-                <Input
-                  id="edit_categoria"
-                  value={formData.categoria}
+                  readOnly={false}
+                  className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
+                  id="categoria"
+                  autoComplete="off"
+                  value={String(formData.categoria ?? "")}
                   onChange={(e) =>
                     handleInputChange("categoria", e.target.value)
                   }
-                  placeholder="Digite a categoria"
+                />
+              </Field>
+            </div>
+
+            <div className="flex flex-row gap-1">
+              <Field>
+                <FieldLabel>Estoque*</FieldLabel>
+                <Input
+                  readOnly={true}
+                  className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
+                  value={formData.estoque ?? "-"}
+                  onChange={(e) => handleInputChange("estoque", e.target.value)}
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="edit_estoque_min">
-                  Estoque mínimo*
-                </FieldLabel>
+                <FieldLabel htmlFor="estoque_min">Estoque mínimo*</FieldLabel>
                 <Input
-                  id="edit_estoque_min"
+                  readOnly={false}
+                  className="bg-white border-gray-300 cursor-text hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  id="estoque_min"
+                  type="number"
+                  autoComplete="off"
                   value={formData.estoque_min}
                   onChange={(e) =>
                     handleInputChange("estoque_min", e.target.value)
                   }
-                  placeholder="0"
                 />
               </Field>
             </div>
 
-            <Field>
-              <FieldLabel htmlFor="edit_descricao">Descrição</FieldLabel>
-              <Textarea
-                className="h-[120px]"
-                id="edit_descricao"
-                value={formData.descricao}
-                onChange={(e) => handleInputChange("descricao", e.target.value)}
-                placeholder="Digite a descrição do produto"
-              />
-            </Field>
+            <div className="flex flex-row gap-1">
+              <Field>
+                <FieldLabel htmlFor="marca">Marca*</FieldLabel>
+                <Input
+                  readOnly={false}
+                  className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
+                  id="marca"
+                  autoComplete="off"
+                  value={formData.marca ?? ""}
+                  onChange={(e) => handleInputChange("marca", e.target.value)}
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="codigo">Código*</FieldLabel>
+                <Input
+                  readOnly={false}
+                  className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
+                  id="codigo"
+                  autoComplete="off"
+                  value={formData.codigo_produto ?? ""}
+                  onChange={(e) =>
+                    handleInputChange("codigo_produto", e.target.value)
+                  }
+                />
+              </Field>
+            </div>
 
-            {/* Campos somente leitura para referência */}
-            <div className="border-t pt-4 mt-4">
-              <h4 className="text-sm font-medium text-neutral-600 mb-3">
-                Informações não editáveis
-              </h4>
-              <div className="grid grid-cols-2 gap-2 text-sm text-neutral-500">
-                <div>
-                  <span className="font-medium">Fornecedor:</span>{" "}
-                  {produto.fornecedores?.nome_fornecedor || "Não informado"}
-                </div>
-                <div>
-                  <span className="font-medium">Estoque atual:</span>{" "}
-                  {produto.estoque}
-                </div>
-              </div>
+            <div>
+              <Field>
+                <FieldLabel htmlFor="descricao">Descrição</FieldLabel>
+                <Textarea
+                  className="h-[60px] bg-white border-gray-300 cursor-text hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  id="descricao"
+                  autoComplete="off"
+                  value={formData.descricao ?? ""}
+                  onChange={(e) =>
+                    handleInputChange("descricao", e.target.value)
+                  }
+                />
+              </Field>
+            </div>
+            <div className="flex flex-row gap-1">
+              <Field>
+                <FieldLabel htmlFor="preco">Preço</FieldLabel>
+                <Input
+                  readOnly={false}
+                  className="bg-white border-gray-300 cursor-text hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  id="preco"
+                  type="number"
+                  step="0.01"
+                  value={formData.preco}
+                  onChange={(e) => handleInputChange("preco", e.target.value)}
+                />
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="custo">Custo</FieldLabel>
+                <Input
+                  readOnly={true}
+                  className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
+                  id="custo"
+                  value={AdjustPrice(formData.custo) || ""}
+                  onChange={(e) => handleInputChange("custo", e.target.value)}
+                />
+              </Field>
             </div>
           </FieldGroup>
         </FieldSet>
 
-        <div className="flex flex-row gap-2 justify-end">
-          <Button
-            onClick={() => onOpenChange(false)}
-            className="cursor-pointer text-black bg-transparent border hover:bg-neutral-50"
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={save}
-            className="cursor-pointer bg-blue-600 hover:bg-blue-700"
-          >
-            <Save className="w-4 h-4 mr-1" /> Salvar alterações
-          </Button>
+        <div className="pt-4 border-t">
+          <div className="flex flex-row justify-center gap-1">
+            <Button
+              onClick={() => onOpenChange(false)}
+              className="w-1/2 cursor-pointer text-black bg-transparent border hover:bg-neutral-50 flex items-center gap-1"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={save}
+              className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
+            >
+              <Save className="w-4 h-4" /> Salvar alterações
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
