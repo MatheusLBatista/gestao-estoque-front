@@ -6,6 +6,8 @@ import { TypographyH2 } from "@/components/layout/subtitle";
 import { useState, useEffect } from "react";
 import TabelaProdutos from "@/components/layout/table/produtoTable";
 import { Produto } from "../../lib/Produto";
+import { useQuery } from "@tanstack/react-query";
+import { fetchData } from "@/services/api";
 
 export default function ProdutosPage() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
