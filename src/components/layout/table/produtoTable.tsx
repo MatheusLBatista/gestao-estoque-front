@@ -137,15 +137,13 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
       />
 
       <div className="flex justify-between">
-        <div className="px-4 py-6 flex items-center">
+        <div className="px-4 py-6 flex items-center justify-between w-full">
           <ItemsPerPage
             perPage={perPage}
             setPerPage={setPerPage}
             totalItems={Number(produtos.length)}
           />
-        </div>
 
-        <div>
           <CustomPagination
             totalPages={totalPages}
             currentPage={currentPage}
