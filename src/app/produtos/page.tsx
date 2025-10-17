@@ -21,7 +21,7 @@ export default function ProdutosPage() {
     queryKey: ["listaProdutos"],
     queryFn: async () => {
       if (process.env.NEXT_PUBLIC_SIMULAR_ERRO === "true") {
-        throw new Error("Erro simulado ao carregar dados");
+        throw new Error("Erro simulado ao carregar dados de produtos");
       }
 
       const result = await fetchData<{ data: { docs: Produto[] } }>(
@@ -32,6 +32,14 @@ export default function ProdutosPage() {
     },
   });
 
+  useEffect(() => {
+    if (produtosIsError) {
+      toast.error("Erro ao carregar produtos", {
+        description: (produtosError as Error)?.message || "Erro desconhecido",
+      });
+    }
+  }, [produtosIsError, produtosError]);
+
   return (
     <div>
       <Header />
@@ -41,12 +49,6 @@ export default function ProdutosPage() {
 
         {produtosIsLoading && (
           <LoaderIcon role="status" className="animate-spin mt-20 mx-auto" />
-        )}
-
-        {produtosIsError && (
-          toast.error("Erro ao carregar produtos", {
-            description: (produtosError as Error)?.message || "Erro desconhecido",
-          })
         )}
 
         {produtosData && <TabelaProdutos produtos={produtosData} />}
