@@ -9,27 +9,37 @@ import { fetchData } from "@/services/api";
 import { LoaderIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { useQueryState, parseAsInteger } from "nuqs";
 
 export default function ProdutosPage() {
+  const [page] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [limite] = useQueryState("limite", parseAsInteger.withDefault(20));
+
   const {
     data: produtosData,
     isLoading: produtosIsLoading,
     isError: produtosIsError,
     error: produtosError,
-    refetch: produtosRefetch,
   } = useQuery({
-    queryKey: ["listaProdutos"],
+    queryKey: ["listaProdutos", page, limite],
     queryFn: async () => {
       if (process.env.NEXT_PUBLIC_SIMULAR_ERRO === "true") {
         throw new Error("Erro simulado ao carregar dados de produtos");
       }
 
-      const result = await fetchData<{ data: { docs: Produto[] } }>(
-        "/produtos?limite=20",
-        "GET"
-      );
-      return result.data.docs || [];
+      const result = await fetchData<{
+        data: {
+          docs: Produto[];
+          totalDocs: number;
+          totalPages: number;
+          page: number;
+          limit: number;
+        };
+      }>(`/produtos?page=${page}&limite=${limite}`, "GET");
+
+      return result.data || [];
     },
+    retry: false,
   });
 
   useEffect(() => {
@@ -51,7 +61,15 @@ export default function ProdutosPage() {
           <LoaderIcon role="status" className="animate-spin mt-20 mx-auto" />
         )}
 
-        {produtosData && <TabelaProdutos produtos={produtosData} />}
+        {produtosData && (
+          <TabelaProdutos
+            produtos={produtosData.docs}
+            totalPages={produtosData.totalPages}
+            totalDocs={produtosData.totalDocs}
+            currentPage={produtosData.page}
+            perPage={produtosData.limit}
+          />
+        )}
       </main>
 
       <Footer />

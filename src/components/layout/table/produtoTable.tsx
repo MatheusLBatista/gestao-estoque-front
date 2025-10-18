@@ -1,3 +1,4 @@
+"use client";
 import {
   Table,
   TableBody,
@@ -15,19 +16,34 @@ import { ProdutoEdicao } from "../popUp/produto/produtoEdicao";
 import { Produto } from "../../../lib/Produto";
 import { ProdutoListagem } from "../popUp/produto/produtoListagem";
 import { AdjustPrice } from "@/lib/adjustPrice";
+import { useQueryState, parseAsInteger } from "nuqs";
 
 interface TabelaProdutosProps {
   produtos: Produto[];
+  totalPages: number;
+  totalDocs: number;
+  currentPage: number;
+  perPage: number;
 }
 
-export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
+export default function TabelaProdutos({
+  produtos,
+  totalPages,
+  totalDocs,
+  currentPage,
+  perPage,
+}: TabelaProdutosProps) {
   if (!produtos.length) return null;
 
-  const [perPage, setPerPage] = useState<number>(10);
-  const [totalPages, setTotalPages] = useState<number>(
-    Math.ceil(produtos.length / perPage)
+  const [pageState, setPageState] = useQueryState(
+    "page",
+    parseAsInteger.withDefault(currentPage)
   );
-  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const [perPageState, setPerPageState] = useQueryState(
+    "limite",
+    parseAsInteger.withDefault(perPage)
+  );
 
   const [open, setOpen] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Produto | null>(null);
@@ -139,15 +155,18 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
       <div className="flex justify-between">
         <div className="px-4 py-6 flex items-center justify-between w-full">
           <ItemsPerPage
-            perPage={perPage}
-            setPerPage={setPerPage}
-            totalItems={Number(produtos.length)}
+            perPage={perPageState ?? perPage}
+            setPerPage={(value) => {
+              setPerPageState(value);
+              setPageState(1);
+            }}
+            totalItems={Number(totalDocs)}
           />
 
           <CustomPagination
             totalPages={totalPages}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
+            currentPage={currentPage ?? 1}
+            onPageChange={(page) => setPageState(page)}
           />
         </div>
       </div>
