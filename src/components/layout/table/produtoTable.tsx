@@ -1,3 +1,4 @@
+"use client";
 import {
   Table,
   TableBody,
@@ -15,19 +16,37 @@ import { ProdutoEdicao } from "../popUp/produto/produtoEdicao";
 import { Produto } from "../../../lib/Produto";
 import { ProdutoListagem } from "../popUp/produto/produtoListagem";
 import { AdjustPrice } from "@/lib/adjustPrice";
+import { useQueryState, parseAsInteger } from "nuqs";
+import { ProdutosFilterProps } from "../filters/produtosFilter";
 
 interface TabelaProdutosProps {
   produtos: Produto[];
+  totalPages: number;
+  totalDocs: number;
+  currentPage: number;
+  perPage: number;
+  filtros: ProdutosFilterProps;
 }
 
-export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
+export default function TabelaProdutos({
+  produtos,
+  totalPages,
+  totalDocs,
+  currentPage,
+  perPage,
+  filtros,
+}: TabelaProdutosProps) {
   if (!produtos.length) return null;
 
-  const [perPage, setPerPage] = useState<number>(10);
-  const [totalPages, setTotalPages] = useState<number>(
-    Math.ceil(produtos.length / perPage)
+  const [pageState, setPageState] = useQueryState(
+    "page",
+    parseAsInteger.withDefault(currentPage)
   );
-  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const [perPageState, setPerPageState] = useQueryState(
+    "limite",
+    parseAsInteger.withDefault(perPage)
+  );
 
   const [open, setOpen] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Produto | null>(null);
@@ -39,9 +58,18 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
 
   return (
     <>
-      {/* Filtro e botão de cadastro */}
       <div className="flex flex-row place-content-between pb-2">
-        <ProdutosFilter />
+        <ProdutosFilter
+          nomeProduto={filtros.nomeProduto}
+          setNomeProduto={filtros.setNomeProduto}
+          codigoProduto={filtros.codigoProduto}
+          setCodigoProduto={filtros.setCodigoProduto}
+          categoria={filtros.categoria}
+          setCategoria={filtros.setCategoria}
+          estoqueBaixo={filtros.estoqueBaixo}
+          setEstoqueBaixo={filtros.setEstoqueBaixo}
+          onSubmit={filtros.onSubmit}
+        />
         <CadastroProduto
           color="green"
           size="1/8"
@@ -137,19 +165,20 @@ export default function TabelaProdutos({ produtos }: TabelaProdutosProps) {
       />
 
       <div className="flex justify-between">
-        <div className="px-4 py-6 flex items-center">
+        <div className="px-4 py-6 flex items-center justify-between w-full">
           <ItemsPerPage
-            perPage={perPage}
-            setPerPage={setPerPage}
-            totalItems={Number(produtos.length)}
+            perPage={perPageState ?? perPage}
+            setPerPage={(value) => {
+              setPerPageState(value);
+              setPageState(1);
+            }}
+            totalItems={Number(totalDocs)}
           />
-        </div>
 
-        <div>
           <CustomPagination
             totalPages={totalPages}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
+            currentPage={currentPage ?? 1}
+            onPageChange={(page) => setPageState(page)}
           />
         </div>
       </div>

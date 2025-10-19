@@ -73,7 +73,7 @@ export function CustomPagination({
           href="#"
           onClick={(e: any) => {
             e.preventDefault();
-            if (!nextDisabled) onPageChange(currentPage - 1);
+            if (!nextDisabled) onPageChange(currentPage + 1);
           }}
         />
       </PaginationContent>

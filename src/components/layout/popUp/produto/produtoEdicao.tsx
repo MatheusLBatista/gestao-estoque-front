@@ -19,8 +19,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Produto } from "../../../lib/Produto";
-import { AdjustDate } from "@/lib/adjustDate";
+import { Produto } from "../../../../lib/Produto";
 import { AdjustPrice } from "@/lib/adjustPrice";
 
 interface ProdutoEdicaoProps {
