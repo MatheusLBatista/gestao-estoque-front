@@ -25,6 +25,10 @@ export interface ProdutosFilterProps {
   setNomeProduto: (v: string) => void;
   codigoProduto?: string;
   setCodigoProduto: (v: string) => void;
+  categoria?: string;
+  setCategoria: (v: string) => void;
+  estoqueBaixo?: boolean;
+  setEstoqueBaixo: (v: boolean) => void;
   onSubmit?: () => void;
 }
 
@@ -33,13 +37,15 @@ export function ProdutosFilter({
   setNomeProduto,
   codigoProduto,
   setCodigoProduto,
+  categoria,
+  setCategoria,
+  estoqueBaixo,
+  setEstoqueBaixo,
   onSubmit,
 }: ProdutosFilterProps) {
-  const [categoria, setCategoria] = useState<string>("");
-
   return (
     <div className="mb-4 flex flex-row gap-4">
-      <InputGroup className="w-[240]">
+      <InputGroup className="w-[240px]">
         <InputGroupInput
           placeholder="Produto"
           value={nomeProduto}
@@ -50,12 +56,16 @@ export function ProdutosFilter({
         </InputGroupAddon>
       </InputGroup>
 
-      <Select value={categoria} onValueChange={(v) => setCategoria(v)}>
+      <Select
+        value={categoria || ""}
+        onValueChange={(v) => setCategoria(v === "todos" ? "" : v)}
+      >
         <SelectTrigger className="w-[120px]">
           <SelectValue placeholder="Categoria" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
+            <SelectItem value="todos">Todas</SelectItem>
             <SelectItem value="a">A</SelectItem>
             <SelectItem value="b">B</SelectItem>
             <SelectItem value="c">C</SelectItem>
@@ -78,7 +88,12 @@ export function ProdutosFilter({
         <Label htmlFor="estoqueBaixo" className="text-muted-foreground">
           Estoque baixo
         </Label>
-        <Switch id="estoqueBaixo" className="cursor-pointer" />
+        <Switch
+          id="estoqueBaixo"
+          className="cursor-pointer"
+          checked={estoqueBaixo}
+          onCheckedChange={setEstoqueBaixo}
+        />
       </div>
 
       <Button

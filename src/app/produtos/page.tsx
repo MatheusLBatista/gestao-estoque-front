@@ -9,14 +9,35 @@ import { fetchData } from "@/services/api";
 import { LoaderIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
-import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
+import {
+  useQueryState,
+  parseAsInteger,
+  parseAsString,
+  parseAsBoolean,
+} from "nuqs";
 
 export default function ProdutosPage() {
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [limite, setLimite] = useQueryState("limite", parseAsInteger.withDefault(20));
-  const [nomeProduto, setNomeProduto] = useQueryState("nome_produto", parseAsString.withDefault(""));
-  const [ categoria, setCategoria ] = useQueryState("categoria", parseAsString.withDefault(""));
-  const [ codigoProduto, setCodigoProduto ] = useQueryState("codigo_produto", parseAsString.withDefault(""));
+  const [limite, setLimite] = useQueryState(
+    "limite",
+    parseAsInteger.withDefault(20)
+  );
+  const [nomeProduto, setNomeProduto] = useQueryState(
+    "nome_produto",
+    parseAsString.withDefault("")
+  );
+  const [categoria, setCategoria] = useQueryState(
+    "categoria",
+    parseAsString.withDefault("")
+  );
+  const [codigoProduto, setCodigoProduto] = useQueryState(
+    "codigo_produto",
+    parseAsString.withDefault("")
+  );
+  const [estoqueBaixo, setEstoqueBaixo] = useQueryState(
+    "estoque_baixo",
+    parseAsBoolean.withDefault(false)
+  );
 
   const {
     data: produtosData,
@@ -24,11 +45,28 @@ export default function ProdutosPage() {
     isError: produtosIsError,
     error: produtosError,
   } = useQuery({
-    queryKey: ["listaProdutos", page, limite, nomeProduto, codigoProduto],
+    queryKey: [
+      "listaProdutos",
+      page,
+      limite,
+      nomeProduto,
+      codigoProduto,
+      categoria,
+      estoqueBaixo,
+    ],
     queryFn: async () => {
       if (process.env.NEXT_PUBLIC_SIMULAR_ERRO === "true") {
         throw new Error("Erro simulado ao carregar dados de produtos");
       }
+
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limite: limite.toString(),
+        ...(nomeProduto && { nome_produto: nomeProduto }),
+        ...(codigoProduto && { codigo_produto: codigoProduto }),
+        ...(categoria && { categoria: categoria }),
+        ...(estoqueBaixo && { estoque_baixo: "true" }),
+      });
 
       const result = await fetchData<{
         data: {
@@ -38,7 +76,7 @@ export default function ProdutosPage() {
           page: number;
           limit: number;
         };
-      }>(`/produtos?page=${page}&limite=${limite}&nome_produto=${nomeProduto}&codigo_produto=${codigoProduto}`, "GET");
+      }>(`/produtos?${params.toString()}`, "GET");
 
       return result.data || [];
     },
@@ -71,7 +109,17 @@ export default function ProdutosPage() {
             totalDocs={produtosData.totalDocs}
             currentPage={produtosData.page}
             perPage={produtosData.limit}
-            filtros={{ nomeProduto, codigoProduto, setNomeProduto, setCodigoProduto, onSubmit: () => setPage(1) }}
+            filtros={{
+              nomeProduto,
+              codigoProduto,
+              categoria,
+              estoqueBaixo,
+              setNomeProduto,
+              setCodigoProduto,
+              setCategoria,
+              setEstoqueBaixo,
+              onSubmit: () => setPage(1),
+            }}
           />
         )}
       </main>

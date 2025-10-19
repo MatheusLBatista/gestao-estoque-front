@@ -64,6 +64,10 @@ export default function TabelaProdutos({
           setNomeProduto={filtros.setNomeProduto}
           codigoProduto={filtros.codigoProduto}
           setCodigoProduto={filtros.setCodigoProduto}
+          categoria={filtros.categoria}
+          setCategoria={filtros.setCategoria}
+          estoqueBaixo={filtros.estoqueBaixo}
+          setEstoqueBaixo={filtros.setEstoqueBaixo}
           onSubmit={filtros.onSubmit}
         />
         <CadastroProduto
