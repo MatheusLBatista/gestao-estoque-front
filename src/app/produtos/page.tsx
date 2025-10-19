@@ -9,11 +9,13 @@ import { fetchData } from "@/services/api";
 import { LoaderIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
-import { useQueryState, parseAsInteger } from "nuqs";
+import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
 
 export default function ProdutosPage() {
-  const [page] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [limite] = useQueryState("limite", parseAsInteger.withDefault(20));
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [limite, setLimite] = useQueryState("limite", parseAsInteger.withDefault(20));
+  const [nomeProduto, setNomeProduto] = useQueryState("nome_produto", parseAsString.withDefault(""));
+  const [ categoria, setCategoria ] = useQueryState("categoria", parseAsString.withDefault(""));
 
   const {
     data: produtosData,
@@ -21,7 +23,7 @@ export default function ProdutosPage() {
     isError: produtosIsError,
     error: produtosError,
   } = useQuery({
-    queryKey: ["listaProdutos", page, limite],
+    queryKey: ["listaProdutos", page, limite, nomeProduto],
     queryFn: async () => {
       if (process.env.NEXT_PUBLIC_SIMULAR_ERRO === "true") {
         throw new Error("Erro simulado ao carregar dados de produtos");
@@ -35,7 +37,7 @@ export default function ProdutosPage() {
           page: number;
           limit: number;
         };
-      }>(`/produtos?page=${page}&limite=${limite}`, "GET");
+      }>(`/produtos?page=${page}&limite=${limite}&nome_produto=${nomeProduto}`, "GET");
 
       return result.data || [];
     },
@@ -68,6 +70,7 @@ export default function ProdutosPage() {
             totalDocs={produtosData.totalDocs}
             currentPage={produtosData.page}
             perPage={produtosData.limit}
+            filtros={{ nomeProduto, setNomeProduto, onSubmit: () => setPage(1) }}
           />
         )}
       </main>

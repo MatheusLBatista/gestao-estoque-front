@@ -15,16 +15,32 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
-import { SearchIcon, ListFilter } from "lucide-react"
+import { SearchIcon, ListFilter } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
-export function ProdutosFilter() {
+export interface ProdutosFilterProps {
+  nomeProduto: string;
+  setNomeProduto: (v: string) => void;
+  onSubmit?: () => void;
+}
+
+export function ProdutosFilter({
+  nomeProduto,
+  setNomeProduto,
+  onSubmit,
+}: ProdutosFilterProps) {
   const [categoria, setCategoria] = useState<string>("");
 
   return (
     <div className="mb-4 flex flex-row gap-4">
       <InputGroup className="w-[240]">
-        <InputGroupInput placeholder="Produto" />
+        <InputGroupInput
+          placeholder="Produto"
+          value={nomeProduto}
+          onChange={(e) => setNomeProduto(e.target.value)}
+        />
         <InputGroupAddon>
           <SearchIcon className="cursor-pointer" />
         </InputGroupAddon>
@@ -49,8 +65,21 @@ export function ProdutosFilter() {
           <SearchIcon className="cursor-pointer" />
         </InputGroupAddon>
       </InputGroup>
-      
-      <Button className="bg-blue-600 hover:bg-blue-700 cursor-pointer"><ListFilter />Filtrar</Button>
+
+      <div className="flex flex-row items-center space-x-2">
+        <Label htmlFor="estoqueBaixo" className="text-muted-foreground">
+          Estoque baixo
+        </Label>
+        <Switch id="estoqueBaixo" className="cursor-pointer" />
+      </div>
+
+      <Button
+        onClick={onSubmit}
+        className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+      >
+        <ListFilter />
+        Filtrar
+      </Button>
     </div>
   );
 }

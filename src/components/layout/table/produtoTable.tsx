@@ -17,6 +17,7 @@ import { Produto } from "../../../lib/Produto";
 import { ProdutoListagem } from "../popUp/produto/produtoListagem";
 import { AdjustPrice } from "@/lib/adjustPrice";
 import { useQueryState, parseAsInteger } from "nuqs";
+import { ProdutosFilterProps } from "../filters/produtosFilter";
 
 interface TabelaProdutosProps {
   produtos: Produto[];
@@ -24,6 +25,7 @@ interface TabelaProdutosProps {
   totalDocs: number;
   currentPage: number;
   perPage: number;
+  filtros: ProdutosFilterProps;
 }
 
 export default function TabelaProdutos({
@@ -32,6 +34,7 @@ export default function TabelaProdutos({
   totalDocs,
   currentPage,
   perPage,
+  filtros,
 }: TabelaProdutosProps) {
   if (!produtos.length) return null;
 
@@ -55,9 +58,12 @@ export default function TabelaProdutos({
 
   return (
     <>
-      {/* Filtro e botão de cadastro */}
       <div className="flex flex-row place-content-between pb-2">
-        <ProdutosFilter />
+        <ProdutosFilter
+          nomeProduto={filtros.nomeProduto}
+          setNomeProduto={filtros.setNomeProduto}
+          onSubmit={filtros.onSubmit}
+        />
         <CadastroProduto
           color="green"
           size="1/8"
