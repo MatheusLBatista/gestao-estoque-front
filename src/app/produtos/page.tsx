@@ -1,49 +1,105 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import { TypographyH2 } from "@/components/layout/subtitle";
-import { useState, useEffect } from "react";
 import TabelaProdutos from "@/components/layout/table/produtoTable";
 import { Produto } from "../../lib/Produto";
+import { useQuery } from "@tanstack/react-query";
+import { fetchData } from "@/services/api";
+import { LoaderIcon } from "lucide-react";
+import { toast } from "sonner";
+import { useEffect } from "react";
+import {
+  useQueryState,
+  parseAsInteger,
+  parseAsString,
+  parseAsBoolean,
+} from "nuqs";
 
 export default function ProdutosPage() {
-  const [produtos, setProdutos] = useState<Produto[]>([]);
-  const [erro, setErro] = useState<string | null>(null);
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [limite, setLimite] = useQueryState(
+    "limite",
+    parseAsInteger.withDefault(20)
+  );
+  const [nomeProduto, setNomeProduto] = useQueryState(
+    "nome_produto",
+    parseAsString.withDefault("")
+  );
+  const [categoria, setCategoria] = useQueryState(
+    "categoria",
+    parseAsString.withDefault("")
+  );
+  const [codigoProduto, setCodigoProduto] = useQueryState(
+    "codigo_produto",
+    parseAsString.withDefault("")
+  );
+  const [estoqueBaixo, setEstoqueBaixo] = useQueryState(
+    "estoque_baixo",
+    parseAsBoolean.withDefault(false)
+  );
 
-  async function fetchProdutos() {
-    setErro(null);
+  const {
+    data: produtosData,
+    isLoading: produtosIsLoading,
+    isError: produtosIsError,
+    error: produtosError,
+  } = useQuery({
+    queryKey: [
+      "listaProdutos",
+      page,
+      limite,
+      nomeProduto,
+      codigoProduto,
+      categoria,
+      estoqueBaixo,
+    ],
+    queryFn: async () => {
+      if (process.env.NEXT_PUBLIC_SIMULAR_ERRO === "true") {
+        throw new Error("Erro simulado ao carregar dados de produtos");
+      }
 
-    try {
-      const accessToken =
-        process.env.NEXT_PUBLIC_ACCESS_TOKEN || "";
-
-        // TODO:carregar automaticamente 20 produtos ficará mais harmônico na tabela
-      const response = await fetch("http://localhost:5011/produtos/?limite=20", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limite: limite.toString(),
+        ...(nomeProduto && { nome_produto: nomeProduto }),
+        ...(codigoProduto && { codigo_produto: codigoProduto }),
+        ...(categoria && { categoria: categoria }),
+        ...(estoqueBaixo && { estoque_baixo: "true" }),
       });
 
-      const result = await response.json();
-      console.log(result)
-      const data: Produto[] = result.data?.docs || result.data || [];
-      setProdutos(data);
-    } catch (err) {
-      console.error("Erro ao buscar produtos:", err);
-      setErro(
-        `Erro ao buscar produtos: ${
-          err instanceof Error ? err.message : "Erro desconhecido"
-        }`
-      );
-    }
-  }
+      const result = await fetchData<{
+        data: {
+          docs: Produto[];
+          totalDocs: number;
+          totalPages: number;
+          page: number;
+          limit: number;
+        };
+      }>(`/produtos?${params.toString()}`, "GET");
+
+      return result.data || [];
+    },
+    retry: false,
+  });
 
   useEffect(() => {
-    fetchProdutos();
-  }, []);
+    if (produtosIsError) {
+      toast.error("Erro ao carregar produtos", {
+        description: (produtosError as Error)?.message || "Erro desconhecido",
+      });
+    }
+
+  }, [produtosIsError, produtosError]);
+
+  useEffect(() => {
+    if (produtosData?.totalDocs) {
+        toast.info("Produtos encontrados", {
+          description: `${produtosData.totalDocs} produto(s) encontrado(s). Exibindo todos na página.`,
+          duration: 2500,
+        });
+      }
+  }, [produtosData, limite, setLimite, setPage]);
 
   return (
     <div>
@@ -52,7 +108,30 @@ export default function ProdutosPage() {
       <main className="min-h-screen p-8">
         <TypographyH2>Estoque de produtos</TypographyH2>
 
-        <TabelaProdutos produtos={produtos} />
+        {produtosIsLoading && (
+          <LoaderIcon role="status" className="animate-spin mt-20 mx-auto" />
+        )}
+
+        {produtosData && (
+          <TabelaProdutos
+            produtos={produtosData.docs}
+            totalPages={produtosData.totalPages}
+            totalDocs={produtosData.totalDocs}
+            currentPage={produtosData.page}
+            perPage={produtosData.limit}
+            filtros={{
+              nomeProduto,
+              codigoProduto,
+              categoria,
+              estoqueBaixo,
+              setNomeProduto,
+              setCodigoProduto,
+              setCategoria,
+              setEstoqueBaixo,
+              onSubmit: () => setPage(1),
+            }}
+          />
+        )}
       </main>
 
       <Footer />

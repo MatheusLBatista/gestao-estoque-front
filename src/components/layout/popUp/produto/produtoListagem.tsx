@@ -42,7 +42,7 @@ export function ProdutoListagem({
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>
             {produto ? (
-              <div className="bold text-1xl flex gap-4">
+              <div className="bold text-1xl flex gap-2">
                 {produto.nome_produto}
                 <Pencil
                   className="cursor-pointer w-4 h-4 hover:text-blue-600"
@@ -59,7 +59,7 @@ export function ProdutoListagem({
           <DialogDescription>Informações do produto</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3 text-sm text-neutral-700">
+        <div className="space-y-0.5 text-sm text-neutral-700">
           {produto ? (
             <>
               <FieldSet className="pointer-events-none">
@@ -125,9 +125,6 @@ export function ProdutoListagem({
                         value={produto.codigo_produto ?? "-"}
                         readOnly={true}
                       />
-                      <FieldDescription className="text-[10px] mx-2 my-0">
-                        O código criado deve ser único
-                      </FieldDescription>
                     </Field>
                   </div>
 
@@ -135,7 +132,7 @@ export function ProdutoListagem({
                     <Field>
                       <FieldLabel htmlFor="descricao">Descrição</FieldLabel>
                       <Textarea
-                        className="h-[60px]"
+                        className="h-[30px]"
                         id="descricao"
                         autoComplete="off"
                         value={produto.descricao ?? ""}
@@ -202,7 +199,7 @@ export function ProdutoListagem({
           )}
         </div>
 
-        <div className="pt-4 border-t">
+        <div className="pt-2 border-t">
           <div className="flex flex-row justify-center gap-1">
             <Button
               className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
