@@ -21,14 +21,18 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 export interface ProdutosFilterProps {
-  nomeProduto: string;
+  nomeProduto?: string;
   setNomeProduto: (v: string) => void;
+  codigoProduto?: string;
+  setCodigoProduto: (v: string) => void;
   onSubmit?: () => void;
 }
 
 export function ProdutosFilter({
   nomeProduto,
   setNomeProduto,
+  codigoProduto,
+  setCodigoProduto,
   onSubmit,
 }: ProdutosFilterProps) {
   const [categoria, setCategoria] = useState<string>("");
@@ -59,8 +63,12 @@ export function ProdutosFilter({
         </SelectContent>
       </Select>
 
-      <InputGroup className="w-[240]">
-        <InputGroupInput placeholder="Código do produto" />
+      <InputGroup className="w-[240px]">
+        <InputGroupInput
+          placeholder="Código do produto"
+          value={codigoProduto}
+          onChange={(e) => setCodigoProduto(e.target.value)}
+        />
         <InputGroupAddon>
           <SearchIcon className="cursor-pointer" />
         </InputGroupAddon>

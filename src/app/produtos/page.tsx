@@ -16,6 +16,7 @@ export default function ProdutosPage() {
   const [limite, setLimite] = useQueryState("limite", parseAsInteger.withDefault(20));
   const [nomeProduto, setNomeProduto] = useQueryState("nome_produto", parseAsString.withDefault(""));
   const [ categoria, setCategoria ] = useQueryState("categoria", parseAsString.withDefault(""));
+  const [ codigoProduto, setCodigoProduto ] = useQueryState("codigo_produto", parseAsString.withDefault(""));
 
   const {
     data: produtosData,
@@ -23,7 +24,7 @@ export default function ProdutosPage() {
     isError: produtosIsError,
     error: produtosError,
   } = useQuery({
-    queryKey: ["listaProdutos", page, limite, nomeProduto],
+    queryKey: ["listaProdutos", page, limite, nomeProduto, codigoProduto],
     queryFn: async () => {
       if (process.env.NEXT_PUBLIC_SIMULAR_ERRO === "true") {
         throw new Error("Erro simulado ao carregar dados de produtos");
@@ -37,7 +38,7 @@ export default function ProdutosPage() {
           page: number;
           limit: number;
         };
-      }>(`/produtos?page=${page}&limite=${limite}&nome_produto=${nomeProduto}`, "GET");
+      }>(`/produtos?page=${page}&limite=${limite}&nome_produto=${nomeProduto}&codigo_produto=${codigoProduto}`, "GET");
 
       return result.data || [];
     },
@@ -70,7 +71,7 @@ export default function ProdutosPage() {
             totalDocs={produtosData.totalDocs}
             currentPage={produtosData.page}
             perPage={produtosData.limit}
-            filtros={{ nomeProduto, setNomeProduto, onSubmit: () => setPage(1) }}
+            filtros={{ nomeProduto, codigoProduto, setNomeProduto, setCodigoProduto, onSubmit: () => setPage(1) }}
           />
         )}
       </main>

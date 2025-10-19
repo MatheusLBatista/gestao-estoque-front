@@ -62,6 +62,8 @@ export default function TabelaProdutos({
         <ProdutosFilter
           nomeProduto={filtros.nomeProduto}
           setNomeProduto={filtros.setNomeProduto}
+          codigoProduto={filtros.codigoProduto}
+          setCodigoProduto={filtros.setCodigoProduto}
           onSubmit={filtros.onSubmit}
         />
         <CadastroProduto
