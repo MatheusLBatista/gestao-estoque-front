@@ -3,7 +3,7 @@ import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import { TypographyH2 } from "@/components/layout/subtitle";
 import TabelaProdutos from "@/components/layout/table/produtoTable";
-import { Produto } from "../../lib/Produto";
+import { Produto } from "../../types/Produto";
 import { useQuery } from "@tanstack/react-query";
 import { fetchData } from "@/services/api";
 import { LoaderIcon } from "lucide-react";

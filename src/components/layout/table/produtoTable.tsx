@@ -13,7 +13,7 @@ import { ItemsPerPage } from "../pagination/itemsPerPage";
 import { ProdutosFilter } from "../filters/produtosFilter";
 import { CadastroProduto } from "../popUp/produto/produtoCadastro";
 import { ProdutoEdicao } from "../popUp/produto/produtoEdicao";
-import { Produto } from "../../../lib/Produto";
+import { Produto } from "../../../types/Produto";
 import { ProdutoListagem } from "../popUp/produto/produtoListagem";
 import { AdjustPrice } from "@/lib/adjustPrice";
 import { useQueryState, parseAsInteger } from "nuqs";

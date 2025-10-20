@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Produto } from "@/lib/Produto";
+import { Produto } from "@/types/Produto";
 import { Pencil, Printer } from "lucide-react";
 import {
   Field,
