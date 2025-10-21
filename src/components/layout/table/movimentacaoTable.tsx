@@ -88,7 +88,7 @@ export default function TabelaMovimentacao({
                   {m._id}
                 </TableCell>
 
-                <TableCell className="text-center text-sm text-neutral-700 uppercase">
+                <TableCell className="text-center text-sm text-neutral-700 capitalize">
                   {m.tipo}
                 </TableCell>
 
