@@ -60,11 +60,11 @@ export default function MovimentacoesPage() {
 
     if (movimentacoesData?.docs) {
       toast.info("Movimentações encontradas", {
-        description: `${movimentacoesData.totalDocs} movimentações encontrada(s). Exibindo todas na página.`,
+        description: `${movimentacoesData.totalDocs} movimentações encontrada(s). Exibindo na página.`,
         duration: 2500,
       });
     }
-  }, [movimentacoesError, movimentacoesIsError]);
+  }, [movimentacoesError, movimentacoesIsError, movimentacoesData, limite, setLimite, setPage]);
 
   return (
     <div>

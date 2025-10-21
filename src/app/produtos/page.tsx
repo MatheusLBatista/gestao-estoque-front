@@ -89,17 +89,14 @@ export default function ProdutosPage() {
         description: (produtosError as Error)?.message || "Erro desconhecido",
       });
     }
-
-  }, [produtosIsError, produtosError]);
-
-  useEffect(() => {
+    
     if (produtosData?.totalDocs) {
         toast.info("Produtos encontrados", {
-          description: `${produtosData.totalDocs} produto(s) encontrado(s). Exibindo todos na página.`,
+          description: `${produtosData.totalDocs} produto(s) encontrado(s). Exibindo na página.`,
           duration: 2500,
         });
       }
-  }, [produtosData, limite, setLimite, setPage]);
+  }, [produtosIsError, produtosError, produtosData, limite, setLimite, setPage]);
 
   return (
     <div>
