@@ -10,6 +10,9 @@ interface BaseMovimentacao {
   observacoes: string;
   data_cadastro: string;
   data_ultima_atualizacao: string;
+  totalProdutos?: number;
+  totalCusto?: number;
+  totalPreco?: number;
 }
 
 export interface MovimentacaoEntrada extends BaseMovimentacao {

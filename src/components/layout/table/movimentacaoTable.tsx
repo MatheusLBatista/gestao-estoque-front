@@ -63,7 +63,7 @@ export default function TabelaMovimentacao({
                 Destino
               </TableHead>
               <TableHead className="text-center text-neutral-500">
-                Custo
+                Valor
               </TableHead>
               <TableHead className="text-center text-neutral-500">
                 Quantidade
@@ -93,7 +93,7 @@ export default function TabelaMovimentacao({
                 </TableCell>
 
                 <TableCell className="text-center text-sm text-neutral-700">
-                  {"-"}
+                  {m.produtos?.[0]?.codigo_produto || "-"}
                 </TableCell>
 
                 <TableCell className="text-center text-sm text-neutral-700">
@@ -101,11 +101,11 @@ export default function TabelaMovimentacao({
                 </TableCell>
 
                 <TableCell className="text-center text-sm text-neutral-700">
-                  {AdjustPrice(0)}
+                  {AdjustPrice(m.totalCusto || m.totalPreco || 0)}
                 </TableCell>
 
                 <TableCell className="text-center text-sm text-neutral-700">
-                  {0}
+                  {m.produtos?.[0]?.quantidade_produtos || 0}
                 </TableCell>
 
                 <TableCell className="text-center text-sm text-neutral-700">
