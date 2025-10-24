@@ -16,7 +16,7 @@ export default function MovimentacoesPage() {
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limite, setLimite] = useQueryState(
     "limite",
-    parseAsInteger.withDefault(20)
+    parseAsInteger.withDefault(10)
   );
 
   const {

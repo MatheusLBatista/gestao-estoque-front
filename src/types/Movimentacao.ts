@@ -15,6 +15,12 @@ interface BaseMovimentacao {
   totalPreco?: number;
 }
 
+export interface ProdutoPopulado {
+  _id: string;
+  nome_produto: string;
+  estoque: number;
+}
+
 export interface MovimentacaoEntrada extends BaseMovimentacao {
   tipo: "entrada";
   nota_fiscal: {
@@ -24,7 +30,7 @@ export interface MovimentacaoEntrada extends BaseMovimentacao {
     data_emissao: string;
   };
   produtos: {
-    _id: string;
+    _id: ProdutoPopulado | string;
     codigo_produto: string;
     quantidade_produtos: number;
     custo: number;
@@ -34,7 +40,7 @@ export interface MovimentacaoEntrada extends BaseMovimentacao {
 export interface MovimentacaoSaida extends BaseMovimentacao {
   tipo: "saida";
   produtos: {
-    _id: string;
+    _id: ProdutoPopulado | string;
     codigo_produto: string;
     quantidade_produtos: number;
     preco: number;
