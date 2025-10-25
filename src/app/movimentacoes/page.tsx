@@ -8,7 +8,7 @@ import { fetchData } from "@/services/api";
 import { Movimentacao } from "@/types/Movimentacao";
 import { useQuery } from "@tanstack/react-query";
 import { LoaderIcon } from "lucide-react";
-import { parseAsInteger, useQueryState } from "nuqs";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
@@ -17,6 +17,22 @@ export default function MovimentacoesPage() {
   const [limite, setLimite] = useQueryState(
     "limite",
     parseAsInteger.withDefault(10)
+  );
+  const [produtos, setProdutos] = useQueryState(
+    "produtos",
+    parseAsString.withDefault("")
+  );
+  const [tipoProduto, setTipoProduto] = useQueryState(
+    "tipo",
+    parseAsString.withDefault("")
+  );
+  const [dataInicial, setDataInicial] = useQueryState(
+    "data_inicial",
+    parseAsString.withDefault("")
+  );
+  const [dataFinal, setDataFinal] = useQueryState(
+    "data_final",
+    parseAsString.withDefault("")
   );
 
   const {
@@ -34,6 +50,10 @@ export default function MovimentacoesPage() {
       const params = new URLSearchParams({
         page: page.toString(),
         limite: limite.toString(),
+        ...(produtos ? { produtos } : {}),
+        ...(tipoProduto ? { tipo: tipoProduto } : {}),
+        ...(dataInicial ? { data_inicial: dataInicial } : {}),
+        ...(dataFinal ? { data_final: dataFinal } : {}),
       });
 
       const result = await fetchData<{
@@ -64,7 +84,14 @@ export default function MovimentacoesPage() {
         duration: 2500,
       });
     }
-  }, [movimentacoesError, movimentacoesIsError, movimentacoesData, limite, setLimite, setPage]);
+  }, [
+    movimentacoesError,
+    movimentacoesIsError,
+    movimentacoesData,
+    limite,
+    setLimite,
+    setPage,
+  ]);
 
   return (
     <div>
@@ -84,6 +111,19 @@ export default function MovimentacoesPage() {
             totalDocs={movimentacoesData.totalDocs}
             currentPage={movimentacoesData.page}
             perPage={movimentacoesData.limit}
+            filtros={{
+              produtos,
+              setProdutos,
+              tipoProduto,
+              setTipoProduto,
+              dataInicial,
+              setDataInicial,
+              dataFinal,
+              setDataFinal,
+              onSubmit: () => {
+                setPage(1);
+              },
+            }}
           />
         )}
       </main>

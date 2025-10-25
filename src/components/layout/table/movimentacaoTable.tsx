@@ -20,6 +20,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  MovimentacaoFilterProps,
+  MovimentacoesFilter,
+} from "../filters/movimentacoesFilter";
 
 interface TabelaMovimentacaoProps {
   movimentacoes: Movimentacao[];
@@ -27,6 +31,7 @@ interface TabelaMovimentacaoProps {
   totalDocs: number;
   currentPage: number;
   perPage: number;
+  filtros?: MovimentacaoFilterProps;
 }
 
 export default function TabelaMovimentacao({
@@ -35,6 +40,7 @@ export default function TabelaMovimentacao({
   totalDocs,
   currentPage,
   perPage,
+  filtros,
 }: TabelaMovimentacaoProps) {
   if (!movimentacoes || movimentacoes.length === 0) return null;
 
@@ -54,6 +60,22 @@ export default function TabelaMovimentacao({
 
   return (
     <>
+      {filtros && (
+        <div>
+          <MovimentacoesFilter
+            produtos={filtros.produtos}
+            setProdutos={filtros.setProdutos}
+            tipoProduto={filtros.tipoProduto}
+            setTipoProduto={filtros.setTipoProduto}
+            dataInicial={filtros.dataInicial}
+            setDataInicial={filtros.setDataInicial}
+            dataFinal={filtros.dataFinal}
+            setDataFinal={filtros.setDataFinal}
+            onSubmit={filtros.onSubmit}
+          />
+        </div>
+      )}
+
       <div className="bg-white rounded-lg shadow">
         <TooltipProvider>
           <Table>
