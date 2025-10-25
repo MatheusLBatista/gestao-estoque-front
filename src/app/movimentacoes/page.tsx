@@ -9,7 +9,7 @@ import { Movimentacao } from "@/types/Movimentacao";
 import { useQuery } from "@tanstack/react-query";
 import { LoaderIcon } from "lucide-react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function MovimentacoesPage() {
@@ -18,22 +18,35 @@ export default function MovimentacoesPage() {
     "limite",
     parseAsInteger.withDefault(10)
   );
-  const [produtos, setProdutos] = useQueryState(
-    "produtos",
+
+  const [produtosFilter, setProdutosFilter] = useQueryState(
+    "nome_produto",
     parseAsString.withDefault("")
   );
-  const [tipoProduto, setTipoProduto] = useQueryState(
+  const [tipoProdutoFilter, setTipoProdutoFilter] = useQueryState(
     "tipo",
     parseAsString.withDefault("")
   );
-  const [dataInicial, setDataInicial] = useQueryState(
+  const [dataInicialFilter, setDataInicialFilter] = useQueryState(
     "data_inicio",
     parseAsString.withDefault("")
   );
-  const [dataFinal, setDataFinal] = useQueryState(
+  const [dataFinalFilter, setDataFinalFilter] = useQueryState(
     "data_fim",
     parseAsString.withDefault("")
   );
+
+  const [produtos, setProdutos] = useState(produtosFilter);
+  const [tipoProduto, setTipoProduto] = useState(tipoProdutoFilter);
+  const [dataInicial, setDataInicial] = useState(dataInicialFilter);
+  const [dataFinal, setDataFinal] = useState(dataFinalFilter);
+
+  useEffect(() => {
+    setProdutos(produtosFilter);
+    setTipoProduto(tipoProdutoFilter);
+    setDataInicial(dataInicialFilter);
+    setDataFinal(dataFinalFilter);
+  }, [produtosFilter, tipoProdutoFilter, dataInicialFilter, dataFinalFilter]);
 
   const {
     data: movimentacoesData,
@@ -41,7 +54,15 @@ export default function MovimentacoesPage() {
     isError: movimentacoesIsError,
     error: movimentacoesError,
   } = useQuery({
-    queryKey: ["listarMovimentacoes", page, limite],
+    queryKey: [
+      "listarMovimentacoes",
+      page,
+      limite,
+      produtosFilter,
+      tipoProdutoFilter,
+      dataInicialFilter,
+      dataFinalFilter,
+    ],
     queryFn: async () => {
       if (process.env.NEXT_PUBLIC_SIMULAR_ERRO === "true") {
         throw new Error("Erro simulado ao carregar os dados de movimentações");
@@ -50,10 +71,10 @@ export default function MovimentacoesPage() {
       const params = new URLSearchParams({
         page: page.toString(),
         limite: limite.toString(),
-        ...(produtos ? { produtos } : {}),
-        ...(tipoProduto ? { tipo: tipoProduto } : {}),
-        ...(dataInicial ? { data_inicial: dataInicial } : {}),
-        ...(dataFinal ? { data_final: dataFinal } : {}),
+        ...(produtosFilter ? { nome_produto: produtosFilter } : {}),
+        ...(tipoProdutoFilter ? { tipo: tipoProdutoFilter } : {}),
+        ...(dataInicialFilter ? { data_inicio: dataInicialFilter } : {}),
+        ...(dataFinalFilter ? { data_fim: dataFinalFilter } : {}),
       });
 
       const result = await fetchData<{
@@ -121,6 +142,10 @@ export default function MovimentacoesPage() {
               dataFinal,
               setDataFinal,
               onSubmit: () => {
+                setProdutosFilter(produtos);
+                setTipoProdutoFilter(tipoProduto);
+                setDataInicialFilter(dataInicial);
+                setDataFinalFilter(dataFinal);
                 setPage(1);
               },
             }}
