@@ -27,11 +27,11 @@ export default function MovimentacoesPage() {
     parseAsString.withDefault("")
   );
   const [dataInicial, setDataInicial] = useQueryState(
-    "data_inicial",
+    "data_inicio",
     parseAsString.withDefault("")
   );
   const [dataFinal, setDataFinal] = useQueryState(
-    "data_final",
+    "data_fim",
     parseAsString.withDefault("")
   );
 

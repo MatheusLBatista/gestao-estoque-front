@@ -15,7 +15,7 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
-import { SearchIcon, ListFilter } from "lucide-react";
+import { SearchIcon, ListFilter, CalendarDays, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -41,45 +41,41 @@ export interface MovimentacaoFilterProps {
 }
 
 function CalendarPicker({
-  label,
+  placeholder,
   selectedDate,
   onDateChange,
 }: {
-  label: string;
+  placeholder: string;
   selectedDate: Date | undefined;
   onDateChange: (date: Date | undefined) => void;
 }) {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className="flex flex-col gap-3">
-      <Label htmlFor={label} className="px-1">
-        {label}
-      </Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            id={label}
-            className="w-48 justify-between font-normal"
-          >
-            {selectedDate ? selectedDate.toLocaleDateString() : "Select date"}
-            <ChevronDownIcon />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            captionLayout="dropdown"
-            onSelect={(date) => {
-              onDateChange(date);
-              setOpen(false);
-            }}
-          />
-        </PopoverContent>
-      </Popover>
-    </div>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className={`w-[180px] justify-between font-normal cursor-pointer ${
+            !selectedDate ? "text-muted-foreground" : ""
+          }`}
+        >
+          {selectedDate ? selectedDate.toLocaleDateString() : placeholder}
+          <ChevronDownIcon />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={selectedDate}
+          captionLayout="dropdown"
+          onSelect={(date) => {
+            onDateChange(date);
+            setOpen(false);
+          }}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -111,7 +107,7 @@ export function MovimentacoesFilter({
         value={tipoProduto || ""}
         onValueChange={(v) => setTipoProduto(v === "todos" ? "" : v)}
       >
-        <SelectTrigger className="w-[120px]">
+        <SelectTrigger className="w-[120px] cursor-pointer">
           <SelectValue placeholder="Tipo" />
         </SelectTrigger>
         <SelectContent>
@@ -123,21 +119,31 @@ export function MovimentacoesFilter({
         </SelectContent>
       </Select>
 
-      <CalendarPicker
-        label="Data Inicial"
-        selectedDate={dataInicial ? new Date(dataInicial) : undefined}
-        onDateChange={(date) =>
-          setDataInicial(date ? date.toISOString().split("T")[0] : "")
-        }
-      />
+      <div className="flex flex-row items-center gap-1">
+        <CalendarDays className="text-muted-foreground" />
+        <CalendarPicker
+          placeholder="Data Inicial"
+          selectedDate={dataInicial ? new Date(dataInicial) : undefined}
+          onDateChange={(date) =>
+            setDataInicial(date ? date.toISOString().split("T")[0] : "")
+          }
+        />
+      </div>
 
-      <CalendarPicker
-        label="Data Final"
-        selectedDate={dataFinal ? new Date(dataFinal) : undefined}
-        onDateChange={(date) =>
-          setDataFinal(date ? date.toISOString().split("T")[0] : "")
-        }
-      />
+      <div className="flex flex-row items-center">
+        <ArrowRightLeft className="text-muted-foreground w-4 h-4" />
+      </div>
+
+      <div className="flex flex-row items-center gap-1">
+        <CalendarDays className="text-muted-foreground" />
+        <CalendarPicker
+          placeholder="Data Final"
+          selectedDate={dataFinal ? new Date(dataFinal) : undefined}
+          onDateChange={(date) =>
+            setDataFinal(date ? date.toISOString().split("T")[0] : "")
+          }
+        />
+      </div>
 
       <Button
         onClick={onSubmit}
