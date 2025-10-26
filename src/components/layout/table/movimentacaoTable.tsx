@@ -24,6 +24,7 @@ import {
   MovimentacaoFilterProps,
   MovimentacoesFilter,
 } from "../filters/movimentacoesFilter";
+import { MovimentacaoListagem } from "../popUp/movimentacoes/movimentacaoListagem";
 
 interface TabelaMovimentacaoProps {
   movimentacoes: Movimentacao[];
@@ -183,6 +184,19 @@ export default function TabelaMovimentacao({
           />
         </div>
       </div>
+
+      <MovimentacaoListagem
+        open={open}
+        movimentacao={selectedMovimentacao}
+        onOpenChange={(value) => {
+          setOpen(value);
+          if (!value) setSelectedMovimentacao(null);
+        }}
+        onNovaMovimentacao={() => {
+          setOpen(false);
+          // Implementar lógica para nova movimentação se necessário
+        }}
+      />
     </>
   );
 }
