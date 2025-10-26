@@ -107,30 +107,6 @@ export function CadastroProduto({
               </Field>
             </div>
 
-            {/*
-            <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel htmlFor="marca">Custo*</FieldLabel>
-                <InputGroup>
-                  <InputGroupAddon>
-                    <InputGroupText>R$</InputGroupText>
-                  </InputGroupAddon>
-                  <InputGroupInput placeholder="19,99" />
-                </InputGroup>
-              </Field>
-
-              <Field>
-                <FieldLabel htmlFor="codigo">Preço*</FieldLabel>
-                <InputGroup>
-                  <InputGroupAddon>
-                    <InputGroupText>R$</InputGroupText>
-                  </InputGroupAddon>
-                  <InputGroupInput placeholder="19,99" />
-                </InputGroup>
-              </Field>
-            </div>
-             */}
-
             <div className="flex flex-row gap-1">
               <Field>
                 <FieldLabel htmlFor="marca">Marca*</FieldLabel>

@@ -25,6 +25,7 @@ import {
   MovimentacoesFilter,
 } from "../filters/movimentacoesFilter";
 import { MovimentacaoListagem } from "../popUp/movimentacoes/movimentacaoListagem";
+import { CadastroMovimentacao } from "../popUp/movimentacoes/movimentacaoCadastro";
 
 interface TabelaMovimentacaoProps {
   movimentacoes: Movimentacao[];
@@ -58,11 +59,12 @@ export default function TabelaMovimentacao({
   const [open, setOpen] = useState<boolean>(false);
   const [selectedMovimentacao, setSelectedMovimentacao] =
     useState<Movimentacao | null>(null);
+  const [cadastroOpen, setCadastroOpen] = useState<boolean>(false);
 
   return (
     <>
       {filtros && (
-        <div>
+        <div className="flex flex-row justify-between">
           <MovimentacoesFilter
             produtos={filtros.produtos}
             setProdutos={filtros.setProdutos}
@@ -73,6 +75,12 @@ export default function TabelaMovimentacao({
             dataFinal={filtros.dataFinal}
             setDataFinal={filtros.setDataFinal}
             onSubmit={filtros.onSubmit}
+          />
+          <CadastroMovimentacao 
+            color="green"
+            size='1/8'
+            open={cadastroOpen}
+            onOpenChange={(value) => setCadastroOpen(value)}
           />
         </div>
       )}
