@@ -84,16 +84,16 @@ export default function TabelaMovimentacao({
                 <TableHead className="text-center text-neutral-500">
                   ID
                 </TableHead>
-                <TableHead className="text-center text-neutral-500">
+                <TableHead className="text-left text-neutral-500">
                   Tipo
                 </TableHead>
-                <TableHead className="text-center text-neutral-500">
+                <TableHead className="text-left text-neutral-500">
                   Produto
                 </TableHead>
-                <TableHead className="text-center text-neutral-500">
+                <TableHead className="text-left text-neutral-500">
                   Destino
                 </TableHead>
-                <TableHead className="text-center text-neutral-500">
+                <TableHead className="text-right text-neutral-500">
                   Valor
                 </TableHead>
                 <TableHead className="text-center text-neutral-500">
@@ -119,11 +119,11 @@ export default function TabelaMovimentacao({
                     {m._id}
                   </TableCell>
 
-                  <TableCell className="text-center text-sm text-neutral-700 capitalize">
+                  <TableCell className="text-left text-sm text-neutral-700 capitalize">
                     {m.tipo}
                   </TableCell>
 
-                  <TableCell className="text-center text-sm text-neutral-700">
+                  <TableCell className="text-left text-sm text-neutral-700">
                     <Tooltip>
                       <TooltipTrigger>
                         <span>
@@ -143,11 +143,11 @@ export default function TabelaMovimentacao({
                     </Tooltip>
                   </TableCell>
 
-                  <TableCell className="text-center text-sm text-neutral-700">
+                  <TableCell className="text-left text-sm text-neutral-700">
                     {m.destino || "-"}
                   </TableCell>
 
-                  <TableCell className="text-center text-sm text-neutral-700">
+                  <TableCell className="text-right text-sm text-neutral-700">
                     {AdjustPrice(m.totalCusto || m.totalPreco || 0)}
                   </TableCell>
 

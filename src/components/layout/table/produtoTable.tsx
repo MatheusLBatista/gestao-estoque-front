@@ -82,7 +82,7 @@ export default function TabelaProdutos({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-center text-neutral-500">
+              <TableHead className="text-left text-neutral-500">
                 Nome do Produto
               </TableHead>
               <TableHead className="text-center text-neutral-500">
@@ -94,10 +94,10 @@ export default function TabelaProdutos({
               <TableHead className="text-center text-neutral-500">
                 Estoque
               </TableHead>
-              <TableHead className="text-center text-neutral-500">
+              <TableHead className="text-right text-neutral-500">
                 Custo
               </TableHead>
-              <TableHead className="text-center text-neutral-500">
+              <TableHead className="text-left text-neutral-500">
                 Descrição
               </TableHead>
             </TableRow>
@@ -113,7 +113,7 @@ export default function TabelaProdutos({
                 }}
                 className="hover:bg-slate-50 cursor-pointer"
               >
-                <TableCell className="font-medium text-center text-neutral-700">
+                <TableCell className="font-medium text-left text-neutral-700">
                   {produto.nome_produto}
                 </TableCell>
                 <TableCell className="text-center text-neutral-700">
@@ -125,11 +125,11 @@ export default function TabelaProdutos({
                 <TableCell className="text-center text-neutral-700">
                   {produto.estoque}
                 </TableCell>
-                <TableCell className="text-center text-neutral-700">
+                <TableCell className="text-right text-neutral-700">
                   {AdjustPrice(produto.custo)}
                 </TableCell>
                 <TableCell
-                  className="max-w-xs truncate text-center text-neutral-700"
+                  className="max-w-xs truncate text-left text-neutral-700"
                   title={produto.descricao}
                 >
                   {produto.descricao}
