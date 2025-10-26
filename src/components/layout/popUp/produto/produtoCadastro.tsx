@@ -81,7 +81,7 @@ export function CadastroProduto({
           </DialogDescription>
         </DialogHeader>
 
-        <FieldSet>
+        <FieldSet className="max-h-96 overflow-y-auto">
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="name">Nome do produto*</FieldLabel>
@@ -106,30 +106,6 @@ export function CadastroProduto({
                 <Input id="estoque" autoComplete="off" placeholder="10" />
               </Field>
             </div>
-
-            {/*
-            <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel htmlFor="marca">Custo*</FieldLabel>
-                <InputGroup>
-                  <InputGroupAddon>
-                    <InputGroupText>R$</InputGroupText>
-                  </InputGroupAddon>
-                  <InputGroupInput placeholder="19,99" />
-                </InputGroup>
-              </Field>
-
-              <Field>
-                <FieldLabel htmlFor="codigo">Preço*</FieldLabel>
-                <InputGroup>
-                  <InputGroupAddon>
-                    <InputGroupText>R$</InputGroupText>
-                  </InputGroupAddon>
-                  <InputGroupInput placeholder="19,99" />
-                </InputGroup>
-              </Field>
-            </div>
-             */}
 
             <div className="flex flex-row gap-1">
               <Field>

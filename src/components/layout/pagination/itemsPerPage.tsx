@@ -32,9 +32,9 @@ export function ItemsPerPage({
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              {Array.from({ length: 100 }, (_, i) => (
-                <SelectItem key={i + 1} value={String(i + 1)}>
-                  {i + 1}
+              {[10, 20, 30, 50, 100].map((value) => (
+                <SelectItem key={value} value={String(value)}>
+                  {value}
                 </SelectItem>
               ))}
             </SelectGroup>

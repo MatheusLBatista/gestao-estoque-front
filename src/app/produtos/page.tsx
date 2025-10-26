@@ -3,12 +3,12 @@ import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import { TypographyH2 } from "@/components/layout/subtitle";
 import TabelaProdutos from "@/components/layout/table/produtoTable";
-import { Produto } from "../../lib/Produto";
+import { Produto } from "../../types/Produto";
 import { useQuery } from "@tanstack/react-query";
 import { fetchData } from "@/services/api";
 import { LoaderIcon } from "lucide-react";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   useQueryState,
   parseAsInteger,
@@ -20,24 +20,42 @@ export default function ProdutosPage() {
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limite, setLimite] = useQueryState(
     "limite",
-    parseAsInteger.withDefault(20)
+    parseAsInteger.withDefault(10)
   );
-  const [nomeProduto, setNomeProduto] = useQueryState(
+
+  const [nomeProdutoFilter, setNomeProdutoFilter] = useQueryState(
     "nome_produto",
     parseAsString.withDefault("")
   );
-  const [categoria, setCategoria] = useQueryState(
+  const [categoriaFilter, setCategoriaFilter] = useQueryState(
     "categoria",
     parseAsString.withDefault("")
   );
-  const [codigoProduto, setCodigoProduto] = useQueryState(
+  const [codigoProdutoFilter, setCodigoProdutoFilter] = useQueryState(
     "codigo_produto",
     parseAsString.withDefault("")
   );
-  const [estoqueBaixo, setEstoqueBaixo] = useQueryState(
+  const [estoqueBaixoFilter, setEstoqueBaixoFilter] = useQueryState(
     "estoque_baixo",
     parseAsBoolean.withDefault(false)
   );
+
+  const [nomeProduto, setNomeProduto] = useState(nomeProdutoFilter);
+  const [categoria, setCategoria] = useState(categoriaFilter);
+  const [codigoProduto, setCodigoProduto] = useState(codigoProdutoFilter);
+  const [estoqueBaixo, setEstoqueBaixo] = useState(estoqueBaixoFilter);
+
+  useEffect(() => {
+    setNomeProduto(nomeProdutoFilter);
+    setCategoria(categoriaFilter);
+    setCodigoProduto(codigoProdutoFilter);
+    setEstoqueBaixo(estoqueBaixoFilter);
+  }, [
+    nomeProdutoFilter,
+    categoriaFilter,
+    codigoProdutoFilter,
+    estoqueBaixoFilter,
+  ]);
 
   const {
     data: produtosData,
@@ -49,10 +67,10 @@ export default function ProdutosPage() {
       "listaProdutos",
       page,
       limite,
-      nomeProduto,
-      codigoProduto,
-      categoria,
-      estoqueBaixo,
+      nomeProdutoFilter,
+      codigoProdutoFilter,
+      categoriaFilter,
+      estoqueBaixoFilter,
     ],
     queryFn: async () => {
       if (process.env.NEXT_PUBLIC_SIMULAR_ERRO === "true") {
@@ -62,10 +80,10 @@ export default function ProdutosPage() {
       const params = new URLSearchParams({
         page: page.toString(),
         limite: limite.toString(),
-        ...(nomeProduto && { nome_produto: nomeProduto }),
-        ...(codigoProduto && { codigo_produto: codigoProduto }),
-        ...(categoria && { categoria: categoria }),
-        ...(estoqueBaixo && { estoque_baixo: "true" }),
+        ...(nomeProdutoFilter && { nome_produto: nomeProdutoFilter }),
+        ...(codigoProdutoFilter && { codigo_produto: codigoProdutoFilter }),
+        ...(categoriaFilter && { categoria: categoriaFilter }),
+        ...(estoqueBaixoFilter && { estoque_baixo: "true" }),
       });
 
       const result = await fetchData<{
@@ -90,16 +108,20 @@ export default function ProdutosPage() {
       });
     }
 
-  }, [produtosIsError, produtosError]);
-
-  useEffect(() => {
     if (produtosData?.totalDocs) {
-        toast.info("Produtos encontrados", {
-          description: `${produtosData.totalDocs} produto(s) encontrado(s). Exibindo todos na página.`,
-          duration: 2500,
-        });
-      }
-  }, [produtosData, limite, setLimite, setPage]);
+      toast.info("Produtos encontrados", {
+        description: `${produtosData.totalDocs} produto(s) encontrado(s). Exibindo na página.`,
+        duration: 2500,
+      });
+    }
+  }, [
+    produtosIsError,
+    produtosError,
+    produtosData,
+    limite,
+    setLimite,
+    setPage,
+  ]);
 
   return (
     <div>
@@ -128,7 +150,14 @@ export default function ProdutosPage() {
               setCodigoProduto,
               setCategoria,
               setEstoqueBaixo,
-              onSubmit: () => setPage(1),
+              onSubmit: () => {
+                // Aplicar os filtros locais na URL e resetar para a página 1
+                setNomeProdutoFilter(nomeProduto);
+                setCodigoProdutoFilter(codigoProduto);
+                setCategoriaFilter(categoria);
+                setEstoqueBaixoFilter(estoqueBaixo);
+                setPage(1);
+              },
             }}
           />
         )}

@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Produto } from "../../../../lib/Produto";
+import { Produto } from "../../../../types/Produto";
 import { AdjustPrice } from "@/lib/adjustPrice";
 
 interface ProdutoEdicaoProps {
@@ -93,7 +93,7 @@ export function ProdutoEdicao({
           </DialogDescription>
         </DialogHeader>
 
-        <FieldSet>
+        <FieldSet className="max-h-96 overflow-y-auto">
           <FieldGroup>
             <Field>
               <FieldLabel>Nome do produto*</FieldLabel>
