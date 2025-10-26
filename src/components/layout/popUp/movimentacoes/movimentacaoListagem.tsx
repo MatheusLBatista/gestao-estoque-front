@@ -69,7 +69,7 @@ export function MovimentacaoListagem({
           <DialogDescription>Detalhes da movimentação</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-0.5 text-sm text-neutral-700">
+        <div className="space-y-0.5 text-sm text-neutral-700 max-h-96 overflow-y-auto">
           {movimentacao ? (
             <FieldSet className="pointer-events-none">
               <FieldGroup>

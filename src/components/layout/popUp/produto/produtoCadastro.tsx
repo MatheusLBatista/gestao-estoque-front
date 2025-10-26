@@ -81,7 +81,7 @@ export function CadastroProduto({
           </DialogDescription>
         </DialogHeader>
 
-        <FieldSet>
+        <FieldSet className="max-h-96 overflow-y-auto">
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="name">Nome do produto*</FieldLabel>

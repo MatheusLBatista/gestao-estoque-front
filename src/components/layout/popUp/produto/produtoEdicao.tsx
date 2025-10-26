@@ -93,7 +93,7 @@ export function ProdutoEdicao({
           </DialogDescription>
         </DialogHeader>
 
-        <FieldSet>
+        <FieldSet className="max-h-96 overflow-y-auto">
           <FieldGroup>
             <Field>
               <FieldLabel>Nome do produto*</FieldLabel>
