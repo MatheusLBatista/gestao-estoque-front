@@ -15,7 +15,12 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
-import { SearchIcon, ListFilter, CalendarDays, ArrowRightLeft } from "lucide-react";
+import {
+  SearchIcon,
+  ListFilter,
+  CalendarDays,
+  ArrowRightLeft,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -60,7 +65,9 @@ function CalendarPicker({
             !selectedDate ? "text-muted-foreground" : ""
           }`}
         >
-          {selectedDate ? selectedDate.toLocaleDateString() : placeholder}
+          {selectedDate
+            ? selectedDate.toLocaleDateString("pt-BR")
+            : placeholder}
           <ChevronDownIcon />
         </Button>
       </PopoverTrigger>
@@ -123,10 +130,28 @@ export function MovimentacoesFilter({
         <CalendarDays className="text-muted-foreground" />
         <CalendarPicker
           placeholder="Data Inicial"
-          selectedDate={dataInicial ? new Date(dataInicial) : undefined}
-          onDateChange={(date) =>
-            setDataInicial(date ? date.toISOString().split("T")[0] : "")
+          selectedDate={
+            dataInicial
+              ? (() => {
+                  const [day, month, year] = dataInicial.split("-");
+                  return new Date(
+                    parseInt(year),
+                    parseInt(month) - 1,
+                    parseInt(day)
+                  );
+                })()
+              : undefined
           }
+          onDateChange={(date) => {
+            if (date) {
+              const day = date.getDate().toString().padStart(2, "0");
+              const month = (date.getMonth() + 1).toString().padStart(2, "0");
+              const year = date.getFullYear();
+              setDataInicial(`${day}-${month}-${year}`);
+            } else {
+              setDataInicial("");
+            }
+          }}
         />
       </div>
 
@@ -138,10 +163,28 @@ export function MovimentacoesFilter({
         <CalendarDays className="text-muted-foreground" />
         <CalendarPicker
           placeholder="Data Final"
-          selectedDate={dataFinal ? new Date(dataFinal) : undefined}
-          onDateChange={(date) =>
-            setDataFinal(date ? date.toISOString().split("T")[0] : "")
+          selectedDate={
+            dataFinal
+              ? (() => {
+                  const [day, month, year] = dataFinal.split("-");
+                  return new Date(
+                    parseInt(year),
+                    parseInt(month) - 1,
+                    parseInt(day)
+                  );
+                })()
+              : undefined
           }
+          onDateChange={(date) => {
+            if (date) {
+              const day = date.getDate().toString().padStart(2, "0");
+              const month = (date.getMonth() + 1).toString().padStart(2, "0");
+              const year = date.getFullYear();
+              setDataFinal(`${day}-${month}-${year}`);
+            } else {
+              setDataFinal("");
+            }
+          }}
         />
       </div>
 
