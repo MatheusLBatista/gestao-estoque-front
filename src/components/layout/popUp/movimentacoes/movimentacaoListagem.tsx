@@ -219,6 +219,69 @@ export function MovimentacaoListagem({
                     <Input value="Distribuidora Central Ltda" readOnly />
                   </Field>
                 </div>
+
+                {/* Observações */}
+                {movimentacao.observacoes && (
+                  <Field>
+                    <FieldLabel>Observações</FieldLabel>
+                    <Input value={movimentacao.observacoes} readOnly />
+                  </Field>
+                )}
+
+                {/* Nota Fiscal - Apenas para Entrada */}
+                {movimentacao.tipo === "entrada" &&
+                  (movimentacao as any).nota_fiscal && (
+                    <div className="space-y-2 border-t pt-4">
+                      <FieldLabel className="text-base font-semibold">
+                        Nota Fiscal
+                      </FieldLabel>
+                      <div className="flex flex-row gap-1">
+                        <Field>
+                          <FieldLabel>Número</FieldLabel>
+                          <Input
+                            value={
+                              (movimentacao as any).nota_fiscal.numero || "-"
+                            }
+                            readOnly
+                          />
+                        </Field>
+                        <Field>
+                          <FieldLabel>Série</FieldLabel>
+                          <Input
+                            value={
+                              (movimentacao as any).nota_fiscal.serie || "-"
+                            }
+                            readOnly
+                          />
+                        </Field>
+                      </div>
+                      <div className="flex flex-row gap-1">
+                        <Field>
+                          <FieldLabel>Chave de Acesso</FieldLabel>
+                          <Input
+                            value={
+                              (movimentacao as any).nota_fiscal.chave || "-"
+                            }
+                            readOnly
+                          />
+                        </Field>
+                        <Field>
+                          <FieldLabel>Data de Emissão</FieldLabel>
+                          <Input
+                            value={
+                              (movimentacao as any).nota_fiscal.data_emissao
+                                ? AdjustDate(
+                                    (movimentacao as any).nota_fiscal
+                                      .data_emissao
+                                  )
+                                : "-"
+                            }
+                            readOnly
+                          />
+                        </Field>
+                      </div>
+                    </div>
+                  )}
               </FieldGroup>
             </FieldSet>
           ) : (

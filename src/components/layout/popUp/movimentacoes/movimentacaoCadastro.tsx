@@ -41,6 +41,13 @@ interface Produtos {
   quantidade: number;
 }
 
+interface NotaFiscal {
+  numero: string;
+  serie: string;
+  chave: string;
+  data_emissao: string;
+}
+
 interface CadastrarMovimentacaoProps {
   color: "green" | "blue";
   size: "1/8" | "1/2";
@@ -62,6 +69,13 @@ export function CadastroMovimentacao({
   const [produtos, setProdutos] = useState<Produtos[]>([]);
   const [tipo, setTipo] = useState<string>();
   const [destino, setDestino] = useState<string>("");
+  const [observacoes, setObservacoes] = useState<string>("");
+  const [notaFiscal, setNotaFiscal] = useState<NotaFiscal>({
+    numero: "",
+    serie: "",
+    chave: "",
+    data_emissao: "",
+  });
 
   const handleOpenChange = (value: boolean) => {
     if (!isControlled) {
@@ -95,6 +109,13 @@ export function CadastroMovimentacao({
     setProdutos(novosProdutos);
   };
 
+  const atualizarNotaFiscal = (campo: keyof NotaFiscal, valor: string) => {
+    setNotaFiscal((prev) => ({
+      ...prev,
+      [campo]: valor,
+    }));
+  };
+
   const save = () => {
     if (!tipo || !destino) {
       toast.error("Preencha todos os campos obrigatórios");
@@ -113,6 +134,13 @@ export function CadastroMovimentacao({
     handleOpenChange(false);
     setTipo(undefined);
     setDestino("");
+    setObservacoes("");
+    setNotaFiscal({
+      numero: "",
+      serie: "",
+      chave: "",
+      data_emissao: "",
+    });
     setProdutos([]);
   };
 
@@ -161,6 +189,81 @@ export function CadastroMovimentacao({
                   onChange={(e) => {
                     setDestino(e.target.value);
                   }}
+                />
+              </Field>
+            </div>
+
+            {/* Seção de Nota Fiscal - Apenas para Entrada */}
+            {tipo === "entrada" && (
+              <div className="space-y-2 border-t pt-4">
+                <FieldLabel className="text-base font-semibold">
+                  Nota Fiscal
+                </FieldLabel>
+                <div className="flex flex-row gap-1">
+                  <Field>
+                    <FieldLabel htmlFor="nf-numero">Número*</FieldLabel>
+                    <Input
+                      id="nf-numero"
+                      autoComplete="off"
+                      placeholder="000348325"
+                      value={notaFiscal.numero}
+                      onChange={(e) =>
+                        atualizarNotaFiscal("numero", e.target.value)
+                      }
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="nf-serie">Série*</FieldLabel>
+                    <Input
+                      id="nf-serie"
+                      autoComplete="off"
+                      placeholder="2"
+                      value={notaFiscal.serie}
+                      onChange={(e) =>
+                        atualizarNotaFiscal("serie", e.target.value)
+                      }
+                    />
+                  </Field>
+                </div>
+                <div className="flex flex-row gap-1">
+                  <Field>
+                    <FieldLabel htmlFor="nf-chave">Chave de Acesso*</FieldLabel>
+                    <Input
+                      id="nf-chave"
+                      autoComplete="off"
+                      placeholder="352007142001660001875500200003483251234567890"
+                      value={notaFiscal.chave}
+                      onChange={(e) =>
+                        atualizarNotaFiscal("chave", e.target.value)
+                      }
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="nf-data">Data de Emissão*</FieldLabel>
+                    <Input
+                      id="nf-data"
+                      type="date"
+                      autoComplete="off"
+                      value={notaFiscal.data_emissao}
+                      onChange={(e) =>
+                        atualizarNotaFiscal("data_emissao", e.target.value)
+                      }
+                    />
+                  </Field>
+                </div>
+              </div>
+            )}
+
+            {/* Campo de Observações */}
+            <div className="space-y-2 border-t pt-4">
+              <Field>
+                <FieldLabel htmlFor="observacoes">Observações</FieldLabel>
+                <Textarea
+                  id="observacoes"
+                  placeholder="Informações adicionais sobre a movimentação..."
+                  value={observacoes}
+                  onChange={(e) => setObservacoes(e.target.value)}
+                  rows={3}
                 />
               </Field>
             </div>
