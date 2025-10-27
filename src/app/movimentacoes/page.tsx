@@ -142,6 +142,18 @@ export default function MovimentacoesPage() {
               dataFinal,
               setDataFinal,
               onSubmit: () => {
+                if (!dataInicial || !dataFinal) {
+                  toast.error(
+                    "Data inicial e final são obrigatórias",
+                    {
+                      description:
+                        "Informe tanto a data inicial quanto a data final para filtrar por período.",
+                    }
+                  );
+                  setDataInicialFilter("");
+                  setDataFinalFilter("");
+                  return;
+                }
                 setProdutosFilter(produtos);
                 setTipoProdutoFilter(tipoProduto);
                 setDataInicialFilter(dataInicial);
