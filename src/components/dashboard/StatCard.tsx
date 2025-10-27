@@ -14,7 +14,7 @@ export default function StatCard({ card }: StatCardProps) {
   };
 
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-white min-h-[120px] flex items-center">
+    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-white min-h-[120px] flex items-center cursor-pointer">
       <div className="flex items-center space-x-4 w-full">
         <Icon className="w-12 h-12" />
         <div>

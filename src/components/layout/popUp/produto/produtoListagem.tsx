@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Produto } from "@/lib/Produto";
+import { Produto } from "@/types/Produto";
 import { Pencil, Printer } from "lucide-react";
 import {
   Field,
@@ -59,7 +59,7 @@ export function ProdutoListagem({
           <DialogDescription>Informações do produto</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-0.5 text-sm text-neutral-700">
+        <div className="space-y-0.5 text-sm text-neutral-700 max-h-96 overflow-y-auto">
           {produto ? (
             <>
               <FieldSet className="pointer-events-none">

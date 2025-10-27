@@ -14,8 +14,8 @@ export default function Home() {
       <main className="min-h-screen bg-gradient-to-br from-[#0042D9] via-[#0042D9]/90 to-[#0042D9]/70 p-6 flex flex-col">
         <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
 
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-xl font-bold text-white">Gestão de Estoque</h1>
+          <div className="flex items-center justify-between mb-6 cursor-pointer">
+            <h1 className="text-xl font-bold text-white" onClick={() => window.location.href = "/home"}>Gestão de Estoque</h1>
             <UserMenu />
           </div>
 
