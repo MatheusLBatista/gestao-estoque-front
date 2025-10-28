@@ -1,0 +1,41 @@
+services:
+  mongodb:
+    container_name: mongodb
+    image: mongo:8
+    volumes:
+      - vol-mongodb:/data/db
+    ports:
+      - 27017:27017
+    restart: unless-stopped
+
+  api:
+    container_name: gestao-de-estoque-api
+    build:
+      context: ../gestao-de-estoque-api
+      dockerfile: Dockerfile
+    environment:
+      - DB_URL=mongodb://mongodb:27017/gerenciarEstoque
+      - APP_PORT=5011
+    ports:
+      - "5011:5011"
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  frontend:
+    container_name: gestao-de-estoque-front
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    env_file:
+      - .env.local
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5011
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  vol-mongodb:
