@@ -1,6 +1,16 @@
-# Gestão de Estoque - Docker Setup
+# 📦 Sistema de Gestão de Estoque
 
-## Como usar
+Sistema completo para gerenciamento de estoque com Next.js, Node.js e MongoDB.
+
+## 📥 Repositórios
+
+```bash
+# Clonar os repositórios
+git clone ssh://git@gitlab.fslab.dev:4241/fabrica-de-software-iii-2025-2/gestao-de-estoque/gestao-de-estoque-api.git
+git clone ssh://git@gitlab.fslab.dev:4241/fabrica-de-software-iii-2025-2/gestao-de-estoque/gestao-de-estoque-front.git
+```
+
+## 🚀 Como usar
 
 ### Pré-requisitos
 
@@ -12,9 +22,9 @@
 Certifique-se de que os projetos estão organizados assim:
 
 ```
-ads-2025-2/fabrica-software-3/
-├── gestao-de-estoque-api/     # Projeto do backend
-├── gestao-de-estoque-front/    # Projeto do frontend
+pasta-projeto/
+├── gestao-de-estoque-api/      # Backend (Node.js + MongoDB)
+├── gestao-de-estoque-front/    # Frontend (Next.js + TypeScript)
 ```
 
 ### Iniciar aplicação
@@ -24,8 +34,21 @@ ads-2025-2/fabrica-software-3/
 cd gestao-de-estoque-front
 
 # Subir todos os serviços
-docker-compose up -d
+docker-compose up --build -d
+
+# Executar seed do banco (popular com dados de teste)
+docker-compose exec api npm run seed
 ```
+
+## 🔑 Credenciais de Teste
+
+Após executar o seed:
+
+| Perfil           | Email                  | Senha       |
+| ---------------- | ---------------------- | ----------- |
+| 👑 Administrador | admin@sistema.com      | Admin@123   |
+| 👔 Gerente       | gerente@sistema.com    | Gerente@123 |
+| 📦 Estoquista    | estoquista@sistema.com | Estoque@123 |
 
 ### Acessar aplicação
 
@@ -36,6 +59,13 @@ docker-compose up -d
 ### Comandos úteis
 
 ```bash
+# Ver logs de todos os serviços
+docker-compose logs -f
+
+# Ver logs específicos
+docker-compose logs -f frontend
+docker-compose logs -f api
+
 # Parar todos os serviços
 docker-compose down
 
@@ -47,9 +77,20 @@ docker-compose up --build
 
 # Ver status dos containers
 docker-compose ps
+
+# Executar seed novamente
+docker-compose exec api npm run seed
 ```
 
-## Configuração
+## 📁 Funcionalidades
+
+- 👥 **Gestão de Usuários** - CRUD com controle de permissões
+- 🏢 **Fornecedores** - Cadastro e vinculação com produtos
+- 📦 **Produtos** - Controle completo de estoque
+- 📊 **Movimentações** - Entradas/saídas com notas fiscais
+- 🔐 **Autenticação** - JWT com grupos de usuários
+
+## ⚙️ Configuração
 
 ### Variáveis de ambiente
 
