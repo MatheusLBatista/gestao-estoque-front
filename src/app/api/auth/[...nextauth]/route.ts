@@ -8,10 +8,10 @@ import type { JWT } from "next-auth/jwt";
  */
 async function refreshAccessToken(token: JWT) {
   try {
-    const res = await fetch(`${process.env.API_URL_SERVER_SIDED}/login/refresh`, {
+    const res = await fetch(`${process.env.API_URL_SERVER_SIDED}/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refreshtoken: token.refreshtoken }),
+      body: JSON.stringify({ refreshToken: token.refreshtoken }),
     });
 
     if (!res.ok) throw new Error("Falha ao renovar token");
@@ -23,8 +23,7 @@ async function refreshAccessToken(token: JWT) {
       ...token,
       accesstoken: data.accesstoken,
       refreshtoken: data.refreshtoken ?? token.refreshtoken,
-      accessTokenExpires: Date.now() + 60 * 60 * 1000, // ✅ 1 hora (ou data.expires_in se existir)
-      user: data.usuario ?? token.user, // opcional, caso queira atualizar dados do usuário
+      accessTokenExpires: Date.now() + 60 * 60 * 1000, // ✅ 1 hora
     };
   } catch (err) {
     console.error("Erro ao renovar token:", err);
@@ -39,17 +38,17 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        siape: { label: "Siape", type: "text" },
+        matricula: { label: "Matricula", type: "text" },
         senha: { label: "Senha", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.siape || !credentials?.senha) return null;
+        if (!credentials?.matricula || !credentials?.senha) return null;
 
         const res = await fetch(`${process.env.API_URL_SERVER_SIDED}/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            siape: credentials.siape,
+            matricula: credentials.matricula,
             senha: credentials.senha,
           }),
         });
@@ -57,24 +56,16 @@ export const authOptions: NextAuthOptions = {
         if (!res.ok) return null;
 
         const json = await res.json();
-        const user = json.data;
 
-        if (user && user.usuario._id) {
+        if (json && json.usuario && json.usuario.id) {
           return {
-            id: user.usuario._id,
-            nome_usuario: user.usuario.nome_usuario ?? "",
-            email: user.usuario.email ?? "",
-            matricula: user.usuario.matricula ?? "",
-            perfil: user.usuario.perfil ?? "",
-            ativo: user.usuario.ativo ?? false,
-            senha_definida: user.usuario.senha_definida ?? false,
-            online: user.usuario.online ?? false,
-            grupos: user.usuario.grupos ?? [],
-            permissoes: user.usuario.permissoes ?? [],
-            data_cadastro: user.usuario.data_cadastro ?? "",
-            data_ultima_atualizacao: user.usuario.data_ultima_atualizacao ?? "",
-            accesstoken: user.accesstoken ?? "",
-            refreshtoken: user.refreshtoken ?? "",
+            id: json.usuario.id,
+            nome_usuario: json.usuario.nome_usuario ?? "",
+            email: json.usuario.email ?? "",
+            matricula: json.usuario.matricula ?? "",
+            perfil: json.usuario.perfil ?? "",
+            accesstoken: json.accessToken ?? "",
+            refreshtoken: json.refreshToken ?? "",
           };
         }
 

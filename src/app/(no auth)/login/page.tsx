@@ -20,7 +20,7 @@ export default function Login() {
 
     try {
       const result = await signIn("credentials", {
-        siape: matricula,
+        matricula: matricula,
         senha: senha,
         redirect: false,
       });
