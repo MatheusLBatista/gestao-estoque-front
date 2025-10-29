@@ -1,6 +1,10 @@
 export function AdjustDate(dataIso: string): string {
   const data = new Date(dataIso);
 
+  if (isNaN(data.getTime())) {
+    return "Data inválida";
+  }
+
   const formatador = new Intl.DateTimeFormat("pt-BR", {
     timeZone: "America/Sao_Paulo",
     year: "numeric",
