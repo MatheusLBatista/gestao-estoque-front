@@ -44,12 +44,6 @@ export default function Login() {
 
         <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 relative z-10">
           
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="bg-white px-3 py-1 rounded text-[#0042D9] font-bold text-sm">
-              H & R
-            </div>
-          </div>
 
           {/* Login Form */}
           <div className="flex-1 flex flex-col justify-center">
