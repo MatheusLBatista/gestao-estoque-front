@@ -48,7 +48,7 @@ export function ProdutosFilter({
       <InputGroup className="w-[240px]">
         <InputGroupInput
           placeholder="Produto"
-          value={nomeProduto}
+          value={nomeProduto || ""}
           onChange={(e) => setNomeProduto(e.target.value)}
         />
         <InputGroupAddon>
@@ -76,7 +76,7 @@ export function ProdutosFilter({
       <InputGroup className="w-[240px]">
         <InputGroupInput
           placeholder="Código do produto"
-          value={codigoProduto}
+          value={codigoProduto || ""}
           onChange={(e) => setCodigoProduto(e.target.value)}
         />
         <InputGroupAddon>
@@ -91,7 +91,7 @@ export function ProdutosFilter({
         <Switch
           id="estoqueBaixo"
           className="cursor-pointer"
-          checked={estoqueBaixo}
+          checked={estoqueBaixo || false}
           onCheckedChange={setEstoqueBaixo}
         />
       </div>
@@ -102,6 +102,22 @@ export function ProdutosFilter({
       >
         <ListFilter />
         Filtrar
+      </Button>
+      
+      <Button
+        onClick={() => {
+          setNomeProduto("");
+          setCodigoProduto("");
+          setCategoria("");
+          setEstoqueBaixo(false);
+          if (onSubmit) {
+            setTimeout(() => onSubmit(), 100);
+          }
+        }}
+        variant="outline"
+        className="cursor-pointer"
+      >
+        Limpar
       </Button>
     </div>
   );
