@@ -43,10 +43,10 @@ export default function ProdutosPage() {
     parseAsBoolean.withDefault(false)
   );
 
-  const [nomeProduto, setNomeProduto] = useState(nomeProdutoFilter);
-  const [categoria, setCategoria] = useState(categoriaFilter);
-  const [codigoProduto, setCodigoProduto] = useState(codigoProdutoFilter);
-  const [estoqueBaixo, setEstoqueBaixo] = useState(estoqueBaixoFilter);
+  const [nomeProduto, setNomeProduto] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [codigoProduto, setCodigoProduto] = useState("");
+  const [estoqueBaixo, setEstoqueBaixo] = useState(false);
 
   useEffect(() => {
     setNomeProduto(nomeProdutoFilter);
@@ -74,10 +74,6 @@ export default function ProdutosPage() {
       codigoProdutoFilter,
       categoriaFilter,
       estoqueBaixoFilter,
-      nomeProduto,
-      codigoProduto,
-      categoria,
-      estoqueBaixo,
       session?.user?.accesstoken,
     ],
     queryFn: async () => {
