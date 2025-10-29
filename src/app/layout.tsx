@@ -4,6 +4,7 @@ import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
 import { Toaster } from "sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { SessionWrapper } from "@/components/SessionWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,8 +32,10 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <NuqsAdapter>{children}</NuqsAdapter>
-          <Toaster position="top-right" richColors />
+          <SessionWrapper>
+            <NuqsAdapter>{children}</NuqsAdapter>
+            <Toaster position="top-right" richColors />
+          </SessionWrapper>
           {/* <ToastContainer
               position = "top-right"
               autoClose = {3000}
