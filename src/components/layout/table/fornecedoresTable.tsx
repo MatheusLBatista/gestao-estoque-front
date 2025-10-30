@@ -13,6 +13,7 @@ import { ItemsPerPage } from "../pagination/itemsPerPage";
 import { Fornecedor } from "@/types/Fornecedor";
 import { useQueryState, parseAsInteger } from "nuqs";
 import { AdjustDate } from "@/lib/adjustDate";
+import FornecedorCadastro from "../popUp/fornecedores/fornecedorCadastro";
 // import { FornecedoresFilterProps } from "../filters/fornecedoresFilter";
 
 interface TabelaFornecedorProps {
@@ -49,13 +50,18 @@ TabelaFornecedorProps) {
   const [editOpen, setEditOpen] = useState<boolean>(false);
   const [editForneceodr, setEditForneceodr] = useState<Fornecedor | null>(null);
 
-  const [cadastroOpen, setCadastroOpen] = useState<boolean>(false);
+  const [fornecedorOpen, setFornecedorOpen] = useState<boolean>(false);
 
   return (
     <>
       <div className="flex flex-row place-content-between pb-2">
         {/* TODO: Adicionar filtros de fornecedores */}
-        {/* TODO: Adicionar botão de cadastro de fornecedor */}
+        <FornecedorCadastro
+          color="green"
+          size="1/8"
+          open={fornecedorOpen}
+          onOpenChange={(value) => setFornecedorOpen(value)}
+        />
       </div>
 
       <div className="bg-white rounded-lg shadow">
@@ -74,7 +80,7 @@ TabelaFornecedorProps) {
               <TableHead className="text-center text-neutral-500">
                 Telefone
               </TableHead>
-              <TableHead className="text-right text-neutral-500">
+              <TableHead className="text-center text-neutral-500">
                 Data cadastro
               </TableHead>
             </TableRow>
@@ -102,7 +108,7 @@ TabelaFornecedorProps) {
                 <TableCell className="text-center text-neutral-700">
                   {fornecedor.telefone}
                 </TableCell>
-                <TableCell className="text-right text-neutral-700">
+                <TableCell className="text-center text-neutral-700">
                   {AdjustDate(fornecedor.data_cadastro)}
                 </TableCell>
               </TableRow>

@@ -29,7 +29,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:5011
-      - NEXT_PUBLIC_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MDAzNjhiMDQ2MjJlOWQyOWZhZDUyYSIsImlhdCI6MTc2MTcwNDYzNCwiZXhwIjoxNzYxNzkxMDM0fQ.q0Y2HQ2LiPKSKQ6XP3AO2srsbwDaMst80DZne6nY4d0
+      - NEXT_PUBLIC_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MDAzNjhiMDQ2MjJlOWQyOWZhZDUyYSIsImlhdCI6MTc2MTc4NTQ1NSwiZXhwIjoxNzYxODcxODU1fQ.NnK2xXmDS_k_9BexG2iyeJHEscfboV_mly_xIa5FV-E
       - NEXT_PUBLIC_SIMULAR_ERRO=false
     ports:
       - "3000:3000"
