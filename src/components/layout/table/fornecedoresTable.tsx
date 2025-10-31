@@ -14,6 +14,7 @@ import { Fornecedor } from "@/types/Fornecedor";
 import { useQueryState, parseAsInteger } from "nuqs";
 import { AdjustDate } from "@/lib/adjustDate";
 import FornecedorCadastro from "../popUp/fornecedores/fornecedorCadastro";
+import { FornecedorListagem } from "../popUp/fornecedores/fornecedorListagem";
 // import { FornecedoresFilterProps } from "../filters/fornecedoresFilter";
 
 interface TabelaFornecedorProps {
@@ -47,10 +48,11 @@ TabelaFornecedorProps) {
   const [selectedFornecedor, setSelectedFornecedor] =
     useState<Fornecedor | null>(null);
 
+  // TODO: review
   const [editOpen, setEditOpen] = useState<boolean>(false);
-  const [editForneceodr, setEditForneceodr] = useState<Fornecedor | null>(null);
+  const [editForneceodr, setEditFornecedor] = useState<Fornecedor | null>(null);
 
-  const [fornecedorOpen, setFornecedorOpen] = useState<boolean>(false);
+  const [cadastroOpen, setCadastroOpen] = useState<boolean>(false);
 
   return (
     <>
@@ -59,8 +61,8 @@ TabelaFornecedorProps) {
         <FornecedorCadastro
           color="green"
           size="1/8"
-          open={fornecedorOpen}
-          onOpenChange={(value) => setFornecedorOpen(value)}
+          open={cadastroOpen}
+          onOpenChange={(value) => setCadastroOpen(value)}
         />
       </div>
 
@@ -118,6 +120,23 @@ TabelaFornecedorProps) {
       </div>
 
       {/* TODO: Implementar modais de fornecedores */}
+      <FornecedorListagem
+        open={open}
+        fornecedor={selectedFornecedor}
+        onOpenChange={(value) => {
+          setOpen(value);
+          if (!value) setSelectedFornecedor(null);
+        }}
+        onEditar={(fornecedor) => {
+          setOpen(false);
+          setEditFornecedor(fornecedor);
+          setEditOpen(true);
+        }}
+        onCadastrar={() => {
+          setOpen(false);
+          setCadastroOpen(true);
+        }}
+      />
 
       <div className="flex justify-between">
         <div className="px-4 py-6 flex items-center justify-between w-full">

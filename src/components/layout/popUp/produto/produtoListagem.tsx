@@ -62,7 +62,7 @@ export function ProdutoListagem({
         <div className="space-y-0.5 text-sm text-neutral-700 max-h-96 overflow-y-auto">
           {produto ? (
             <>
-              <FieldSet className="pointer-events-none">
+              <FieldSet>
                 <FieldGroup>
                   <Field>
                     <FieldLabel>Nome do produto*</FieldLabel>
