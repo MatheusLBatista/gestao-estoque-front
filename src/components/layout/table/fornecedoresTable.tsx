@@ -15,6 +15,7 @@ import { useQueryState, parseAsInteger } from "nuqs";
 import { AdjustDate } from "@/lib/adjustDate";
 import FornecedorCadastro from "../popUp/fornecedores/fornecedorCadastro";
 import { FornecedorListagem } from "../popUp/fornecedores/fornecedorListagem";
+import { FornecedorEdicao } from "../popUp/fornecedores/fornecedorEdicao";
 // import { FornecedoresFilterProps } from "../filters/fornecedoresFilter";
 
 interface TabelaFornecedorProps {
@@ -50,7 +51,7 @@ TabelaFornecedorProps) {
 
   // TODO: review
   const [editOpen, setEditOpen] = useState<boolean>(false);
-  const [editForneceodr, setEditFornecedor] = useState<Fornecedor | null>(null);
+  const [editFornecedor, setEditFornecedor] = useState<Fornecedor | null>(null);
 
   const [cadastroOpen, setCadastroOpen] = useState<boolean>(false);
 
@@ -136,6 +137,15 @@ TabelaFornecedorProps) {
           setOpen(false);
           setCadastroOpen(true);
         }}
+      />
+
+      <FornecedorEdicao
+        open={editOpen}
+        onOpenChange={(value) => {
+          setEditOpen(value);
+          if (!value) setEditFornecedor(null);
+        }}
+        fornecedor={editFornecedor}
       />
 
       <div className="flex justify-between">
