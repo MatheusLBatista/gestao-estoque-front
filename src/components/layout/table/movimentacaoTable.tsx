@@ -165,7 +165,7 @@ export default function TabelaMovimentacao({
                   </TableCell>
 
                   <TableCell className="text-center text-sm text-neutral-700">
-                    {AdjustDate(m.data_cadastro)}
+                    {m.data_movimentacao || m.data_cadastro}
                   </TableCell>
                 </TableRow>
               ))}
