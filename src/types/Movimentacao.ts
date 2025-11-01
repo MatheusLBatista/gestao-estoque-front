@@ -8,6 +8,7 @@ interface BaseMovimentacao {
   };
   status: boolean;
   observacoes: string;
+  data_movimentacao: string;
   data_cadastro: string;
   data_ultima_atualizacao: string;
   totalProdutos?: number;
