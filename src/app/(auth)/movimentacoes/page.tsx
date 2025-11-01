@@ -6,6 +6,7 @@ import { TypographyH2 } from "@/components/layout/subtitle";
 import TabelaMovimentacao from "@/components/layout/table/movimentacaoTable";
 import { fetchData } from "@/services/api";
 import { Movimentacao } from "@/types/Movimentacao";
+import { AdjustDate } from "@/lib/adjustDate";
 import { useQuery } from "@tanstack/react-query";
 import { LoaderIcon } from "lucide-react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
@@ -94,6 +95,23 @@ export default function MovimentacoesPage() {
           limit: number;
         };
       }>(`/movimentacoes?${params.toString()}`, "GET", session.user.accesstoken);
+
+      if (result.data?.docs) {
+        result.data.docs = result.data.docs.map(movimentacao => ({
+          ...movimentacao,
+          data_movimentacao: movimentacao.data_movimentacao ? 
+            AdjustDate(movimentacao.data_movimentacao) : 
+            AdjustDate(movimentacao.data_cadastro),
+          data_cadastro: AdjustDate(movimentacao.data_cadastro),
+          data_ultima_atualizacao: AdjustDate(movimentacao.data_ultima_atualizacao),
+          ...(movimentacao.tipo === 'entrada' && (movimentacao as any).nota_fiscal?.data_emissao && {
+            nota_fiscal: {
+              ...(movimentacao as any).nota_fiscal,
+              data_emissao: AdjustDate((movimentacao as any).nota_fiscal.data_emissao)
+            }
+          })
+        }));
+      }
 
       return result.data || [];
     },
