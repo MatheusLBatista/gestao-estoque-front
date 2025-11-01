@@ -197,15 +197,18 @@ export function MovimentacaoListagem({
 
                 <div className="flex flex-row gap-1">
                   <Field>
-                    <FieldLabel>Data de cadastro</FieldLabel>
+                    <FieldLabel>Data da movimentação</FieldLabel>
                     <Input
-                      value={AdjustDate(movimentacao.data_cadastro)}
+                      value={movimentacao.data_movimentacao || movimentacao.data_cadastro}
                       readOnly
                     />
                   </Field>
                   <Field>
                     <FieldLabel>Data última atualização</FieldLabel>
-                    <Input value="--/--/----" readOnly />
+                    <Input 
+                      value={movimentacao.data_ultima_atualizacao} 
+                      readOnly 
+                    />
                   </Field>
                 </div>
 
@@ -269,12 +272,7 @@ export function MovimentacaoListagem({
                           <FieldLabel>Data de Emissão</FieldLabel>
                           <Input
                             value={
-                              (movimentacao as any).nota_fiscal.data_emissao
-                                ? AdjustDate(
-                                    (movimentacao as any).nota_fiscal
-                                      .data_emissao
-                                  )
-                                : "-"
+                              (movimentacao as any).nota_fiscal?.data_emissao || "-"
                             }
                             readOnly
                           />
