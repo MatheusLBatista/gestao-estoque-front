@@ -29,8 +29,11 @@ services:
       dockerfile: Dockerfile
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:5011
-      - NEXT_PUBLIC_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MDAzNjhiMDQ2MjJlOWQyOWZhZDUyYSIsImlhdCI6MTc2MTc4NTQ1NSwiZXhwIjoxNzYxODcxODU1fQ.NnK2xXmDS_k_9BexG2iyeJHEscfboV_mly_xIa5FV-E
+      - NEXT_PUBLIC_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MDgwNmE2MGExMTQ3ZWU1Mzc5YmJmYSIsImlhdCI6MTc2MjE5ODAwNiwiZXhwIjoxNzYyMjg0NDA2fQ.N1Bu7XNr1w0Qd--DNOLB-PHCiNBwtXj37dbjPeVDG_E
       - NEXT_PUBLIC_SIMULAR_ERRO=false
+      - API_URL_SERVER_SIDED=http://api:5011
+      - NEXTAUTH_SECRET=gestao-estoque-secret-key-production-2025-secure-hash-jwt-auth
+      - NEXTAUTH_URL=http://localhost:3000
     ports:
       - "3000:3000"
     depends_on:
