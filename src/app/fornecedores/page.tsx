@@ -7,8 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchData } from "@/services/api";
 import { LoaderIcon } from "lucide-react";
 import { toast } from "sonner";
-import { useEffect } from "react";
-import { useQueryState, parseAsInteger } from "nuqs";
+import { useEffect, useState } from "react";
+import { useQueryState, parseAsInteger, parseAsString, parseAsBoolean } from "nuqs";
 import TabelaFornecedores from "@/components/layout/table/fornecedoresTable";
 
 export default function FornecedoresPage() {
@@ -18,13 +18,44 @@ export default function FornecedoresPage() {
     parseAsInteger.withDefault(10)
   );
 
+  const [nomeFornecedorFilter, setNome_fornecedorFilter] = useQueryState(
+    "nome_fornecedor",
+    parseAsString.withDefault("")
+  );
+
+  const [cnpjFilter, setCnpjFilter] = useQueryState(
+    "cnpj",
+    parseAsString.withDefault("")
+  );
+
+  const [emailFilter, setEmailFilter] = useQueryState(
+    "email",
+    parseAsString.withDefault("")
+  );
+
+  const [ativoFilter, setAtivoFilter] = useQueryState(
+    "ativo",
+    parseAsBoolean.withDefault(false)
+  );
+
+  const[nomeFornecedor, setNomeFornecedor] = useState(nomeFornecedorFilter);
+  const[cnpj, setCnpj] = useState(cnpjFilter);
+  const[email, setEmail] = useState(emailFilter);
+  const[ativo, setAtivo] = useState(ativoFilter)
+
+  useEffect(() => {
+    setNomeFornecedor(nomeFornecedorFilter)
+    setCnpj(cnpjFilter)
+    setEmail(emailFilter)
+  }, [nomeFornecedorFilter, cnpjFilter, emailFilter])
+
   const {
     data: fornecedoresData,
     isLoading: fornecedoresIsLoading,
     isError: fornecedoresIsError,
     error: fornecedoresError,
   } = useQuery({
-    queryKey: ["listaFornecedores", page, limite],
+    queryKey: ["listaFornecedores", page, limite, nomeFornecedorFilter, cnpjFilter, emailFilter, ativoFilter],
     queryFn: async () => {
       if (process.env.NEXT_PUBLIC_SIMULAR_ERRO === "true") {
         throw new Error("Erro simulado ao carregar dados de fornecedores");
@@ -33,6 +64,10 @@ export default function FornecedoresPage() {
       const params = new URLSearchParams({
         page: page.toString(),
         limite: limite.toString(),
+        ...(nomeFornecedorFilter && ({ nome_fornecedor: nomeFornecedorFilter })),
+        ...(cnpjFilter && ({ cnpj: cnpjFilter })),
+        ...(emailFilter && ({ email: emailFilter })),
+        ...(ativoFilter && ({ ativo: "true" })),
       });
 
       const result = await fetchData<{
@@ -91,6 +126,23 @@ export default function FornecedoresPage() {
             totalDocs={fornecedoresData.totalDocs}
             currentPage={fornecedoresData.page}
             perPage={fornecedoresData.limit}
+            filtros={{
+              nomeFornecedor,
+              cnpj,
+              email,
+              ativo,
+              setNomeFornecedor,
+              setCnpj,
+              setEmail,
+              setAtivo,
+              onSubmit: () => {
+                setPage(1);
+                setNome_fornecedorFilter(nomeFornecedor);
+                setCnpjFilter(cnpj);
+                setEmailFilter(email);
+                setAtivoFilter(ativo);
+              },
+            }}
           />
         )}
       </main>

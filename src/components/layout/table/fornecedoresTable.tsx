@@ -16,7 +16,7 @@ import { AdjustDate } from "@/lib/adjustDate";
 import FornecedorCadastro from "../popUp/fornecedores/fornecedorCadastro";
 import { FornecedorListagem } from "../popUp/fornecedores/fornecedorListagem";
 import { FornecedorEdicao } from "../popUp/fornecedores/fornecedorEdicao";
-// import { FornecedoresFilterProps } from "../filters/fornecedoresFilter";
+import { FornecedoresFilter, FornecedoresFilterProps } from "../filters/fornecedoresFilter";
 
 interface TabelaFornecedorProps {
   fornecedores: Fornecedor[];
@@ -24,7 +24,7 @@ interface TabelaFornecedorProps {
   totalDocs: number;
   currentPage: number;
   perPage: number;
-  // filtros: FornecedoresFilterProps;
+  filtros: FornecedoresFilterProps;
 }
 
 export default function TabelaFornecedores({
@@ -33,8 +33,8 @@ export default function TabelaFornecedores({
   totalDocs,
   currentPage,
   perPage,
-}: // filtros,
-TabelaFornecedorProps) {
+  filtros,
+}: TabelaFornecedorProps) {
   const [pageState, setPageState] = useQueryState(
     "page",
     parseAsInteger.withDefault(currentPage)
@@ -58,7 +58,18 @@ TabelaFornecedorProps) {
   return (
     <>
       <div className="flex flex-row place-content-between pb-2">
-        {/* TODO: Adicionar filtros de fornecedores */}
+        <FornecedoresFilter 
+          nomeFornecedor={filtros.nomeFornecedor}
+          setNomeFornecedor={filtros.setNomeFornecedor}
+          cnpj={filtros.cnpj}
+          setCnpj={filtros.setCnpj}
+          email={filtros.email}
+          setEmail={filtros.setEmail}
+          ativo={filtros.ativo}
+          setAtivo={filtros.setAtivo}
+          onSubmit={filtros.onSubmit}
+        />
+
         <FornecedorCadastro
           color="green"
           size="1/8"
