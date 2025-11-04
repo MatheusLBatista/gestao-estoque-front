@@ -34,14 +34,14 @@ export default function FornecedoresPage() {
   );
 
   const [ativoFilter, setAtivoFilter] = useQueryState(
-    "ativo",
-    parseAsBoolean.withDefault(false)
+    "status",
+    parseAsBoolean
   );
 
   const[nomeFornecedor, setNomeFornecedor] = useState(nomeFornecedorFilter);
   const[cnpj, setCnpj] = useState(cnpjFilter);
   const[email, setEmail] = useState(emailFilter);
-  const[ativo, setAtivo] = useState(ativoFilter)
+  const[ativo, setAtivo] = useState<boolean | null>(ativoFilter)
 
   useEffect(() => {
     setNomeFornecedor(nomeFornecedorFilter)
@@ -67,7 +67,8 @@ export default function FornecedoresPage() {
         ...(nomeFornecedorFilter && ({ nome_fornecedor: nomeFornecedorFilter })),
         ...(cnpjFilter && ({ cnpj: cnpjFilter })),
         ...(emailFilter && ({ email: emailFilter })),
-        ...(ativoFilter && ({ ativo: "true" })),
+        ...(ativoFilter === true ? { status: "true" } : {}),
+        ...(ativoFilter === false ? { status: "false" } : {}),
       });
 
       const result = await fetchData<{

@@ -6,6 +6,14 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SearchIcon, ListFilter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -18,8 +26,8 @@ export interface FornecedoresFilterProps {
   setCnpj: (v: string) => void;
   email?: string;
   setEmail: (v: string) => void;
-  ativo?: boolean;
-  setAtivo: (v: boolean) => void;
+  ativo?: boolean | null;
+  setAtivo: (v: boolean | null) => void;
   onSubmit?: () => void;
 }
 
@@ -69,17 +77,21 @@ export function FornecedoresFilter({
         </InputGroupAddon>
       </InputGroup>
 
-      <div className="flex flex-row items-center space-x-2">
-        <Label htmlFor="ativo" className="text-muted-foreground">
-          Ativo
-        </Label>
-        <Switch
-          id="ativo"
-          className="cursor-pointer"
-          checked={ativo}
-          onCheckedChange={setAtivo}
-        />
-      </div>
+      <Select
+          value={ativo === null ? "" : ativo === true ? "true" : "false"}
+          onValueChange={(v) => setAtivo(v === "todos" ? null : v === "true")}
+        >
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="todos">Todos</SelectItem>
+              <SelectItem value="true">Ativo</SelectItem>
+              <SelectItem value="false">Inativo</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
 
       <Button
         onClick={onSubmit}
