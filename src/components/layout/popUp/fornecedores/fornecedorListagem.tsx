@@ -5,8 +5,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,  
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Fornecedor } from "@/types/Fornecedor";
-import { Pencil, Printer } from "lucide-react";
+import { Pencil, Printer, Trash2 } from "lucide-react";
 import {
   Field,
   FieldGroup,
@@ -18,6 +29,9 @@ import { Input } from "@/components/ui/input";
 import { AdjustDate } from "@/lib/adjustDate";
 import { Button } from "@/components/ui/button";
 import { BotaoCadastrar } from "@/components/ui/cadastrarButton";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchData } from "@/services/api";
+import { toast } from "sonner";
 
 interface FornecedorListarProps {
   open: boolean;
@@ -25,6 +39,7 @@ interface FornecedorListarProps {
   onOpenChange: (value: boolean) => void;
   onEditar: (fornecedor: Fornecedor) => void;
   onCadastrar: () => void;
+  onExcluir?: (fornecedor: Fornecedor) => void;
 }
 
 export function FornecedorListagem({
@@ -33,7 +48,32 @@ export function FornecedorListagem({
   onOpenChange,
   onEditar,
   onCadastrar,
+  onExcluir,
 }: FornecedorListarProps) {
+  const queryClient = useQueryClient();
+  
+  const desativarMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const result = await fetchData(`/fornecedores/${id}`, "PATCH", undefined, {
+        status: false
+      });
+      return result;
+    },
+    onSuccess: () => {
+      toast.success("Fornecedor desativado com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ["listaFornecedores"] });
+      onOpenChange(false);
+      if (onExcluir && fornecedor) {
+        onExcluir(fornecedor);
+      }
+    },
+    onError: (error) => {
+      toast.error("Erro ao desativar fornecedor", {
+        description: (error as Error)?.message || "Erro desconhecido",
+      });
+    },
+  });
+
   const enderecoFornecedor = fornecedor?.endereco?.[0];
 
   return (
@@ -51,6 +91,39 @@ export function FornecedorListagem({
                     onEditar(fornecedor);
                   }}
                 />
+                {fornecedor.status && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Trash2
+                        className="cursor-pointer w-4 h-4 hover:text-red-600 text-red-500 ml-auto"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Desativar fornecedor</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Tem certeza que deseja desativar o fornecedor "{fornecedor.nome_fornecedor}"? 
+                          Esta ação não pode ser desfeita e o fornecedor não aparecerá mais na listagem padrão.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => {
+                            if (fornecedor) {
+                              desativarMutation.mutate(fornecedor._id);
+                            }
+                          }}
+                          disabled={desativarMutation.isPending}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          {desativarMutation.isPending ? "Desativando..." : "Desativar"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
               </div>
             ) : (
               <div>Nenhum fornecedor selecionado.</div>
@@ -211,11 +284,12 @@ export function FornecedorListagem({
         <div className="pt-2 border-t">
           <div className="flex flex-row justify-center gap-1">
             <Button
-              className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
+              className="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
               onClick={() => window.print()}
             >
               <Printer className="w-4 h-4" /> Imprimir
             </Button>
+            
             <BotaoCadastrar
               color="blue"
               size="1/2"

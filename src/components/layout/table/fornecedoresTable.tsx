@@ -148,6 +148,10 @@ export default function TabelaFornecedores({
           setOpen(false);
           setCadastroOpen(true);
         }}
+        onExcluir={(fornecedor) => {
+          setOpen(false);
+          setSelectedFornecedor(null);
+        }}
       />
 
       <FornecedorEdicao

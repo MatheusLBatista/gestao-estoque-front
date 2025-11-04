@@ -35,13 +35,13 @@ export default function FornecedoresPage() {
 
   const [ativoFilter, setAtivoFilter] = useQueryState(
     "status",
-    parseAsBoolean
+    parseAsBoolean.withDefault(true)
   );
 
   const[nomeFornecedor, setNomeFornecedor] = useState(nomeFornecedorFilter);
   const[cnpj, setCnpj] = useState(cnpjFilter);
   const[email, setEmail] = useState(emailFilter);
-  const[ativo, setAtivo] = useState<boolean | null>(ativoFilter)
+  const[ativo, setAtivo] = useState<boolean | null>(ativoFilter ?? true)
 
   useEffect(() => {
     setNomeFornecedor(nomeFornecedorFilter)
