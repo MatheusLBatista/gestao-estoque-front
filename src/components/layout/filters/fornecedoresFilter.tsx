@@ -16,8 +16,6 @@ import {
 } from "@/components/ui/select";
 import { SearchIcon, ListFilter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 
 export interface FornecedoresFilterProps {
   nomeFornecedor?: string;
@@ -25,6 +23,7 @@ export interface FornecedoresFilterProps {
   ativo?: boolean | null;
   setAtivo: (v: boolean | null) => void;
   onSubmit?: () => void;
+  onStatusChange?: (newStatus: boolean | null) => void;
 }
 
 export function FornecedoresFilter({
@@ -33,16 +32,18 @@ export function FornecedoresFilter({
   ativo,
   setAtivo,
   onSubmit,
+  onStatusChange,
 }: FornecedoresFilterProps) {
   return (
     <div className="mb-4 flex flex-row gap-4">
       <InputGroup className="w-100">
         <InputGroupInput
-          placeholder="Buscar por Fornecedor ou CNPJ"
+          placeholder="Buscar por nome ou CNPJ"
           value={nomeFornecedor}
           onChange={(e) => setNomeFornecedor(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && onSubmit) {
+              e.preventDefault?.();
               onSubmit();
             }
           }}
@@ -54,7 +55,11 @@ export function FornecedoresFilter({
 
       <Select
         value={ativo === null ? "todos" : ativo === true ? "true" : "false"}
-        onValueChange={(v) => setAtivo(v === "todos" ? null : v === "true")}
+        onValueChange={(v) => {
+          const novo = v === "todos" ? null : v === "true";
+          setAtivo(novo);
+          onStatusChange?.(novo);
+        }}
       >
         <SelectTrigger className="w-[120px]">
           <SelectValue placeholder="Status" />

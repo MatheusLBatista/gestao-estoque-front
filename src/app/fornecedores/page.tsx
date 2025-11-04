@@ -137,6 +137,25 @@ export default function FornecedoresPage() {
                   ativo === null ? "todos" : ativo === true ? "true" : "false"
                 );
               },
+              onStatusChange: (newStatus) => {
+                if (typeof window !== "undefined") {
+                  const params = new URLSearchParams(window.location.search);
+                  params.set("page", "1");
+                  if (nomeFornecedor && nomeFornecedor.trim() !== "") {
+                    params.set("nome_fornecedor", nomeFornecedor.trim());
+                  } else {
+                    params.delete("nome_fornecedor");
+                  }
+                  const statusStr =
+                    newStatus === null ? "todos" : newStatus ? "true" : "false";
+                  params.set("status", statusStr);
+
+                  const newUrl = `${
+                    window.location.pathname
+                  }?${params.toString()}`;
+                  window.location.href = newUrl;
+                }
+              },
             }}
           />
         )}

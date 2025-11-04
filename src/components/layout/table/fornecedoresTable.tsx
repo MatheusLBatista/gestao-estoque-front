@@ -16,7 +16,10 @@ import { AdjustDate } from "@/lib/adjustDate";
 import FornecedorCadastro from "../popUp/fornecedores/fornecedorCadastro";
 import { FornecedorListagem } from "../popUp/fornecedores/fornecedorListagem";
 import { FornecedorEdicao } from "../popUp/fornecedores/fornecedorEdicao";
-import { FornecedoresFilter, FornecedoresFilterProps } from "../filters/fornecedoresFilter";
+import {
+  FornecedoresFilter,
+  FornecedoresFilterProps,
+} from "../filters/fornecedoresFilter";
 
 interface TabelaFornecedorProps {
   fornecedores: Fornecedor[];
@@ -58,12 +61,13 @@ export default function TabelaFornecedores({
   return (
     <>
       <div className="flex flex-row place-content-between pb-2">
-        <FornecedoresFilter 
+        <FornecedoresFilter
           nomeFornecedor={filtros.nomeFornecedor}
           setNomeFornecedor={filtros.setNomeFornecedor}
           ativo={filtros.ativo}
           setAtivo={filtros.setAtivo}
           onSubmit={filtros.onSubmit}
+          onStatusChange={filtros.onStatusChange}
         />
 
         <FornecedorCadastro
