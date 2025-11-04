@@ -61,10 +61,6 @@ export default function TabelaFornecedores({
         <FornecedoresFilter 
           nomeFornecedor={filtros.nomeFornecedor}
           setNomeFornecedor={filtros.setNomeFornecedor}
-          cnpj={filtros.cnpj}
-          setCnpj={filtros.setCnpj}
-          email={filtros.email}
-          setEmail={filtros.setEmail}
           ativo={filtros.ativo}
           setAtivo={filtros.setAtivo}
           onSubmit={filtros.onSubmit}

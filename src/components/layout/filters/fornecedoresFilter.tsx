@@ -22,10 +22,6 @@ import { Label } from "@/components/ui/label";
 export interface FornecedoresFilterProps {
   nomeFornecedor?: string;
   setNomeFornecedor: (v: string) => void;
-  cnpj?: string;
-  setCnpj: (v: string) => void;
-  email?: string;
-  setEmail: (v: string) => void;
   ativo?: boolean | null;
   setAtivo: (v: boolean | null) => void;
   onSubmit?: () => void;
@@ -34,43 +30,22 @@ export interface FornecedoresFilterProps {
 export function FornecedoresFilter({
   nomeFornecedor,
   setNomeFornecedor,
-  cnpj,
-  setCnpj,
-  email,
-  setEmail,
   ativo,
   setAtivo,
-  onSubmit
+  onSubmit,
 }: FornecedoresFilterProps) {
   return (
     <div className="mb-4 flex flex-row gap-4">
-      <InputGroup className="w-[240px]">
+      <InputGroup className="w-100">
         <InputGroupInput
-          placeholder="Fornecedor"
+          placeholder="Buscar por Fornecedor ou CNPJ"
           value={nomeFornecedor}
           onChange={(e) => setNomeFornecedor(e.target.value)}
-        />
-        <InputGroupAddon>
-          <SearchIcon className="cursor-pointer" />
-        </InputGroupAddon>
-      </InputGroup>
-
-      <InputGroup className="w-[240px]">
-        <InputGroupInput
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <InputGroupAddon>
-          <SearchIcon className="cursor-pointer" />
-        </InputGroupAddon>
-      </InputGroup>
-
-      <InputGroup className="w-[240px]">
-        <InputGroupInput
-          placeholder="CNPJ"
-          value={cnpj}
-          onChange={(e) => setCnpj(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && onSubmit) {
+              onSubmit();
+            }
+          }}
         />
         <InputGroupAddon>
           <SearchIcon className="cursor-pointer" />
@@ -78,20 +53,20 @@ export function FornecedoresFilter({
       </InputGroup>
 
       <Select
-          value={ativo === null ? "" : ativo === true ? "true" : "false"}
-          onValueChange={(v) => setAtivo(v === "todos" ? null : v === "true")}
-        >
-          <SelectTrigger className="w-[120px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="todos">Todos</SelectItem>
-              <SelectItem value="true">Ativo</SelectItem>
-              <SelectItem value="false">Inativo</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+        value={ativo === null ? "todos" : ativo === true ? "true" : "false"}
+        onValueChange={(v) => setAtivo(v === "todos" ? null : v === "true")}
+      >
+        <SelectTrigger className="w-[120px]">
+          <SelectValue placeholder="Status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem value="todos">Todos</SelectItem>
+            <SelectItem value="true">Ativo</SelectItem>
+            <SelectItem value="false">Inativo</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
 
       <Button
         onClick={onSubmit}

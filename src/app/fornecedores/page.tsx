@@ -8,7 +8,12 @@ import { fetchData } from "@/services/api";
 import { LoaderIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { useQueryState, parseAsInteger, parseAsString, parseAsBoolean } from "nuqs";
+import {
+  useQueryState,
+  parseAsInteger,
+  parseAsString,
+  parseAsBoolean,
+} from "nuqs";
 import TabelaFornecedores from "@/components/layout/table/fornecedoresTable";
 
 export default function FornecedoresPage() {
@@ -23,31 +28,20 @@ export default function FornecedoresPage() {
     parseAsString.withDefault("")
   );
 
-  const [cnpjFilter, setCnpjFilter] = useQueryState(
-    "cnpj",
-    parseAsString.withDefault("")
-  );
-
-  const [emailFilter, setEmailFilter] = useQueryState(
-    "email",
-    parseAsString.withDefault("")
-  );
-
   const [ativoFilter, setAtivoFilter] = useQueryState(
     "status",
-    parseAsBoolean.withDefault(true)
+    parseAsString.withDefault("true")
   );
 
-  const[nomeFornecedor, setNomeFornecedor] = useState(nomeFornecedorFilter);
-  const[cnpj, setCnpj] = useState(cnpjFilter);
-  const[email, setEmail] = useState(emailFilter);
-  const[ativo, setAtivo] = useState<boolean | null>(ativoFilter ?? true)
+  const [nomeFornecedor, setNomeFornecedor] = useState(nomeFornecedorFilter);
+  const [ativo, setAtivo] = useState<boolean | null>(
+    ativoFilter === "todos" ? null : ativoFilter === "true"
+  );
 
   useEffect(() => {
-    setNomeFornecedor(nomeFornecedorFilter)
-    setCnpj(cnpjFilter)
-    setEmail(emailFilter)
-  }, [nomeFornecedorFilter, cnpjFilter, emailFilter])
+    setNomeFornecedor(nomeFornecedorFilter);
+    setAtivo(ativoFilter === "todos" ? null : ativoFilter === "true");
+  }, [nomeFornecedorFilter, ativoFilter]);
 
   const {
     data: fornecedoresData,
@@ -55,7 +49,13 @@ export default function FornecedoresPage() {
     isError: fornecedoresIsError,
     error: fornecedoresError,
   } = useQuery({
-    queryKey: ["listaFornecedores", page, limite, nomeFornecedorFilter, cnpjFilter, emailFilter, ativoFilter],
+    queryKey: [
+      "listaFornecedores",
+      page,
+      limite,
+      nomeFornecedorFilter,
+      ativoFilter,
+    ],
     queryFn: async () => {
       if (process.env.NEXT_PUBLIC_SIMULAR_ERRO === "true") {
         throw new Error("Erro simulado ao carregar dados de fornecedores");
@@ -64,11 +64,9 @@ export default function FornecedoresPage() {
       const params = new URLSearchParams({
         page: page.toString(),
         limite: limite.toString(),
-        ...(nomeFornecedorFilter && ({ nome_fornecedor: nomeFornecedorFilter })),
-        ...(cnpjFilter && ({ cnpj: cnpjFilter })),
-        ...(emailFilter && ({ email: emailFilter })),
-        ...(ativoFilter === true ? { status: "true" } : {}),
-        ...(ativoFilter === false ? { status: "false" } : {}),
+        ...(nomeFornecedorFilter && { nome_fornecedor: nomeFornecedorFilter }),
+        ...(ativoFilter === "true" ? { status: "true" } : {}),
+        ...(ativoFilter === "false" ? { status: "false" } : {}),
       });
 
       const result = await fetchData<{
@@ -129,19 +127,15 @@ export default function FornecedoresPage() {
             perPage={fornecedoresData.limit}
             filtros={{
               nomeFornecedor,
-              cnpj,
-              email,
               ativo,
               setNomeFornecedor,
-              setCnpj,
-              setEmail,
               setAtivo,
               onSubmit: () => {
                 setPage(1);
                 setNome_fornecedorFilter(nomeFornecedor);
-                setCnpjFilter(cnpj);
-                setEmailFilter(email);
-                setAtivoFilter(ativo);
+                setAtivoFilter(
+                  ativo === null ? "todos" : ativo === true ? "true" : "false"
+                );
               },
             }}
           />
