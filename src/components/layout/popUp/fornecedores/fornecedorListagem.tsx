@@ -64,14 +64,21 @@ export function FornecedorListagem({
             <>
               <FieldSet>
                 <FieldGroup>
-                  <Field>
-                    <FieldLabel htmlFor="id">ID do fornecedor*</FieldLabel>
+                  <div className="flex flex-row gap-1">
+                    <Field>
+                    <FieldLabel htmlFor="id">ID do fornecedor</FieldLabel>
                     <Input id="id" value={fornecedor._id} readOnly={true} />
                   </Field>
 
                   <Field>
+                    <FieldLabel htmlFor="status">Status</FieldLabel>
+                    <Input id="status" value={(fornecedor.status === true ? "Ativo" : "Inativo")} readOnly={true} />
+                  </Field>
+                  </div>
+
+                  <Field>
                     <FieldLabel htmlFor="nome_fornecedor">
-                      Nome do fornecedor*
+                      Nome do fornecedor
                     </FieldLabel>
                     <Input
                       id="nome_fornecedor"
@@ -82,7 +89,7 @@ export function FornecedorListagem({
 
                   <div className="flex flex-row gap-1">
                     <Field>
-                      <FieldLabel htmlFor="telefone">Telefone*</FieldLabel>
+                      <FieldLabel htmlFor="telefone">Telefone</FieldLabel>
                       <Input
                         id="telefone"
                         value={fornecedor.telefone}
@@ -90,7 +97,7 @@ export function FornecedorListagem({
                       />
                     </Field>
                     <Field>
-                      <FieldLabel htmlFor="cnpj">CNPJ*</FieldLabel>
+                      <FieldLabel htmlFor="cnpj">CNPJ</FieldLabel>
                       <Input
                         id="cnpj"
                         autoComplete="off"
@@ -102,7 +109,19 @@ export function FornecedorListagem({
 
                   <div className="flex flex-row gap-1">
                     <Field>
-                      <FieldLabel htmlFor="logradouro">Logradouro*</FieldLabel>
+                      <FieldLabel htmlFor="email">Email</FieldLabel>
+                      <Input
+                        id="email"
+                        value={fornecedor.email}
+                        autoComplete="off"
+                        readOnly={true}
+                      />
+                    </Field>
+                  </div>
+
+                  <div className="flex flex-row gap-1">
+                    <Field>
+                      <FieldLabel htmlFor="logradouro">Logradouro</FieldLabel>
                       <Input
                         id="logradouro"
                         value={enderecoFornecedor?.logradouro}
@@ -114,7 +133,7 @@ export function FornecedorListagem({
 
                   <div className="flex flex-row gap-1">
                     <Field>
-                      <FieldLabel htmlFor="cep">CEP*</FieldLabel>
+                      <FieldLabel htmlFor="cep">CEP</FieldLabel>
                       <Input
                         id="cep"
                         value={enderecoFornecedor?.cep}
@@ -123,7 +142,7 @@ export function FornecedorListagem({
                       />
                     </Field>
                     <Field>
-                      <FieldLabel htmlFor="bairro">Bairro*</FieldLabel>
+                      <FieldLabel htmlFor="bairro">Bairro</FieldLabel>
                       <Input
                         id="bairro"
                         value={enderecoFornecedor?.bairro}
@@ -135,7 +154,7 @@ export function FornecedorListagem({
 
                   <div className="flex flex-row gap-1">
                     <Field>
-                      <FieldLabel htmlFor="cidade">Cidade*</FieldLabel>
+                      <FieldLabel htmlFor="cidade">Cidade</FieldLabel>
                       <Input
                         id="cidade"
                         value={enderecoFornecedor?.cidade}
@@ -144,7 +163,7 @@ export function FornecedorListagem({
                       />
                     </Field>
                     <Field>
-                      <FieldLabel htmlFor="estado">Estado*</FieldLabel>
+                      <FieldLabel htmlFor="estado">Estado</FieldLabel>
                       <Input
                         id="estado"
                         value={enderecoFornecedor?.estado}

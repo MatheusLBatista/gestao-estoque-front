@@ -187,23 +187,6 @@ export function FornecedorEdicao({
             </Field>
 
             <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel>Telefone*</FieldLabel>
-                <Input
-                  readOnly={false}
-                  className="bg-white border-gray-300 cursor-text hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                  value={formData.telefone}
-                  onChange={(e) => {
-                    const formatted = formatTelefone(e.target.value);
-                    if (formatted.length <= 15) {
-                      handleInputChange("telefone", formatted);
-                    }
-                  }}
-                  placeholder="(11) 99999-9999"
-                  maxLength={15}
-                  required
-                />
-              </Field>
 
               <Field>
                 <FieldLabel>Email</FieldLabel>
@@ -220,21 +203,21 @@ export function FornecedorEdicao({
 
             <div className="flex flex-row gap-1">
               <Field>
-                <FieldLabel>Status*</FieldLabel>
-                <Select
-                  value={formData.status.toString()}
-                  onValueChange={(value) =>
-                    handleInputChange("status", value === "true")
-                  }
-                >
-                  <SelectTrigger className="bg-white border-gray-300 cursor-pointer hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="true">Ativo</SelectItem>
-                    <SelectItem value="false">Inativo</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FieldLabel>Telefone*</FieldLabel>
+                <Input
+                  readOnly={false}
+                  className="bg-white border-gray-300 cursor-text hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  value={formData.telefone}
+                  onChange={(e) => {
+                    const formatted = formatTelefone(e.target.value);
+                    if (formatted.length <= 15) {
+                      handleInputChange("telefone", formatted);
+                    }
+                  }}
+                  placeholder="(11) 99999-9999"
+                  maxLength={15}
+                  required
+                />
               </Field>
 
               <Field>
