@@ -28,26 +28,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-br">
-      <QueryProvider>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <SessionWrapper>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <SessionWrapper>
+          <QueryProvider>
             <NuqsAdapter>{children}</NuqsAdapter>
             <Toaster position="top-right" richColors />
-          </SessionWrapper>
-          {/* <ToastContainer
-              position = "top-right"
-              autoClose = {3000}
-              hideProgressBar = {false}
-              newestOnTop = {false}
-              closeOnClick
-              pauseOnHover
-              draggable
-              theme='colored'>
-            </ToastContainer> */}
-        </body>
-      </QueryProvider>
+          </QueryProvider>
+        </SessionWrapper>
+        {/* <ToastContainer
+            position = "top-right"
+            autoClose = {3000}
+            hideProgressBar = {false}
+            newestOnTop = {false}
+            closeOnClick
+            pauseOnHover
+            draggable
+            theme='colored'>
+          </ToastContainer> */}
+      </body>
     </html>
   );
 }
