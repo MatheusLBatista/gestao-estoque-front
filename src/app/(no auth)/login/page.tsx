@@ -39,8 +39,19 @@ export default function Login() {
 
   return (
     <div>
-      <main className="min-h-screen bg-gradient-to-br from-[#0042D9] from-0% via-[#0042D9]/80 via-37% to-[#0042D9]/70 to-78% p-6 flex flex-col relative overflow-hidden">
+      <main className="min-h-screen bg-white p-6 flex flex-col relative overflow-hidden">
 
+        <div 
+          className="absolute w-[2500px] h-[2500px] pointer-events-none"
+          style={{
+            right: '-400.05px',
+            top: '-251.77px',
+            transform: 'rotate(15deg)',
+            transformOrigin: 'center'
+          }}
+        >
+          <div className="w-full h-full bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] rounded-tl-full"></div>
+        </div>
 
         <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 relative z-10">
           
