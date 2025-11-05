@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -13,6 +14,12 @@ import { ChevronDown } from "lucide-react";
 
 export default function UserMenu() {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = () => {
+    setOpen(false);
+    router.push("/logout");
+  };
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -40,7 +47,7 @@ export default function UserMenu() {
          <DropdownMenuItem>
           Editar perfil
         </DropdownMenuItem>
-         <DropdownMenuItem>
+         <DropdownMenuItem onClick={handleLogout}>
           Sair
         </DropdownMenuItem>
       </DropdownMenuContent>
