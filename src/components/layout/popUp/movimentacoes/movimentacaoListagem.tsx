@@ -55,7 +55,7 @@ export function MovimentacaoListagem({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="gap-4 max-w-2xl">
+      <DialogContent showCloseButton={false} className="gap-4 max-w-2xl">
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>
             {movimentacao ? (
@@ -116,17 +116,6 @@ export function MovimentacaoListagem({
                       }
                       readOnly
                     />
-                  </Field>
-                </div>
-
-                <div className="flex flex-row gap-1">
-                  <Field>
-                    <FieldLabel>ID do produto</FieldLabel>
-                    <Input value={movimentacao._id.slice(-12)} readOnly />
-                  </Field>
-                  <Field>
-                    <FieldLabel>Nome do produto</FieldLabel>
-                    <Input value={getProdutoNome()} readOnly />
                   </Field>
                 </div>
 
@@ -195,19 +184,7 @@ export function MovimentacaoListagem({
                   </Field>
                 </div>
 
-                <div className="flex flex-row gap-1">
-                  <Field>
-                    <FieldLabel>Data de cadastro</FieldLabel>
-                    <Input
-                      value={AdjustDate(movimentacao.data_cadastro)}
-                      readOnly
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>Data última atualização</FieldLabel>
-                    <Input value="--/--/----" readOnly />
-                  </Field>
-                </div>
+              
 
                 <div className="flex flex-row gap-1">
                   <Field>
@@ -227,6 +204,20 @@ export function MovimentacaoListagem({
                     <Input value={movimentacao.observacoes} readOnly />
                   </Field>
                 )}
+
+                <div className="flex flex-row gap-1">
+                  <Field>
+                    <FieldLabel>Data de cadastro</FieldLabel>
+                    <Input
+                      value={AdjustDate(movimentacao.data_cadastro)}
+                      readOnly
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Data última atualização</FieldLabel>
+                    <Input value={AdjustDate(movimentacao.data_ultima_atualizacao)} readOnly />
+                  </Field>
+                </div>
 
                 {/* Nota Fiscal - Apenas para Entrada */}
                 {movimentacao.tipo === "entrada" &&

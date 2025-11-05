@@ -144,7 +144,7 @@ export function FornecedorEdicao({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="gap-8 max-w-2xl">
+      <DialogContent showCloseButton={false} className="gap-8 max-w-2xl">
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>Editar fornecedor</DialogTitle>
           <DialogDescription>
@@ -187,7 +187,6 @@ export function FornecedorEdicao({
             </Field>
 
             <div className="flex flex-row gap-1">
-
               <Field>
                 <FieldLabel>Email</FieldLabel>
                 <Input
@@ -315,7 +314,7 @@ export function FornecedorEdicao({
           </FieldGroup>
         </FieldSet>
 
-        <div className="pt-4 border-t">
+        <div className="pt-2 border-t">
           <div className="flex flex-row justify-center gap-1">
             <Button
               onClick={() => onOpenChange(false)}

@@ -156,7 +156,7 @@ export function CadastroMovimentacao({
         />
       </DialogTrigger>
 
-      <DialogContent className="gap-8">
+      <DialogContent showCloseButton={false} className="gap-8">
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>Cadastro de movimentações</DialogTitle>
           <DialogDescription>

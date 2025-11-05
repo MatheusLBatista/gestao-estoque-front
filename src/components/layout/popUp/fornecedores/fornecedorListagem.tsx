@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  AlertDialog,  
+  AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
@@ -51,12 +51,17 @@ export function FornecedorListagem({
   onExcluir,
 }: FornecedorListarProps) {
   const queryClient = useQueryClient();
-  
+
   const desativarMutation = useMutation({
     mutationFn: async (id: string) => {
-      const result = await fetchData(`/fornecedores/${id}`, "PATCH", undefined, {
-        status: false
-      });
+      const result = await fetchData(
+        `/fornecedores/${id}`,
+        "PATCH",
+        undefined,
+        {
+          status: false,
+        }
+      );
       return result;
     },
     onSuccess: () => {
@@ -78,7 +83,7 @@ export function FornecedorListagem({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="gap-4">
+      <DialogContent showCloseButton={false} className="gap-4">
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>
             {fornecedor ? (
@@ -101,10 +106,14 @@ export function FornecedorListagem({
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Desativar fornecedor</AlertDialogTitle>
+                        <AlertDialogTitle>
+                          Desativar fornecedor
+                        </AlertDialogTitle>
                         <AlertDialogDescription>
-                          Tem certeza que deseja desativar o fornecedor "{fornecedor.nome_fornecedor}"? 
-                          Esta ação não pode ser desfeita e o fornecedor não aparecerá mais na listagem padrão.
+                          Tem certeza que deseja desativar o fornecedor "
+                          {fornecedor.nome_fornecedor}"? Esta ação não pode ser
+                          desfeita e o fornecedor não aparecerá mais na listagem
+                          padrão.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -118,7 +127,9 @@ export function FornecedorListagem({
                           disabled={desativarMutation.isPending}
                           className="bg-red-600 hover:bg-red-700"
                         >
-                          {desativarMutation.isPending ? "Desativando..." : "Desativar"}
+                          {desativarMutation.isPending
+                            ? "Desativando..."
+                            : "Desativar"}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -139,14 +150,18 @@ export function FornecedorListagem({
                 <FieldGroup>
                   <div className="flex flex-row gap-1">
                     <Field>
-                    <FieldLabel htmlFor="id">ID do fornecedor</FieldLabel>
-                    <Input id="id" value={fornecedor._id} readOnly={true} />
-                  </Field>
+                      <FieldLabel htmlFor="id">ID do fornecedor</FieldLabel>
+                      <Input id="id" value={fornecedor._id} readOnly={true} />
+                    </Field>
 
-                  <Field>
-                    <FieldLabel htmlFor="status">Status</FieldLabel>
-                    <Input id="status" value={(fornecedor.status === true ? "Ativo" : "Inativo")} readOnly={true} />
-                  </Field>
+                    <Field>
+                      <FieldLabel htmlFor="status">Status</FieldLabel>
+                      <Input
+                        id="status"
+                        value={fornecedor.status === true ? "Ativo" : "Inativo"}
+                        readOnly={true}
+                      />
+                    </Field>
                   </div>
 
                   <Field>
@@ -260,7 +275,7 @@ export function FornecedorListagem({
 
                     <Field>
                       <FieldLabel htmlFor="data_ultima_entrada">
-                        Última entrada
+                        Data última atualização
                       </FieldLabel>
                       <Input
                         id="data_ultima_entrada"
@@ -289,7 +304,7 @@ export function FornecedorListagem({
             >
               <Printer className="w-4 h-4" /> Imprimir
             </Button>
-            
+
             <BotaoCadastrar
               color="blue"
               size="1/2"

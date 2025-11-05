@@ -38,7 +38,7 @@ export function ProdutoListagem({
 }: ProdutoListarProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="gap-4">
+      <DialogContent showCloseButton={false} className="gap-4">
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>
             {produto ? (
@@ -182,7 +182,7 @@ export function ProdutoListagem({
 
                     <Field>
                       <FieldLabel htmlFor="data_ultima_entrada">
-                        Última entrada
+                        Data última atualização
                       </FieldLabel>
                       <Input
                         id="data_ultima_entrada"
