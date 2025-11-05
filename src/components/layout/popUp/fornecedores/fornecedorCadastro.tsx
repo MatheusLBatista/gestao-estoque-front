@@ -1,5 +1,5 @@
-import { Fornecedor } from "@/types/Fornecedor";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -24,8 +24,12 @@ import {
 } from "@/components/ui/field";
 import { BotaoCadastrar } from "@/components/ui/cadastrarButton";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Save } from "lucide-react";
+import { fetchData } from "@/services/api";
+import {
+  FornecedorCreateSchema,
+  type FornecedorCreateInput,
+} from "@/schemas/fornecedor";
 
 interface CadastroFornecedorProps {
   color: "green" | "blue";
@@ -46,6 +50,165 @@ export default function FornecedorCadastro({
   const isControlled = controlledOpen !== undefined;
   const dialogOpen = isControlled ? controlledOpen : internalOpen;
 
+  const [formData, setFormData] = useState({
+    nome_fornecedor: "",
+    cnpj: "",
+    telefone: "",
+    email: "",
+    logradouro: "",
+    bairro: "",
+    cep: "",
+    cidade: "",
+    estado: "",
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
+
+  const clearFieldError = (fieldName: string) => {
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[fieldName];
+      return newErrors;
+    });
+  };
+
+  const formatarCep = (value: string) => {
+    const cep = value.replace(/\D/g, "");
+    if (cep.length <= 5) {
+      return cep;
+    }
+    return `${cep.slice(0, 5)}-${cep.slice(5, 8)}`;
+  };
+
+  const formatarCnpj = (value: string) => {
+    const cnpj = value.replace(/\D/g, "");
+    if (cnpj.length <= 2) return cnpj;
+    if (cnpj.length <= 5) return `${cnpj.slice(0, 2)}.${cnpj.slice(2)}`;
+    if (cnpj.length <= 8)
+      return `${cnpj.slice(0, 2)}.${cnpj.slice(2, 5)}.${cnpj.slice(5)}`;
+    if (cnpj.length <= 12)
+      return `${cnpj.slice(0, 2)}.${cnpj.slice(2, 5)}.${cnpj.slice(
+        5,
+        8
+      )}/${cnpj.slice(8)}`;
+    return `${cnpj.slice(0, 2)}.${cnpj.slice(2, 5)}.${cnpj.slice(
+      5,
+      8
+    )}/${cnpj.slice(8, 12)}-${cnpj.slice(12, 14)}`;
+  };
+
+  const formatarTelefone = (value: string) => {
+    const telefone = value.replace(/\D/g, "");
+    if (telefone.length <= 2) return telefone;
+    if (telefone.length <= 6)
+      return `(${telefone.slice(0, 2)}) ${telefone.slice(2)}`;
+    if (telefone.length <= 10)
+      return `(${telefone.slice(0, 2)}) ${telefone.slice(
+        2,
+        6
+      )}-${telefone.slice(6)}`;
+    return `(${telefone.slice(0, 2)}) ${telefone.slice(2, 7)}-${telefone.slice(
+      7,
+      11
+    )}`;
+  };
+
+  const buscarCep = async (cep: string) => {
+    const cepLimpo = cep.replace(/\D/g, "");
+
+    if (cepLimpo.length !== 8) return;
+
+    setIsLoadingCep(true);
+    try {
+      const response = await fetch(
+        `https://viacep.com.br/ws/${cepLimpo}/json/`
+      );
+      const data = await response.json();
+
+      if (data.erro) {
+        toast.error("CEP não encontrado");
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        logradouro: data.logradouro || prev.logradouro,
+        bairro: data.bairro || prev.bairro,
+        cidade: data.localidade || prev.cidade,
+        estado: data.uf || prev.estado,
+      }));
+
+      ["logradouro", "bairro", "cidade", "estado"].forEach((field) => {
+        if (
+          data[
+            field === "cidade"
+              ? "localidade"
+              : field === "estado"
+              ? "uf"
+              : field
+          ]
+        ) {
+          clearFieldError(field);
+        }
+      });
+
+      toast.success("CEP encontrado! Campos preenchidos automaticamente.");
+    } catch (error) {
+      toast.error("Erro ao buscar CEP");
+    } finally {
+      setIsLoadingCep(false);
+    }
+  };
+
+  const queryClient = useQueryClient();
+  const { mutate: createFornecedor, isPending } = useMutation({
+    mutationFn: async (payload: FornecedorCreateInput) => {
+      const body = {
+        nome_fornecedor: payload.nome_fornecedor,
+        cnpj: payload.cnpj,
+        telefone: payload.telefone,
+        email: payload.email,
+        status: true,
+        endereco: [
+          {
+            logradouro: payload.logradouro,
+            bairro: payload.bairro,
+            cidade: payload.cidade,
+            estado: payload.estado,
+            cep: payload.cep,
+          },
+        ],
+      };
+
+      return await fetchData<any>("/fornecedores", "POST", undefined, body);
+    },
+    onSuccess: () => {
+      toast.success("Fornecedor cadastrado com sucesso!", {
+        description: "O fornecedor foi salvo e adicionado à lista.",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["listaFornecedores"] });
+      handleOpenChange(false);
+      setFormData({
+        nome_fornecedor: "",
+        cnpj: "",
+        telefone: "",
+        email: "",
+        logradouro: "",
+        bairro: "",
+        cep: "",
+        cidade: "",
+        estado: "",
+      });
+      setErrors({});
+    },
+    onError: (error: any) => {
+      const message = error?.message || "Falha ao cadastrar fornecedor";
+      toast.error("Erro ao cadastrar fornecedor", { description: message });
+    },
+  });
+
   const handleOpenChange = (value: boolean) => {
     if (!isControlled) {
       setInternalOpen(value);
@@ -54,11 +217,22 @@ export default function FornecedorCadastro({
   };
 
   const save = () => {
-    toast.success("Fornecedor cadastrado com sucesso!", {
-      description: "O fornecedor foi salvo e adicionado à lista.",
-    });
+    const result = FornecedorCreateSchema.safeParse(formData);
 
-    handleOpenChange(false);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        if (issue.path[0]) {
+          fieldErrors[issue.path[0] as string] = issue.message;
+        }
+      });
+      setErrors(fieldErrors);
+      toast.warning("Verifique os campos obrigatórios");
+      return;
+    }
+
+    setErrors({});
+    createFornecedor(result.data);
   };
 
   return (
@@ -85,89 +259,216 @@ export default function FornecedorCadastro({
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="name">Nome do fornecedor*</FieldLabel>
-              <Input
-                id="name"
-                autoComplete="off"
-                placeholder="Auto Peças Sul Ltda"
-              />
+              <div className="flex flex-col">
+                <Input
+                  id="name"
+                  autoComplete="off"
+                  placeholder="Auto Peças Sul Ltda"
+                  value={formData.nome_fornecedor}
+                  onChange={(e) => {
+                    setFormData((s) => ({
+                      ...s,
+                      nome_fornecedor: e.target.value,
+                    }));
+                    clearFieldError("nome_fornecedor");
+                  }}
+                />
+                {errors.nome_fornecedor && (
+                  <FieldError className="text-xs ml-1 mt-1">
+                    {errors.nome_fornecedor}
+                  </FieldError>
+                )}
+              </div>
             </Field>
 
             <div className="flex flex-row gap-1">
               <Field>
                 <FieldLabel htmlFor="cnpj">CNPJ*</FieldLabel>
-                <Input
-                  id="cnpj"
-                  autoComplete="off"
-                  placeholder="12.345.678/0001-90"
-                />
+                <div className="flex flex-col">
+                  <Input
+                    id="cnpj"
+                    autoComplete="off"
+                    placeholder="12.345.678/0001-90"
+                    value={formData.cnpj}
+                    onChange={(e) => {
+                      const valorFormatado = formatarCnpj(e.target.value);
+                      setFormData((s) => ({ ...s, cnpj: valorFormatado }));
+                      clearFieldError("cnpj");
+                    }}
+                  />
+                  {errors.cnpj && (
+                    <FieldError className="text-xs ml-1 mt-1">
+                      {errors.cnpj}
+                    </FieldError>
+                  )}
+                </div>
               </Field>
               <Field>
                 <FieldLabel htmlFor="telefone">Telefone*</FieldLabel>
-                <Input
-                  id="telefone"
-                  autoComplete="off"
-                  placeholder="(11) 99999-9999"
-                />
+                <div className="flex flex-col">
+                  <Input
+                    id="telefone"
+                    autoComplete="off"
+                    placeholder="(11) 99999-9999"
+                    value={formData.telefone}
+                    onChange={(e) => {
+                      const valorFormatado = formatarTelefone(e.target.value);
+                      setFormData((s) => ({ ...s, telefone: valorFormatado }));
+                      clearFieldError("telefone");
+                    }}
+                  />
+                  {errors.telefone && (
+                    <FieldError className="text-xs ml-1 mt-1">
+                      {errors.telefone}
+                    </FieldError>
+                  )}
+                </div>
               </Field>
             </div>
 
             <div className="flex flex-row gap-1">
               <Field>
                 <FieldLabel htmlFor="email">Email*</FieldLabel>
-                <Input
-                  id="email"
-                  autoComplete="off"
-                  placeholder="contato@autopecassul.com"
-                />
+                <div className="flex flex-col">
+                  <Input
+                    id="email"
+                    autoComplete="off"
+                    placeholder="contato@autopecassul.com"
+                    value={formData.email}
+                    onChange={(e) => {
+                      setFormData((s) => ({ ...s, email: e.target.value }));
+                      clearFieldError("email");
+                    }}
+                  />
+                  {errors.email && (
+                    <FieldError className="text-xs ml-1 mt-1">
+                      {errors.email}
+                    </FieldError>
+                  )}
+                </div>
               </Field>
             </div>
 
             <div className="flex flex-row gap-1">
               <Field>
                 <FieldLabel htmlFor="logradouro">Logradouro*</FieldLabel>
-                <Input
-                  id="logradouro"
-                  autoComplete="off"
-                  placeholder="12.345.678/0001-90"
-                />
+                <div className="flex flex-col">
+                  <Input
+                    id="logradouro"
+                    autoComplete="off"
+                    placeholder="Rua Exemplo, 123"
+                    value={formData.logradouro}
+                    onChange={(e) => {
+                      setFormData((s) => ({
+                        ...s,
+                        logradouro: e.target.value,
+                      }));
+                      clearFieldError("logradouro");
+                    }}
+                  />
+                  {errors.logradouro && (
+                    <FieldError className="text-xs ml-1 mt-1">
+                      {errors.logradouro}
+                    </FieldError>
+                  )}
+                </div>
               </Field>
             </div>
 
             <div className="flex flex-row gap-1">
               <Field>
                 <FieldLabel htmlFor="bairro">Bairro*</FieldLabel>
-                <Input
-                  id="bairro"
-                  autoComplete="off"
-                  placeholder="12.345.678/0001-90"
-                />
+                <div className="flex flex-col">
+                  <Input
+                    id="bairro"
+                    autoComplete="off"
+                    placeholder="Centro"
+                    value={formData.bairro}
+                    onChange={(e) => {
+                      setFormData((s) => ({ ...s, bairro: e.target.value }));
+                      clearFieldError("bairro");
+                    }}
+                  />
+                  {errors.bairro && (
+                    <FieldError className="text-xs ml-1 mt-1">
+                      {errors.bairro}
+                    </FieldError>
+                  )}
+                </div>
               </Field>
               <Field>
                 <FieldLabel htmlFor="cep">CEP*</FieldLabel>
-                <Input
-                  id="cep"
-                  autoComplete="off"
-                  placeholder="(11) 99999-9999"
-                />
+                <div className="flex flex-col">
+                  <Input
+                    id="cep"
+                    autoComplete="off"
+                    placeholder="00000-000"
+                    value={formData.cep}
+                    onChange={(e) => {
+                      const valorFormatado = formatarCep(e.target.value);
+                      setFormData((s) => ({ ...s, cep: valorFormatado }));
+                      clearFieldError("cep");
+                    }}
+                    onBlur={(e) => {
+                      const cep = e.target.value.replace(/\D/g, "");
+                      if (cep.length === 8) {
+                        buscarCep(cep);
+                      }
+                    }}
+                    disabled={isLoadingCep}
+                  />
+                  {isLoadingCep && (
+                    <div className="text-sm text-blue-600">Buscando CEP...</div>
+                  )}
+                  {errors.cep && (
+                    <FieldError className="text-xs ml-1 mt-1">
+                      {errors.cep}
+                    </FieldError>
+                  )}
+                </div>
               </Field>
             </div>
 
             <div className="flex flex-row gap-1">
               <Field>
                 <FieldLabel htmlFor="cidade">Cidade*</FieldLabel>
-                <Input
-                  id="cidade"
-                  autoComplete="off"
-                  placeholder="12.345.678/0001-90"
-                />
+                <div className="flex flex-col">
+                  <Input
+                    id="cidade"
+                    autoComplete="off"
+                    placeholder="São Paulo"
+                    value={formData.cidade}
+                    onChange={(e) => {
+                      setFormData((s) => ({ ...s, cidade: e.target.value }));
+                      clearFieldError("cidade");
+                    }}
+                  />
+                  {errors.cidade && (
+                    <FieldError className="text-xs ml-1 mt-1">
+                      {errors.cidade}
+                    </FieldError>
+                  )}
+                </div>
               </Field>
               <Field>
                 <FieldLabel htmlFor="estado">Estado*</FieldLabel>
-                <Input
-                  id="estado"
-                  autoComplete="off"
-                  placeholder="(11) 99999-9999"
-                />
+                <div className="flex flex-col">
+                  <Input
+                    id="estado"
+                    autoComplete="off"
+                    placeholder="SP"
+                    value={formData.estado}
+                    onChange={(e) => {
+                      setFormData((s) => ({ ...s, estado: e.target.value }));
+                      clearFieldError("estado");
+                    }}
+                  />
+                  {errors.estado && (
+                    <FieldError className="text-xs ml-1 mt-1">
+                      {errors.estado}
+                    </FieldError>
+                  )}
+                </div>
               </Field>
             </div>
           </FieldGroup>
@@ -183,9 +484,11 @@ export default function FornecedorCadastro({
             </Button>
             <Button
               onClick={save}
-              className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700"
+              disabled={isPending}
+              className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
             >
-              <Save className="w-4 h-4 mr-1" /> Salvar
+              <Save className="w-4 h-4 mr-1" />{" "}
+              {isPending ? "Salvando..." : "Salvar"}
             </Button>
           </div>
         </div>
