@@ -5,15 +5,17 @@ import { signOut } from "next-auth/react";
 
 export default function LogoutPage() {
   useEffect(() => {
-    let timeout = setTimeout(() => {
-      signOut({ callbackUrl: "/login" });
-    }, 100); // Pequeno delay opcional, 100ms
-
-    return () => clearTimeout(timeout); // limpa timeout se desmontar rápido
+    const performLogout = async () => {
+      // Remove a flag de manter logado
+      localStorage.removeItem("manterLogado");
+      await signOut({ callbackUrl: "/login", redirect: true });
+    };
+    
+    performLogout();
   }, []);
 
   return (
-    <div className="bg-white min-h-screen flex items-center justify-center text-2xl">
+    <div className="bg- white min-h-screen flex items-center justify-center text-2xl">
     </div>
   );
 }
