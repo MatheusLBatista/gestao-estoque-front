@@ -14,14 +14,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     }
   }, [status, router]);
 
-  // Enquanto o estado da sessão estiver carregando, você pode mostrar um loader
-  if (status === "loading") {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        Carregando...
-      </div>
-    );
-  }
+
 
   // Se está autenticado, renderiza os filhos
   if (status === "authenticated") {

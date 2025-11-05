@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Footer from "@/components/layout/footer";
+import { LoaderIcon } from "lucide-react";
 
 export default function Login() {
   const [matricula, setMatricula] = useState("");
@@ -61,7 +62,7 @@ export default function Login() {
   if (status === "loading") {
     return (
       <div className="fixed inset-0 z-9999 flex items-center justify-center bg-white">
-        <div className="text-xl">Carregando...</div>
+          <LoaderIcon role="status" className="animate-spin mt-20 mx-auto" />
       </div>
     );
   }
