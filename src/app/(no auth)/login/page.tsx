@@ -1,9 +1,10 @@
 "use client"
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Footer from "@/components/layout/footer";
+import { LoaderIcon } from "lucide-react";
 
 export default function Login() {
   const [matricula, setMatricula] = useState("");
@@ -12,6 +13,22 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // Verifica se deve redirecionar baseado em manter logado
+  useEffect(() => {
+    if (status === "authenticated") {
+      const manterLogadoStorage = localStorage.getItem("manterLogado");
+      
+      // Se manterLogado está ativo, redireciona para home
+      if (manterLogadoStorage === "true") {
+        router.push("/home");
+      } else {
+        // Se não está ativo, faz logout silencioso para permitir novo login
+        localStorage.removeItem("manterLogado");
+      }
+    }
+  }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,9 +36,13 @@ export default function Login() {
     setError("");
 
     try {
+      // Salva a preferência de manter logado no localStorage
+      localStorage.setItem("manterLogado", manterLogado.toString());
+
       const result = await signIn("credentials", {
         matricula: matricula,
         senha: senha,
+        manterLogado: manterLogado,
         redirect: false,
       });
 
@@ -36,6 +57,24 @@ export default function Login() {
       setIsLoading(false);
     }
   };
+
+  // Mostra loading enquanto verifica a sessão
+  if (status === "loading") {
+    return (
+      <div className="fixed inset-0 z-9999 flex items-center justify-center bg-white">
+          <LoaderIcon role="status" className="animate-spin mt-20 mx-auto" />
+      </div>
+    );
+  }
+
+  // Não renderiza o formulário se já estiver autenticado E manterLogado estiver ativo
+  if (status === "authenticated") {
+    const manterLogadoStorage = typeof window !== "undefined" ? localStorage.getItem("manterLogado") : null;
+    if (manterLogadoStorage === "true") {
+      return null; 
+    }
+    // Se não está com manterLogado, mostra o formulário normalmente
+  }
 
   return (
     <div>

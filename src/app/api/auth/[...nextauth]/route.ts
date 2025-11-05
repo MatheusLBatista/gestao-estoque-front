@@ -40,6 +40,7 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         matricula: { label: "Matricula", type: "text" },
         senha: { label: "Senha", type: "password" },
+        manterLogado: { label: "Manter Logado", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.matricula || !credentials?.senha) return null;
@@ -66,6 +67,7 @@ export const authOptions: NextAuthOptions = {
             perfil: json.usuario.perfil ?? "",
             accesstoken: json.accessToken ?? "",
             refreshtoken: json.refreshToken ?? "",
+            manterLogado: credentials.manterLogado === "true",
           };
         }
 
@@ -77,12 +79,15 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       // 1️⃣ Primeiro login
       if (user) {
+        const manterLogado = (user as any).manterLogado;
+        
         return {
           ...token,
           ...user,
+          manterLogado,
           accessTokenExpires: Date.now() + 60 * 60 * 1000, // 1 hora
         };
       }
@@ -111,6 +116,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
+    maxAge: 7 * 24 * 60 * 60, // 7 dias
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
