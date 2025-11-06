@@ -227,71 +227,29 @@ export default function FornecedorCadastro({
       setErrors({});
     },
     onError: (error: any) => {
-      console.log("Erro detalhado:", error);
-
       const errorData = error?.response?.data || error?.data || error;
+      console.log(errorData)
       const errorMessage =
         errorData?.customMessage ||
         errorData?.message ||
         error?.message ||
         error?.toString() ||
         "";
+      const lowerMessage = errorMessage.toLowerCase();
 
-      if (errorData?.errorType === "validationError" && errorData?.field) {
-        const field = errorData.field;
-        const message = errorData.customMessage || `${field} inválido`;
-
-        if (field === "cnpj") {
-          setErrors({ cnpj: message });
-          toast.error("CNPJ duplicado", {
-            description: message,
-          });
-        } else if (field === "email") {
-          setErrors({ email: message });
-          toast.error("Email duplicado", {
-            description: message,
-          });
-        } else {
-          setErrors({ [field]: message });
-          toast.error("Erro de validação", {
-            description: message,
-          });
-        }
+      if (
+        lowerMessage.includes("cnpj") ||
+        (lowerMessage.includes("email") &&
+          (lowerMessage.includes("duplicado") ||
+            lowerMessage.includes("já está cadastrado") ||
+            lowerMessage.includes("unique")))
+      ) {
+        toast.error(`Campo duplicado`, {
+          description: `${errorMessage}`,
+        });
       } else {
-        const lowerMessage = errorMessage.toLowerCase();
-
-        if (
-          lowerMessage.includes("cnpj") &&
-          (lowerMessage.includes("duplicado") ||
-            lowerMessage.includes("já está cadastrado") ||
-            lowerMessage.includes("unique"))
-        ) {
-          setErrors({ cnpj: "CNPJ já cadastrado no sistema" });
-          toast.error("CNPJ duplicado", {
-            description: "Este CNPJ já está cadastrado no sistema",
-          });
-        } else if (
-          lowerMessage.includes("email") &&
-          (lowerMessage.includes("duplicado") ||
-            lowerMessage.includes("já está cadastrado") ||
-            lowerMessage.includes("unique"))
-        ) {
-          setErrors({ email: "Email já cadastrado no sistema" });
-          toast.error("Email duplicado", {
-            description: "Este email já está cadastrado no sistema",
-          });
-        } else if (error?.status === 400 || errorData?.statusCode === 400) {
-          toast.error("Dados inválidos", {
-            description: errorMessage || "Verifique os dados informados",
-          });
-        } else if (error?.status === 409 || errorData?.statusCode === 409) {
-          toast.error("Dados duplicados", {
-            description: "CNPJ ou Email já estão cadastrados no sistema",
-          });
-        } else {
-          const message = errorMessage || "Falha ao cadastrar fornecedor";
-          toast.error("Erro ao cadastrar fornecedor", { description: message });
-        }
+        const message = errorMessage || "Falha ao cadastrar fornecedor";
+        toast.error("Erro ao cadastrar fornecedor", { description: message });
       }
     },
   });
@@ -381,7 +339,7 @@ export default function FornecedorCadastro({
                       const valorFormatado = formatarCnpj(e.target.value);
                       setFormData((s) => ({ ...s, cnpj: valorFormatado }));
                       clearFieldError("cnpj");
-                      clearServerErrors(); 
+                      clearServerErrors();
                     }}
                   />
                   {errors.cnpj && (
@@ -507,7 +465,9 @@ export default function FornecedorCadastro({
                     disabled={isLoadingCep}
                   />
                   {isLoadingCep && (
-                    <div className="text-xs ml-1 mt-1 text-blue-600">Buscando CEP...</div>
+                    <div className="text-xs ml-1 mt-1 text-blue-600">
+                      Buscando CEP...
+                    </div>
                   )}
                   {errors.cep && (
                     <FieldError className="text-xs ml-1 mt-1">
