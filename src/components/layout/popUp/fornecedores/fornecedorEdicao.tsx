@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -20,6 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Fornecedor, ESTADOS_BRASILEIROS } from "../../../../types/Fornecedor";
+import { fetchData } from "@/services/api";
+import { FornecedorCreateSchema } from "@/schemas/fornecedor";
 
 interface FornecedorEdicaoProps {
   open: boolean;
@@ -45,6 +48,76 @@ export function FornecedorEdicao({
   });
 
   const [loadingCep, setLoadingCep] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  const { mutate: updateFornecedor, isPending } = useMutation({
+    mutationFn: async (payload: any) => {
+      if (!fornecedor?._id) {
+        throw new Error("ID do fornecedor não encontrado");
+      }
+
+      const body = {
+        nome_fornecedor: payload.nome_fornecedor,
+        telefone: payload.telefone,
+        email: payload.email,
+        status: payload.status,
+        endereco: [
+          {
+            logradouro: payload.logradouro,
+            bairro: payload.bairro,
+            cidade: payload.cidade,
+            estado: payload.estado,
+            cep: payload.cep,
+          },
+        ],
+      };
+
+      return await fetchData<any>(
+        `/fornecedores/${fornecedor._id}`,
+        "PATCH",
+        undefined,
+        body
+      );
+    },
+    onSuccess: () => {
+      toast.success("Fornecedor atualizado com sucesso!", {
+        description: "As alterações foram salvas.",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["listaFornecedores"] });
+      onOpenChange(false);
+    },
+    onError: (error: any) => {
+      console.log("Erro ao atualizar fornecedor:", error);
+
+      const errorData = error?.response?.data || error?.data || error;
+      const errorMessage =
+        errorData?.customMessage ||
+        errorData?.message ||
+        error?.message ||
+        error?.toString() ||
+        "";
+
+      if (errorData?.errorType === "validationError" && errorData?.field) {
+        const field = errorData.field;
+        const message = errorData.customMessage || `${field} inválido`;
+
+        if (field === "email") {
+          toast.error("Email duplicado", {
+            description: message,
+          });
+        } else {
+          toast.error("Erro de validação", {
+            description: message,
+          });
+        }
+      } else {
+        const message = errorMessage || "Falha ao atualizar fornecedor";
+        toast.error("Erro ao atualizar fornecedor", { description: message });
+      }
+    },
+  });
 
   const buscarCep = async (cepValue: string) => {
     const cepLimpo = cepValue.replace(/\D/g, "");
@@ -116,28 +189,32 @@ export function FornecedorEdicao({
   };
 
   const save = () => {
-    // TODO: Implementar chamada da API para atualizar o fornecedor
-    console.log("Dados para salvar:", {
+    const validationData = {
       nome_fornecedor: formData.nome_fornecedor,
+      cnpj: fornecedor?.cnpj || "",
       telefone: formData.telefone,
       email: formData.email,
-      status: formData.status,
-      endereco: [
-        {
-          logradouro: formData.logradouro,
-          bairro: formData.bairro,
-          cidade: formData.cidade,
-          estado: formData.estado,
-          cep: formData.cep,
-        },
-      ],
-    });
+      logradouro: formData.logradouro,
+      bairro: formData.bairro,
+      cep: formData.cep,
+      cidade: formData.cidade,
+      estado: formData.estado,
+    };
 
-    toast.success("Fornecedor atualizado com sucesso!", {
-      description: "As alterações foram salvas.",
-    });
+    const result = FornecedorCreateSchema.safeParse(validationData);
 
-    onOpenChange(false);
+    if (!result.success) {
+      // Pega o primeiro erro para exibir
+      const firstError = result.error.issues[0];
+      const fieldName = String(firstError.path[0]);
+      const message = firstError.message;
+
+      toast.warning(`Erro no campo ${fieldName}: ${message}`);
+      return;
+    }
+
+    // Chama a mutation para atualizar (sem incluir CNPJ que não pode ser alterado)
+    updateFornecedor(formData);
   };
 
   if (!fornecedor) return null;
@@ -324,9 +401,11 @@ export function FornecedorEdicao({
             </Button>
             <Button
               onClick={save}
-              className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
+              disabled={isPending}
+              className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1 disabled:opacity-60"
             >
-              <Save className="w-4 h-4" /> Salvar alterações
+              <Save className="w-4 h-4" />
+              {isPending ? "Salvando..." : "Salvar alterações"}
             </Button>
           </div>
         </div>
