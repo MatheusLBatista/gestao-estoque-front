@@ -119,7 +119,6 @@ export function MovimentacaoListagem({
                   </Field>
                 </div>
 
-                {/* Lista de produtos com scroll */}
                 {movimentacao.produtos && movimentacao.produtos.length > 0 && (
                   <div className="space-y-2">
                     <FieldLabel className="text-sm font-medium">
@@ -197,7 +196,6 @@ export function MovimentacaoListagem({
                   </Field>
                 </div>
 
-                {/* Observações */}
                 {movimentacao.observacoes && (
                   <Field>
                     <FieldLabel>Observações</FieldLabel>
@@ -219,7 +217,6 @@ export function MovimentacaoListagem({
                   </Field>
                 </div>
 
-                {/* Nota Fiscal - Apenas para Entrada */}
                 {movimentacao.tipo === "entrada" &&
                   (movimentacao as any).nota_fiscal && (
                     <div className="space-y-2 border-t pt-4">

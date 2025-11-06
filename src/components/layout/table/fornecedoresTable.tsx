@@ -131,7 +131,6 @@ export default function TabelaFornecedores({
         </Table>
       </div>
 
-      {/* TODO: Implementar modais de fornecedores */}
       <FornecedorListagem
         open={open}
         fornecedor={selectedFornecedor}
@@ -172,6 +171,34 @@ export default function TabelaFornecedores({
               setPageState(1);
             }}
             totalItems={Number(totalDocs)}
+            tableData={fornecedores}
+            tableTitle="Relatório de Fornecedores"
+            tableColumns={[
+              { key: "nome_fornecedor", label: "Nome do Fornecedor" },
+              { key: "cnpj", label: "CNPJ" },
+              { key: "telefone", label: "Telefone" },
+              { key: "email", label: "Email" },
+              {
+                key: "status",
+                label: "Status",
+                format: (value) => (value ? "Ativo" : "Inativo"),
+              },
+              {
+                key: "endereco",
+                label: "Cidade/UF",
+                format: (value) => {
+                  const endereco = value?.[0];
+                  return endereco
+                    ? `${endereco.cidade}/${endereco.estado}`
+                    : "-";
+                },
+              },
+              {
+                key: "data_cadastro",
+                label: "Data de cadastro",
+                format: (value) => (value ? AdjustDate(value) : "-"),
+              },
+            ]}
           />
 
           <CustomPagination

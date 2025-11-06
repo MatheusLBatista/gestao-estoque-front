@@ -18,6 +18,7 @@ import { ProdutoListagem } from "../popUp/produto/produtoListagem";
 import { AdjustPrice } from "@/lib/adjustPrice";
 import { useQueryState, parseAsInteger } from "nuqs";
 import { ProdutosFilterProps } from "../filters/produtosFilter";
+import { AdjustDate } from "@/lib/adjustDate";
 
 interface TabelaProdutosProps {
   produtos: Produto[];
@@ -173,6 +174,25 @@ export default function TabelaProdutos({
               setPageState(1);
             }}
             totalItems={Number(totalDocs)}
+            tableData={produtos}
+            tableTitle="Relatório de Produtos"
+            tableColumns={[
+              { key: "nome_produto", label: "Nome do Produto" },
+              { key: "codigo_produto", label: "Código" },
+              { key: "categoria", label: "Categoria" },
+              {
+                key: "custo",
+                label: "Custo unitário",
+                format: (value) => AdjustPrice(value),
+              },
+              {
+                key: "preco",
+                label: "Preço unitário",
+                format: (value) => AdjustPrice(value),
+              },
+              { key: "estoque", label: "Estoque" },
+              { key: "data_ultima_atualizacao", label: "Última atualização" , format: (value) => AdjustDate(value),},
+            ]}
           />
 
           <CustomPagination
