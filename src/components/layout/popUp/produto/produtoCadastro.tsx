@@ -73,7 +73,7 @@ export function CadastroProduto({
         />
       </DialogTrigger>
 
-      <DialogContent className="gap-8">
+      <DialogContent showCloseButton={false} className="gap-8">
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>Cadastro de produto</DialogTitle>
           <DialogDescription>
@@ -134,20 +134,22 @@ export function CadastroProduto({
             </div>
           </FieldGroup>
         </FieldSet>
-        <div className="flex flex-row gap-2 justify-end">
-          <Button
-            onClick={() => handleOpenChange(false)}
-            className="cursor-pointer text-black bg-transparent border hover:bg-neutral-50"
-            data-slot="dialog-close"
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={save}
-            className="cursor-pointer bg-blue-600 hover:bg-blue-700"
-          >
-            <Save className="w-4 h-4 mr-1" /> Salvar
-          </Button>
+        <div className="pt-2 border-t">
+          <div className="flex flex-row gap-2 justify-end">
+            <Button
+              onClick={() => handleOpenChange(false)}
+              className="w-1/2 cursor-pointer text-black bg-transparent border hover:bg-neutral-50"
+              data-slot="dialog-close"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={save}
+              className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700"
+            >
+              <Save className="w-4 h-4 mr-1" /> Salvar
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

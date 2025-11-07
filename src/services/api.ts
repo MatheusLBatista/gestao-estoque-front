@@ -6,7 +6,7 @@ export async function fetchData<T>(
 ): Promise<T> {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const accessToken = token || process.env.NEXT_PUBLIC_ACCESS_TOKEN;
-  
+
   const headers: HeadersInit = {
     Authorization: `Bearer ${accessToken}`,
     "Content-Type": "application/json",
@@ -21,6 +21,17 @@ export async function fetchData<T>(
   const response = await fetch(`${API_URL}${url}`, options);
 
   let json = await response.json();
+
+  if (!response.ok) {
+    const errorMessage =
+      json?.message ||
+      json?.error ||
+      `HTTP ${response.status}: ${response.statusText}`;
+    const error = new Error(errorMessage);
+    (error as any).status = response.status;
+    (error as any).response = { data: json };
+    throw error;
+  }
 
   return json as T;
 }

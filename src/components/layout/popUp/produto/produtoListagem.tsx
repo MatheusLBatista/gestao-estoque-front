@@ -20,6 +20,11 @@ import { AdjustPrice } from "@/lib/adjustPrice";
 import { AdjustDate } from "@/lib/adjustDate";
 import { Button } from "@/components/ui/button";
 import { BotaoCadastrar } from "@/components/ui/cadastrarButton";
+import { toast } from "sonner";
+import {
+  useRecordPrint,
+  createAvailabilityBadge,
+} from "@/components/layout/print/RecordPrint";
 
 interface ProdutoListarProps {
   open: boolean;
@@ -36,9 +41,73 @@ export function ProdutoListagem({
   onEditar,
   onCadastrar,
 }: ProdutoListarProps) {
+  const { printRecord } = useRecordPrint();
+
+  const handlePrintProduto = () => {
+    if (!produto) {
+      toast.error("Nenhum produto selecionado para impressão");
+      return;
+    }
+
+    const sections = [
+      {
+        title: "Informações Básicas",
+        fields: [
+          { label: "ID do Produto", value: produto._id },
+          { label: "Nome do Produto", value: produto.nome_produto || "-" },
+          { label: "Código do Produto", value: produto.codigo_produto || "-" },
+          { label: "Descrição", value: produto.descricao || "-" },
+          { label: "Marca", value: produto.marca || "-" },
+          { label: "Categoria", value: produto.categoria || "-" },
+        ],
+      },
+      {
+        title: "Estoque e Preços",
+        fields: [
+          {
+            label: "Quantidade em Estoque",
+            value: produto.estoque?.toString() || "0",
+          },
+          {
+            label: "Estoque Mínimo",
+            value: produto.estoque_min?.toString() || "0",
+          },
+          { label: "Preço de Custo", value: AdjustPrice(produto.custo) },
+          {
+            label: "Preço de Venda",
+            value: produto.preco ? AdjustPrice(produto.preco) : "-",
+          },
+          {
+            label: "Fornecedor",
+            value: produto.fornecedores?.nome_fornecedor || "-",
+          },
+        ],
+      },
+      {
+        title: "Informações de Sistema",
+        fields: [
+          {
+            label: "Data de Cadastro",
+            value: AdjustDate(produto.data_cadastro),
+          },
+          {
+            label: "Última Entrada",
+            value: AdjustDate(produto.data_ultima_entrada),
+          },
+        ],
+      },
+    ];
+
+    printRecord({
+      title: "Detalhes do Produto",
+      recordId: produto.nome_produto,
+      sections,
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="gap-4">
+      <DialogContent showCloseButton={false} className="gap-4">
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>
             {produto ? (
@@ -62,7 +131,7 @@ export function ProdutoListagem({
         <div className="space-y-0.5 text-sm text-neutral-700 max-h-96 overflow-y-auto">
           {produto ? (
             <>
-              <FieldSet className="pointer-events-none">
+              <FieldSet>
                 <FieldGroup>
                   <Field>
                     <FieldLabel>Nome do produto*</FieldLabel>
@@ -182,7 +251,7 @@ export function ProdutoListagem({
 
                     <Field>
                       <FieldLabel htmlFor="data_ultima_entrada">
-                        Última entrada
+                        Data última atualização
                       </FieldLabel>
                       <Input
                         id="data_ultima_entrada"
@@ -203,7 +272,7 @@ export function ProdutoListagem({
           <div className="flex flex-row justify-center gap-1">
             <Button
               className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
-              onClick={() => window.print()}
+              onClick={handlePrintProduto}
             >
               <Printer className="w-4 h-4" /> Imprimir
             </Button>

@@ -76,9 +76,9 @@ export default function TabelaMovimentacao({
             setDataFinal={filtros.setDataFinal}
             onSubmit={filtros.onSubmit}
           />
-          <CadastroMovimentacao 
+          <CadastroMovimentacao
             color="green"
-            size='1/8'
+            size="1/8"
             open={cadastroOpen}
             onOpenChange={(value) => setCadastroOpen(value)}
           />
@@ -103,7 +103,7 @@ export default function TabelaMovimentacao({
                   Destino
                 </TableHead>
                 <TableHead className="text-right text-neutral-500">
-                  Valor
+                  Valor total
                 </TableHead>
                 <TableHead className="text-center text-neutral-500">
                   Quantidade
@@ -129,7 +129,7 @@ export default function TabelaMovimentacao({
                   </TableCell>
 
                   <TableCell className="text-left text-sm text-neutral-700 capitalize">
-                    {m.tipo}
+                    {m.tipo === "entrada" ? "Entrada" : "Saída"}
                   </TableCell>
 
                   <TableCell className="text-left text-sm text-neutral-700">
@@ -161,7 +161,7 @@ export default function TabelaMovimentacao({
                   </TableCell>
 
                   <TableCell className="text-center text-sm text-neutral-700">
-                    {m.produtos?.[0]?.quantidade_produtos || 0}
+                    {m.totalProdutos || 0}
                   </TableCell>
 
                   <TableCell className="text-center text-sm text-neutral-700">
@@ -183,6 +183,69 @@ export default function TabelaMovimentacao({
               setPageState(1);
             }}
             totalItems={Number(totalDocs)}
+            tableData={movimentacoes}
+            tableTitle="Relatório de Movimentações"
+            tableColumns={[
+              {
+                key: "data_movimentacao",
+                label: "Data",
+                format: (value) => AdjustDate(value),
+              },
+              {
+                key: "tipo",
+                label: "Tipo",
+                format: (value) => (value === "entrada" ? "Entrada" : "Saída"),
+              },
+              {
+                key: "produtos",
+                label: "Produto(s)",
+                format: (value) => {
+                  if (!value || value.length === 0) return "-";
+
+                  const maxVisible = 3;
+                  const nomesVisibles = [];
+
+                  for (let i = 0; i < Math.min(value.length, maxVisible); i++) {
+                    const produto = value[i]._id;
+                    if (typeof produto === "object" && produto.nome_produto) {
+                      nomesVisibles.push(produto.nome_produto);
+                    }
+                  }
+
+                  let resultado = nomesVisibles.join(", ");
+
+                  if (value.length > maxVisible) {
+                    const remaining = value.length - maxVisible;
+                    resultado += ` (+${remaining} item${
+                      remaining > 1 ? "s" : ""
+                    })`;
+                  }
+
+                  return resultado || "-";
+                },
+              },
+              {
+                key: "totalProdutos",
+                label: "Quantidade",
+              },
+              {
+                key: "produtos",
+                label: "Valor Unit.",
+                format: (value, row) => {
+                  if (!value || !value[0]) return "R$ 0,00";
+                  const produto = value[0];
+                  const preco =
+                    row.tipo === "entrada" ? produto.custo : produto.preco;
+                  return AdjustPrice(preco || 0);
+                },
+              },
+              {
+                key: "totalValor",
+                label: "Valor total",
+                format: (value, row) =>
+                  AdjustPrice(row?.totalCusto || row?.totalPreco || 0),
+              },
+            ]}
           />
 
           <CustomPagination
@@ -202,7 +265,7 @@ export default function TabelaMovimentacao({
         }}
         onNovaMovimentacao={() => {
           setOpen(false);
-          // Implementar lógica para nova movimentação se necessário
+          // TODO:Implementar lógica para nova movimentação se necessário
         }}
       />
     </>
