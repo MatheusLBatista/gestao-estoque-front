@@ -72,7 +72,7 @@ export function MovimentacaoListagem({
             value: movimentacao.tipo === "entrada" ? "Entrada" : "Saída",
           },
           { label: "Destino", value: movimentacao.destino || "-" },
-          { label: "Status", value: movimentacao.status ? "Ativo" : "Inativo" },
+          // { label: "Status", value: movimentacao.status ? "Ativo" : "Inativo" },
           { label: "Observações", value: movimentacao.observacoes || "-" },
         ],
       },
@@ -165,18 +165,18 @@ export function MovimentacaoListagem({
               <FieldGroup>
                 <div className="flex flex-row gap-1">
                   <Field>
-                    <FieldLabel>ID do usuário responsável</FieldLabel>
+                    <FieldLabel>ID da movimentação</FieldLabel>
                     <Input
                       value={
-                        typeof movimentacao.id_usuario === "object"
-                          ? movimentacao.id_usuario._id
-                          : movimentacao.id_usuario || "-"
+                        typeof movimentacao._id === "object"
+                          ? movimentacao._id
+                          : movimentacao._id || "-"
                       }
                       readOnly
                     />
                   </Field>
                   <Field>
-                    <FieldLabel>Email usuário</FieldLabel>
+                    <FieldLabel>Email responsável</FieldLabel>
                     <Input
                       value={
                         typeof movimentacao.id_usuario === "object"
@@ -246,21 +246,31 @@ export function MovimentacaoListagem({
                 )}
 
                 <div className="flex flex-row gap-1">
-                  <Field>
-                    <FieldLabel>Preço de venda</FieldLabel>
-                    <Input
-                      value={AdjustPrice(movimentacao.totalPreco || 0)}
-                      readOnly
-                    />
-                  </Field>
-                  <Field>
+                  {movimentacao.tipo === "entrada" ? (
+                    <Field>
                     <FieldLabel>Preço de custo</FieldLabel>
+                      <Input
+                        value={AdjustPrice(movimentacao.totalCusto || 0)}
+                        readOnly
+                      />
+                    </Field>
+                  ) : (
+                    <Field>
+                      <FieldLabel>Preço de venda</FieldLabel>
+                      <Input
+                        value={AdjustPrice(movimentacao.totalPreco || 0)}
+                        readOnly
+                      />
+                    </Field>
+                  )}
+                  <Field>
+                    <FieldLabel>Data de cadastro</FieldLabel>
                     <Input
-                      value={AdjustPrice(movimentacao.totalCusto || 0)}
+                      value={AdjustDate(movimentacao.data_cadastro)}
                       readOnly
                     />
                   </Field>
-                </div>
+                  </div>
 
                 <div className="flex flex-row gap-1">
                   <Field>
@@ -280,30 +290,13 @@ export function MovimentacaoListagem({
                   </Field>
                 )}
 
-                <div className="flex flex-row gap-1">
-                  <Field>
-                    <FieldLabel>Data de cadastro</FieldLabel>
-                    <Input
-                      value={AdjustDate(movimentacao.data_cadastro)}
-                      readOnly
-                    />
-                  </Field>
-                  {/* <Field>
-                    <FieldLabel>Data última atualização</FieldLabel>
-                    <Input
-                      value={AdjustDate(movimentacao.data_ultima_atualizacao)}
-                      readOnly
-                    />
-                  </Field> */}
-                </div>
-
                 {movimentacao.tipo === "entrada" &&
                   (movimentacao as any).nota_fiscal && (
-                    <div className="space-y-2 border-t pt-4">
+                    <div className="border-t pt-4 space-y-4">
                       <FieldLabel className="text-base font-semibold">
                         Nota Fiscal
                       </FieldLabel>
-                      <div className="flex flex-row gap-1">
+                      <div className="flex flex-row gap-1 py-2">
                         <Field>
                           <FieldLabel>Número</FieldLabel>
                           <Input
