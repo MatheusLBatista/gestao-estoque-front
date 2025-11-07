@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Dialog,
   DialogContent,
@@ -20,6 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AdjustPrice } from "@/lib/adjustPrice";
 import { AdjustDate } from "@/lib/adjustDate";
+import { toast } from "sonner";
+import { useRecordPrint } from "@/components/layout/print/RecordPrint";
 
 interface MovimentacaoListarProps {
   open: boolean;
@@ -34,23 +35,112 @@ export function MovimentacaoListagem({
   onOpenChange,
   onNovaMovimentacao,
 }: MovimentacaoListarProps) {
-  const getProdutoNome = () => {
-    if (!movimentacao?.produtos?.length) return "-";
-    const firstProduct = movimentacao.produtos[0];
-    if (
-      typeof firstProduct._id === "object" &&
-      firstProduct._id?.nome_produto
-    ) {
-      return firstProduct._id.nome_produto;
-    }
-    return "-";
-  };
+  const { printRecord } = useRecordPrint();
 
-  const getQuantidadeProdutos = () => {
-    if (!movimentacao?.produtos?.length) return 0;
-    return movimentacao.produtos.reduce((total, produto) => {
-      return total + (produto.quantidade_produtos || 0);
-    }, 0);
+  const handlePrintMovimentacao = () => {
+    if (!movimentacao) {
+      toast.error("Nenhuma movimentação selecionada para impressão");
+      return;
+    }
+
+    const produtosList =
+      movimentacao.produtos
+        ?.map((produto) => {
+          const nomeProduto =
+            typeof produto._id === "object"
+              ? produto._id.nome_produto
+              : produto.codigo_produto;
+          const valor =
+            "custo" in produto
+              ? produto.custo
+              : "preco" in produto
+              ? produto.preco
+              : 0;
+          return `${nomeProduto} (Qtd: ${
+            produto.quantidade_produtos
+          }) - ${AdjustPrice(valor)}`;
+        })
+        .join("<br>") || "-";
+
+    const sections = [
+      {
+        title: "Informações da Movimentação",
+        fields: [
+          { label: "ID da Movimentação", value: movimentacao._id },
+          {
+            label: "Tipo de Movimentação",
+            value: movimentacao.tipo === "entrada" ? "Entrada" : "Saída",
+          },
+          { label: "Destino", value: movimentacao.destino || "-" },
+          { label: "Status", value: movimentacao.status ? "Ativo" : "Inativo" },
+          { label: "Observações", value: movimentacao.observacoes || "-" },
+        ],
+      },
+      {
+        title: "Produtos Envolvidos",
+        fields: [
+          { label: "Produtos", value: produtosList },
+          {
+            label: `Valor da ${
+              movimentacao.tipo === "saida" ? "saída" : "entrada"
+            }`,
+            value:
+              movimentacao.tipo === "saida"
+                ? AdjustPrice(movimentacao.totalPreco || 0)
+                : AdjustPrice(movimentacao.totalCusto || 0),
+          },
+          {
+            label: "Quantidade Total",
+            value:
+              movimentacao.produtos
+                ?.reduce(
+                  (total, produto) => total + produto.quantidade_produtos,
+                  0
+                )
+                ?.toString() || "0",
+          },
+        ],
+      },
+      {
+        title: "Informações do Sistema",
+        fields: [
+          {
+            label: "Data de Cadastro",
+            value: AdjustDate(movimentacao.data_cadastro),
+          },
+          {
+            label: "Usuário Responsável",
+            value: movimentacao.id_usuario?.nome_usuario || "-",
+          },
+        ],
+      },
+    ];
+
+    if (movimentacao.tipo === "entrada") {
+      const notaFiscal = (movimentacao as any).nota_fiscal;
+      if (notaFiscal) {
+        sections.splice(2, 0, {
+          title: "Nota Fiscal",
+          fields: [
+            { label: "Número", value: notaFiscal.numero || "-" },
+            { label: "Série", value: notaFiscal.serie || "-" },
+            { label: "Chave", value: notaFiscal.chave || "-" },
+            {
+              label: "Data de Emissão",
+              value: notaFiscal.data_emissao
+                ? AdjustDate(notaFiscal.data_emissao)
+                : "-",
+            },
+          ],
+        });
+      }
+    }
+
+    printRecord({
+      title: "Detalhes da Movimentação",
+      recordId: `${movimentacao.tipo.toUpperCase()} - ${movimentacao._id}`,
+      sections,
+    });
   };
 
   return (
@@ -157,17 +247,6 @@ export function MovimentacaoListagem({
 
                 <div className="flex flex-row gap-1">
                   <Field>
-                    <FieldLabel>Estoque mínimo</FieldLabel>
-                    <Input value="8" readOnly />
-                  </Field>
-                  <Field>
-                    <FieldLabel>Unidades em estoque</FieldLabel>
-                    <Input value="50" readOnly />
-                  </Field>
-                </div>
-
-                <div className="flex flex-row gap-1">
-                  <Field>
                     <FieldLabel>Preço de venda</FieldLabel>
                     <Input
                       value={AdjustPrice(movimentacao.totalPreco || 0)}
@@ -182,8 +261,6 @@ export function MovimentacaoListagem({
                     />
                   </Field>
                 </div>
-
-              
 
                 <div className="flex flex-row gap-1">
                   <Field>
@@ -211,10 +288,13 @@ export function MovimentacaoListagem({
                       readOnly
                     />
                   </Field>
-                  <Field>
+                  {/* <Field>
                     <FieldLabel>Data última atualização</FieldLabel>
-                    <Input value={AdjustDate(movimentacao.data_ultima_atualizacao)} readOnly />
-                  </Field>
+                    <Input
+                      value={AdjustDate(movimentacao.data_ultima_atualizacao)}
+                      readOnly
+                    />
+                  </Field> */}
                 </div>
 
                 {movimentacao.tipo === "entrada" &&
@@ -283,7 +363,7 @@ export function MovimentacaoListagem({
           <div className="flex flex-row justify-center gap-1">
             <Button
               className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
-              onClick={() => window.print()}
+              onClick={handlePrintMovimentacao}
             >
               <Printer className="w-4 h-4" /> Imprimir
             </Button>

@@ -32,6 +32,10 @@ import { BotaoCadastrar } from "@/components/ui/cadastrarButton";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchData } from "@/services/api";
 import { toast } from "sonner";
+import {
+  useRecordPrint,
+  createStatusBadge,
+} from "@/components/layout/print/RecordPrint";
 
 interface FornecedorListarProps {
   open: boolean;
@@ -51,6 +55,63 @@ export function FornecedorListagem({
   onExcluir,
 }: FornecedorListarProps) {
   const queryClient = useQueryClient();
+  const { printRecord } = useRecordPrint();
+
+  // Função para imprimir dados do fornecedor
+  const handlePrintFornecedor = () => {
+    if (!fornecedor) {
+      toast.error("Nenhum fornecedor selecionado para impressão");
+      return;
+    }
+
+    const enderecoPrincipal = fornecedor.endereco?.[0];
+
+    const sections = [
+      {
+        title: "Informações Básicas",
+        fields: [
+          { label: "ID do Fornecedor", value: fornecedor._id },
+          { label: "Status", value: createStatusBadge(fornecedor.status) },
+          {
+            label: "Nome do Fornecedor",
+            value: fornecedor.nome_fornecedor || "-",
+          },
+          { label: "CNPJ", value: fornecedor.cnpj || "-" },
+          { label: "Telefone", value: fornecedor.telefone || "-" },
+          { label: "Email", value: fornecedor.email || "-" },
+        ],
+      },
+      {
+        title: "Endereço",
+        fields: [
+          { label: "Logradouro", value: enderecoPrincipal?.logradouro || "-" },
+          { label: "Bairro", value: enderecoPrincipal?.bairro || "-" },
+          { label: "Cidade", value: enderecoPrincipal?.cidade || "-" },
+          { label: "Estado", value: enderecoPrincipal?.estado || "-" },
+          { label: "CEP", value: enderecoPrincipal?.cep || "-" },
+        ],
+      },
+      {
+        title: "Informações de Sistema",
+        fields: [
+          {
+            label: "Data de Cadastro",
+            value: AdjustDate(fornecedor.data_cadastro),
+          },
+          {
+            label: "Última Atualização",
+            value: AdjustDate(fornecedor.data_ultima_atualizacao),
+          },
+        ],
+      },
+    ];
+
+    printRecord({
+      title: "Detalhes do Fornecedor",
+      recordId: fornecedor.nome_fornecedor,
+      sections,
+    });
+  };
 
   const desativarMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -300,7 +361,7 @@ export function FornecedorListagem({
           <div className="flex flex-row justify-center gap-1">
             <Button
               className="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
-              onClick={() => window.print()}
+              onClick={handlePrintFornecedor}
             >
               <Printer className="w-4 h-4" /> Imprimir
             </Button>
