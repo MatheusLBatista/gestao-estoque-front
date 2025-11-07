@@ -85,7 +85,7 @@ export function ProdutoEdicao({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="gap-8 max-w-2xl">
+      <DialogContent showCloseButton={false} className="gap-8 max-w-2xl">
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>Editar produto</DialogTitle>
           <DialogDescription>
@@ -210,7 +210,7 @@ export function ProdutoEdicao({
                   id="preco"
                   type="number"
                   step="0.01"
-                  value={formData.preco}
+                  value={AdjustPrice(formData.preco) || ""}
                   onChange={(e) => handleInputChange("preco", e.target.value)}
                 />
               </Field>
