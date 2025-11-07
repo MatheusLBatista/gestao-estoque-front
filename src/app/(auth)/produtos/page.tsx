@@ -3,12 +3,13 @@ import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import { TypographyH2 } from "@/components/layout/subtitle";
 import TabelaProdutos from "@/components/layout/table/produtoTable";
-import { Produto } from "../../types/Produto";
+import { Produto } from "@/types/Produto";
 import { useQuery } from "@tanstack/react-query";
 import { fetchData } from "@/services/api";
 import { LoaderIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import {
   useQueryState,
   parseAsInteger,
@@ -17,6 +18,8 @@ import {
 } from "nuqs";
 
 export default function ProdutosPage() {
+  const { data: session, status } = useSession();
+  
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limite, setLimite] = useQueryState(
     "limite",
@@ -40,10 +43,10 @@ export default function ProdutosPage() {
     parseAsBoolean.withDefault(false)
   );
 
-  const [nomeProduto, setNomeProduto] = useState(nomeProdutoFilter);
-  const [categoria, setCategoria] = useState(categoriaFilter);
-  const [codigoProduto, setCodigoProduto] = useState(codigoProdutoFilter);
-  const [estoqueBaixo, setEstoqueBaixo] = useState(estoqueBaixoFilter);
+  const [nomeProduto, setNomeProduto] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [codigoProduto, setCodigoProduto] = useState("");
+  const [estoqueBaixo, setEstoqueBaixo] = useState(false);
 
   useEffect(() => {
     setNomeProduto(nomeProdutoFilter);
@@ -71,10 +74,15 @@ export default function ProdutosPage() {
       codigoProdutoFilter,
       categoriaFilter,
       estoqueBaixoFilter,
+      session?.user?.accesstoken,
     ],
     queryFn: async () => {
       if (process.env.NEXT_PUBLIC_SIMULAR_ERRO === "true") {
         throw new Error("Erro simulado ao carregar dados de produtos");
+      }
+
+      if (!session?.user?.accesstoken) {
+        throw new Error("Usuário não autenticado");
       }
 
       const params = new URLSearchParams({
@@ -94,11 +102,12 @@ export default function ProdutosPage() {
           page: number;
           limit: number;
         };
-      }>(`/produtos?${params.toString()}`, "GET");
+      }>(`/produtos?${params.toString()}`, "GET", session.user.accesstoken);
 
       return result.data || [];
     },
     retry: false,
+    enabled: status === "authenticated" && !!session?.user?.accesstoken,
   });
 
   useEffect(() => {

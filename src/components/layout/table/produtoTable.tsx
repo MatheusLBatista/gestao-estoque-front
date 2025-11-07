@@ -37,8 +37,6 @@ export default function TabelaProdutos({
   perPage,
   filtros,
 }: TabelaProdutosProps) {
-  if (!produtos.length) return null;
-
   const [pageState, setPageState] = useQueryState(
     "page",
     parseAsInteger.withDefault(currentPage)
@@ -105,38 +103,46 @@ export default function TabelaProdutos({
           </TableHeader>
 
           <TableBody>
-            {produtos.map((produto) => (
-              <TableRow
-                key={produto._id}
-                onClick={() => {
-                  setSelectedProduct(produto);
-                  setOpen(true);
-                }}
-                className="hover:bg-slate-50 cursor-pointer"
-              >
-                <TableCell className="font-medium text-left text-neutral-700">
-                  {produto.nome_produto}
-                </TableCell>
-                <TableCell className="text-center text-neutral-700">
-                  {produto.categoria}
-                </TableCell>
-                <TableCell className="text-center text-neutral-700">
-                  {produto.codigo_produto}
-                </TableCell>
-                <TableCell className="text-center text-neutral-700">
-                  {produto.estoque}
-                </TableCell>
-                <TableCell className="text-right text-neutral-700">
-                  {AdjustPrice(produto.custo)}
-                </TableCell>
-                <TableCell
-                  className="max-w-xs truncate text-left text-neutral-700"
-                  title={produto.descricao}
-                >
-                  {produto.descricao}
+            {!produtos || produtos.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-neutral-500">
+                  Nenhum produto encontrado
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              produtos.map((produto) => (
+                <TableRow
+                  key={produto._id}
+                  onClick={() => {
+                    setSelectedProduct(produto);
+                    setOpen(true);
+                  }}
+                  className="hover:bg-slate-50 cursor-pointer"
+                >
+                  <TableCell className="font-medium text-center text-neutral-700">
+                    {produto.nome_produto}
+                  </TableCell>
+                  <TableCell className="text-center text-neutral-700">
+                    {produto.categoria}
+                  </TableCell>
+                  <TableCell className="text-center text-neutral-700">
+                    {produto.codigo_produto}
+                  </TableCell>
+                  <TableCell className="text-center text-neutral-700">
+                    {produto.estoque}
+                  </TableCell>
+                  <TableCell className="text-center text-neutral-700">
+                    {AdjustPrice(produto.custo)}
+                  </TableCell>
+                  <TableCell
+                    className="max-w-xs truncate text-center text-neutral-700"
+                    title={produto.descricao}
+                  >
+                    {produto.descricao}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>

@@ -7,7 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchData } from "@/services/api";
 import { LoaderIcon } from "lucide-react";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import {
   useQueryState,
   parseAsInteger,
@@ -17,6 +18,8 @@ import {
 import TabelaFornecedores from "@/components/layout/table/fornecedoresTable";
 
 export default function FornecedoresPage() {
+  const { data: session, status } = useSession();
+
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limite, setLimite] = useQueryState(
     "limite",
@@ -55,10 +58,15 @@ export default function FornecedoresPage() {
       limite,
       nomeFornecedorFilter,
       ativoFilter,
+      session?.user?.accesstoken
     ],
     queryFn: async () => {
       if (process.env.NEXT_PUBLIC_SIMULAR_ERRO === "true") {
         throw new Error("Erro simulado ao carregar dados de fornecedores");
+      }
+
+      if (!session?.user?.accesstoken) {
+        throw new Error("Usuário não autenticado");
       }
 
       const params = new URLSearchParams({
@@ -77,11 +85,12 @@ export default function FornecedoresPage() {
           page: number;
           limit: number;
         };
-      }>(`/fornecedores?${params.toString()}`, "GET");
+      }>(`/fornecedores?${params.toString()}`, "GET", session.user.accesstoken);
 
       return result.data || [];
     },
     retry: false,
+    enabled: status === "authenticated" && !!session?.user?.accesstoken,
   });
 
   useEffect(() => {
