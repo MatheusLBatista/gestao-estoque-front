@@ -128,7 +128,7 @@ export function CadastroMovimentacao({
         observacoes: movimentacao.observacoes,
         nota_fiscal: movimentacao.nota_fiscal,
         produtos: movimentacao.produtos.map((produto) => ({
-          id_produto: produto.idProduto,
+          _id: produto.idProduto,
           codigo_produto: produto.codigo_produto,
           quantidade_produtos: produto.quantidade_produtos,
           ...(movimentacao.tipo === "entrada"
@@ -224,13 +224,14 @@ export function CadastroMovimentacao({
     }
 
     try {
+      console.log(`Buscando produto com código: ${codigo}`);
       const response = await fetchData<any>(
         `/produtos?codigo_produto=${codigo}`,
         "GET",
         session.user.accesstoken
       );
 
-      console.log(response);
+      console.log("Resposta da busca:", response);
 
       if (
         response &&
@@ -239,11 +240,15 @@ export function CadastroMovimentacao({
         response.data.docs.length > 0
       ) {
         const produto = response.data.docs[0];
+        console.log(
+          `Produto encontrado - ID: ${produto._id}, Nome: ${produto.nome_produto}`
+        );
         atualizarProduto(index, "id", produto._id);
         atualizarProduto(index, "nome", produto.nome_produto);
 
         clearFieldError(`produto_${index}_codigo`);
       } else {
+        console.log("Nenhum produto encontrado");
         atualizarProduto(index, "id", "");
         atualizarProduto(index, "nome", "");
         setErrors((prev) => ({
@@ -290,11 +295,27 @@ export function CadastroMovimentacao({
       return;
     }
 
+    const produtosSemCodigo = produtos.filter(
+      (produto) => !produto.codigo.trim()
+    );
+    if (produtosSemCodigo.length > 0) {
+      toast.error("Preencha o código de todos os produtos");
+      return;
+    }
+
     const produtosSemID = produtos.filter((produto) => !produto.id.trim());
     if (produtosSemID.length > 0) {
       toast.error(
-        "Alguns produtos não foram encontrados. Verifique os códigos informados."
+        "Alguns produtos não foram encontrados. Aguarde a busca ou verifique os códigos."
       );
+      return;
+    }
+
+    const produtosSemDados = produtos.filter(
+      (produto) => !produto.quantidade || !produto.valor
+    );
+    if (produtosSemDados.length > 0) {
+      toast.error("Preencha quantidade e valor de todos os produtos");
       return;
     }
 
@@ -320,9 +341,12 @@ export function CadastroMovimentacao({
       })),
     };
 
+    console.log("Payload antes da validação:", payload);
+
     const result = MovimentacaoCreateSchema.safeParse(payload);
 
     if (!result.success) {
+      console.log("Erros de validação:", result.error.issues);
       const fieldErrors: Record<string, string> = {};
       result.error.issues.forEach((e) => {
         if (e.path[0]) {
@@ -330,7 +354,7 @@ export function CadastroMovimentacao({
         }
       });
       setErrors(fieldErrors);
-      toast.warning("Verifique os campos obrigatórios!");
+      toast.error("Verifique os campos obrigatórios!");
       return;
     }
 
@@ -591,22 +615,24 @@ export function CadastroMovimentacao({
             </div>
           </FieldGroup>
         </FieldSet>
-        <div className="flex flex-row gap-2 justify-end">
-          <Button
-            onClick={() => handleOpenChange(false)}
-            className="cursor-pointer text-black bg-transparent border hover:bg-neutral-50"
-            data-slot="dialog-close"
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={save}
-            disabled={isPending}
-            className="cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            <Save className="w-4 h-4 mr-1" />
-            {isPending ? "Salvando..." : "Salvar"}
-          </Button>
+        <div className="pt-2 border-t">
+          <div className="flex flex-row justify-center gap-1">
+            <Button
+              onClick={() => handleOpenChange(false)}
+              className="w-1/2 cursor-pointer text-black bg-transparent border hover:bg-neutral-50"
+              data-slot="dialog-close"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={save}
+              disabled={isPending}
+              className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              <Save className="w-4 h-4 mr-1" />
+              {isPending ? "Salvando..." : "Salvar"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

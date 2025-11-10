@@ -23,22 +23,15 @@ export const MovimentacaoCreateSchema = z.object({
 
   produtos: z
     .array(
-      z
-        .object({
-          idProduto: z.string().min(5, "ID do produto inválido"),
-          codigo_produto: z.string().min(2, "Código inválido"),
-          quantidade_produtos: z.coerce
-            .number()
-            .positive("Quantidade deve ser maior que 0"),
-          custo: z.coerce.number().nonnegative("Custo inválido").optional(),
-          preco: z.coerce.number().nonnegative("Preço inválido").optional(),
-        })
-        .refine(
-          (data) => data.custo !== undefined || data.preco !== undefined,
-          {
-            message: "Produto deve ter custo ou preço definido",
-          }
-        )
+      z.object({
+        idProduto: z.string().min(1, "ID do produto é obrigatório"),
+        codigo_produto: z.string().min(2, "Código inválido"),
+        quantidade_produtos: z.coerce
+          .number()
+          .positive("Quantidade deve ser maior que 0"),
+        custo: z.coerce.number().nonnegative("Custo inválido").optional(),
+        preco: z.coerce.number().nonnegative("Preço inválido").optional(),
+      })
     )
     .min(1, "Adicione pelo menos 1 produto"),
 });

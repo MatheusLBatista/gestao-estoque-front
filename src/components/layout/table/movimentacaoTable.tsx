@@ -263,9 +263,9 @@ export default function TabelaMovimentacao({
           setOpen(value);
           if (!value) setSelectedMovimentacao(null);
         }}
-        onNovaMovimentacao={() => {
+        onCadastrar={() => {
           setOpen(false);
-          // TODO:Implementar lógica para nova movimentação se necessário
+          setCadastroOpen(true);
         }}
       />
     </>

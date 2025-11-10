@@ -21,19 +21,20 @@ import { AdjustPrice } from "@/lib/adjustPrice";
 import { AdjustDate } from "@/lib/adjustDate";
 import { toast } from "sonner";
 import { useRecordPrint } from "@/components/layout/print/RecordPrint";
+import { BotaoCadastrar } from "@/components/ui/cadastrarButton";
 
 interface MovimentacaoListarProps {
   open: boolean;
   movimentacao: Movimentacao | null;
   onOpenChange: (value: boolean) => void;
-  onNovaMovimentacao?: () => void;
+  onCadastrar?: () => void;
 }
 
 export function MovimentacaoListagem({
   open,
   movimentacao,
   onOpenChange,
-  onNovaMovimentacao,
+  onCadastrar,
 }: MovimentacaoListarProps) {
   const { printRecord } = useRecordPrint();
 
@@ -150,7 +151,8 @@ export function MovimentacaoListagem({
           <DialogTitle>
             {movimentacao ? (
               <div className="bold text-1xl">
-                Movimentação {movimentacao.tipo} - {movimentacao._id.slice(-12)}
+                Movimentação{" "}
+                {movimentacao.tipo === "saida" ? "saída" : "entrada"}
               </div>
             ) : (
               <div>Nenhuma movimentação selecionada.</div>
@@ -248,7 +250,7 @@ export function MovimentacaoListagem({
                 <div className="flex flex-row gap-1">
                   {movimentacao.tipo === "entrada" ? (
                     <Field>
-                    <FieldLabel>Preço de custo</FieldLabel>
+                      <FieldLabel>Preço de custo</FieldLabel>
                       <Input
                         value={AdjustPrice(movimentacao.totalCusto || 0)}
                         readOnly
@@ -266,11 +268,14 @@ export function MovimentacaoListagem({
                   <Field>
                     <FieldLabel>Data da movimentação</FieldLabel>
                     <Input
-                      value={movimentacao.data_movimentacao || movimentacao.data_cadastro}
+                      value={
+                        movimentacao.data_movimentacao ||
+                        movimentacao.data_cadastro
+                      }
                       readOnly
                     />
                   </Field>
-                  </div>
+                </div>
 
                 <div className="flex flex-row gap-1">
                   <Field>
@@ -330,7 +335,8 @@ export function MovimentacaoListagem({
                           <FieldLabel>Data de Emissão</FieldLabel>
                           <Input
                             value={
-                              (movimentacao as any).nota_fiscal?.data_emissao || "-"
+                              (movimentacao as any).nota_fiscal?.data_emissao ||
+                              "-"
                             }
                             readOnly
                           />
@@ -355,14 +361,13 @@ export function MovimentacaoListagem({
             >
               <Printer className="w-4 h-4" /> Imprimir
             </Button>
-            {onNovaMovimentacao && (
-              <Button
-                onClick={onNovaMovimentacao}
-                className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
-              >
-                <Plus className="w-4 h-4" /> Nova movimentação
-              </Button>
-            )}
+            <BotaoCadastrar
+              color="blue"
+              size="1/2"
+              onClick={() => {
+                if (onCadastrar) onCadastrar();
+              }}
+            />
           </div>
         </div>
       </DialogContent>
