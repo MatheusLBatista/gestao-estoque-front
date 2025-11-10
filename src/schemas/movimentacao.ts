@@ -14,8 +14,8 @@ export const MovimentacaoCreateSchema = z.object({
 
   nota_fiscal: z
     .object({
-      numero: z.coerce.number({ message: "Número inválido" }).optional(),
-      serie: z.coerce.number({ message: "Série inválida" }).optional(),
+      numero: z.coerce.string({ message: "Número inválido" }).optional(),
+      serie: z.coerce.string({ message: "Série inválida" }).optional(),
       chave: z.string().min(10, "Chave inválida").optional(),
       data_emissao: z.coerce.date({ message: "Data inválida" }).optional(),
     })

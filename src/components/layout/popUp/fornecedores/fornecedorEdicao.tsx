@@ -23,6 +23,7 @@ import {
 import { Fornecedor, ESTADOS_BRASILEIROS } from "../../../../types/Fornecedor";
 import { fetchData } from "@/services/api";
 import { FornecedorCreateSchema } from "@/schemas/fornecedor";
+import { useSession } from "next-auth/react";
 
 interface FornecedorEdicaoProps {
   open: boolean;
@@ -46,6 +47,7 @@ export function FornecedorEdicao({
     estado: "",
     cep: "",
   });
+  const { data: session } = useSession();
 
   const [loadingCep, setLoadingCep] = useState(false);
 
@@ -73,10 +75,14 @@ export function FornecedorEdicao({
         ],
       };
 
+      if(!session || !session.user.accesstoken) {
+        throw new Error("Usuário não autenticado");
+      }
+
       return await fetchData<any>(
         `/fornecedores/${fornecedor._id}`,
         "PATCH",
-        undefined,
+        session.user.accesstoken,
         body
       );
     },

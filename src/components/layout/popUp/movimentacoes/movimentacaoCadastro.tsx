@@ -324,12 +324,18 @@ export function CadastroMovimentacao({
       destino,
       observacoes: observacoes || undefined,
       nota_fiscal:
-        tipo === "entrada"
+        tipo === "entrada" &&
+        (notaFiscal.numero ||
+          notaFiscal.serie ||
+          notaFiscal.chave ||
+          notaFiscal.data_emissao)
           ? {
-              numero: Number(notaFiscal.numero) || 0,
-              serie: Number(notaFiscal.serie) || 0,
-              chave: notaFiscal.chave,
-              data_emissao: new Date(notaFiscal.data_emissao),
+              numero: notaFiscal.numero || undefined,
+              serie: notaFiscal.serie || undefined,
+              chave: notaFiscal.chave || undefined,
+              data_emissao: notaFiscal.data_emissao
+                ? new Date(notaFiscal.data_emissao)
+                : undefined,
             }
           : undefined,
       produtos: produtos.map((produto) => ({
@@ -418,24 +424,30 @@ export function CadastroMovimentacao({
                 </FieldLabel>
                 <div className="flex flex-row gap-1">
                   <Field>
-                    <FieldLabel htmlFor="nf-numero">Número*</FieldLabel>
+                    <FieldLabel htmlFor="nf-numero">Número</FieldLabel>
                     <Input
                       id="nf-numero"
                       autoComplete="off"
                       placeholder="000348325"
-                      value={notaFiscal.numero}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={9}
+                      value={String(notaFiscal.numero)}
                       onChange={(e) =>
                         atualizarNotaFiscal("numero", e.target.value)
                       }
                     />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="nf-serie">Série*</FieldLabel>
+                    <FieldLabel htmlFor="nf-serie">Série</FieldLabel>
                     <Input
                       id="nf-serie"
                       autoComplete="off"
                       placeholder="2"
-                      value={notaFiscal.serie}
+                      maxLength={1}
+                      type="text"
+                      inputMode="numeric"
+                      value={String(notaFiscal.serie)}
                       onChange={(e) =>
                         atualizarNotaFiscal("serie", e.target.value)
                       }
@@ -444,19 +456,23 @@ export function CadastroMovimentacao({
                 </div>
                 <div className="flex flex-row gap-1">
                   <Field>
-                    <FieldLabel htmlFor="nf-chave">Chave de Acesso*</FieldLabel>
+                    <FieldLabel htmlFor="nf-chave">Chave de Acesso</FieldLabel>
                     <Input
                       id="nf-chave"
                       autoComplete="off"
+                      type="text"
                       placeholder="352007142001660001875500200003483251234567890"
-                      value={notaFiscal.chave}
+                      inputMode="numeric"
+                      minLength={44}
+                      maxLength={44}
+                      value={String(notaFiscal.chave)}
                       onChange={(e) =>
                         atualizarNotaFiscal("chave", e.target.value)
                       }
                     />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="nf-data">Data de Emissão*</FieldLabel>
+                    <FieldLabel htmlFor="nf-data">Data de Emissão</FieldLabel>
                     <Input
                       id="nf-data"
                       type="date"
