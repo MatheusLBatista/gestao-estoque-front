@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Bot, Package, Plus, Save, Trash } from "lucide-react";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 import {
   Dialog,
   DialogContent,
@@ -33,10 +34,17 @@ import {
   SelectValue,
   SelectContent,
 } from "@/components/ui/select";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  MovimentacaoCreateInput,
+  MovimentacaoCreateSchema,
+} from "@/schemas/movimentacao";
+import { fetchData } from "@/services/api";
 
 interface Produtos {
   id: string;
   codigo: string;
+  nome: string;
   valor: number;
   quantidade: number;
 }
@@ -63,6 +71,7 @@ export function CadastroMovimentacao({
   open: controlledOpen,
   onOpenChange,
 }: CadastrarMovimentacaoProps) {
+  const { data: session } = useSession();
   const [internalOpen, setInternalOpen] = useState<boolean>(false);
   const isControlled = controlledOpen !== undefined;
   const dialogOpen = isControlled ? controlledOpen : internalOpen;
@@ -77,6 +86,110 @@ export function CadastroMovimentacao({
     data_emissao: "",
   });
 
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [formData, setFormData] = useState({
+    tipo: "",
+    destino: "",
+    observacoes: "",
+    id_produto: "",
+    codigo: "",
+    valor: "",
+    quantidade: "",
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const clearFieldError = (fieldName: string) => {
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[fieldName];
+      return newErrors;
+    });
+  };
+
+  const clearServerErrors = () => {
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+
+      return newErrors;
+    });
+  };
+
+  const queryClient = useQueryClient();
+  const { mutate: createMovimentacao, isPending } = useMutation({
+    mutationFn: async (movimentacao: MovimentacaoCreateInput) => {
+      if (!session?.user?.accesstoken) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const body = {
+        tipo: movimentacao.tipo,
+        destino: movimentacao.destino,
+        observacoes: movimentacao.observacoes,
+        nota_fiscal: movimentacao.nota_fiscal,
+        produtos: movimentacao.produtos.map((produto) => ({
+          id_produto: produto.idProduto,
+          codigo_produto: produto.codigo_produto,
+          quantidade_produtos: produto.quantidade_produtos,
+          ...(movimentacao.tipo === "entrada"
+            ? { custo: produto.custo }
+            : { preco: produto.preco }),
+        })),
+      };
+
+      return await fetchData<any>(
+        "/movimentacoes",
+        "POST",
+        session.user.accesstoken,
+        body
+      );
+    },
+
+    onSuccess: () => {
+      toast.success("Movimentação cadastrada com sucesso!", {
+        description: "A movimentação foi salva e adicionada à lista.",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["listarMovimentacoes"] });
+      handleOpenChange(false);
+
+      setTipo(undefined);
+      setDestino("");
+      setObservacoes("");
+      setProdutos([]);
+      setNotaFiscal({
+        numero: "",
+        serie: "",
+        chave: "",
+        data_emissao: "",
+      });
+      setFormData({
+        tipo: "",
+        destino: "",
+        observacoes: "",
+        id_produto: "",
+        codigo: "",
+        valor: "",
+        quantidade: "",
+      });
+      setErrors({});
+    },
+
+    onError: (error: any) => {
+      const errorData = error?.response?.data || error?.data || error;
+      const errorMessage =
+        errorData?.customMessage ||
+        errorData?.message ||
+        error?.message ||
+        error?.toString() ||
+        "";
+      const lowerMessage = errorMessage.toLowerCase();
+
+      const message = errorMessage || "Falha ao cadastrar movimentação";
+      toast.error("Erro ao cadastrar movimentação", { description: message });
+    },
+  });
+
   const handleOpenChange = (value: boolean) => {
     if (!isControlled) {
       setInternalOpen(value);
@@ -88,10 +201,65 @@ export function CadastroMovimentacao({
     const novoProduto: Produtos = {
       id: "",
       codigo: "",
+      nome: "",
       quantidade: 0,
       valor: 0,
     };
     setProdutos([...produtos, novoProduto]);
+  };
+
+  const buscarProdutoPorCodigo = async (codigo: string, index: number) => {
+    if (!codigo.trim()) {
+      atualizarProduto(index, "id", "");
+      atualizarProduto(index, "nome", "");
+      return;
+    }
+
+    if (!session?.user?.accesstoken) {
+      setErrors((prev) => ({
+        ...prev,
+        [`produto_${index}_codigo`]: "Usuário não autenticado",
+      }));
+      return;
+    }
+
+    try {
+      const response = await fetchData<any>(
+        `/produtos?codigo_produto=${codigo}`,
+        "GET",
+        session.user.accesstoken
+      );
+
+      console.log(response);
+
+      if (
+        response &&
+        response.data &&
+        response.data.docs &&
+        response.data.docs.length > 0
+      ) {
+        const produto = response.data.docs[0];
+        atualizarProduto(index, "id", produto._id);
+        atualizarProduto(index, "nome", produto.nome_produto);
+
+        clearFieldError(`produto_${index}_codigo`);
+      } else {
+        atualizarProduto(index, "id", "");
+        atualizarProduto(index, "nome", "");
+        setErrors((prev) => ({
+          ...prev,
+          [`produto_${index}_codigo`]: "Produto não encontrado",
+        }));
+      }
+    } catch (error) {
+      console.error("Erro ao buscar produto:", error);
+      atualizarProduto(index, "id", "");
+      atualizarProduto(index, "nome", "");
+      setErrors((prev) => ({
+        ...prev,
+        [`produto_${index}_codigo`]: "Erro ao buscar produto",
+      }));
+    }
   };
 
   const removerProduto = (index: number) => {
@@ -117,31 +285,56 @@ export function CadastroMovimentacao({
   };
 
   const save = () => {
-    if (!tipo || !destino) {
+    if (!tipo || !destino || produtos.length === 0) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
 
-    if (produtos.length === 0) {
-      toast.error("Cadastre pelo menos um produto");
+    const produtosSemID = produtos.filter((produto) => !produto.id.trim());
+    if (produtosSemID.length > 0) {
+      toast.error(
+        "Alguns produtos não foram encontrados. Verifique os códigos informados."
+      );
       return;
     }
 
-    toast.success("Movimentação cadastrada com sucesso!", {
-      description: "A movimentação foi salva e adicionada à lista.",
-    });
+    const payload = {
+      tipo: tipo as "entrada" | "saida",
+      destino,
+      observacoes: observacoes || undefined,
+      nota_fiscal:
+        tipo === "entrada"
+          ? {
+              numero: Number(notaFiscal.numero) || 0,
+              serie: Number(notaFiscal.serie) || 0,
+              chave: notaFiscal.chave,
+              data_emissao: new Date(notaFiscal.data_emissao),
+            }
+          : undefined,
+      produtos: produtos.map((produto) => ({
+        idProduto: produto.id,
+        codigo_produto: produto.codigo,
+        quantidade_produtos: Number(produto.quantidade) || 0,
+        custo: tipo === "entrada" ? Number(produto.valor) || 0 : 0,
+        preco: tipo === "saida" ? Number(produto.valor) || 0 : 0,
+      })),
+    };
 
-    handleOpenChange(false);
-    setTipo(undefined);
-    setDestino("");
-    setObservacoes("");
-    setNotaFiscal({
-      numero: "",
-      serie: "",
-      chave: "",
-      data_emissao: "",
-    });
-    setProdutos([]);
+    const result = MovimentacaoCreateSchema.safeParse(payload);
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.issues.forEach((e) => {
+        if (e.path[0]) {
+          fieldErrors[e.path[0] as string] = e.message;
+        }
+      });
+      setErrors(fieldErrors);
+      toast.warning("Verifique os campos obrigatórios!");
+      return;
+    }
+
+    createMovimentacao(result.data);
   };
 
   return (
@@ -314,32 +507,43 @@ export function CadastroMovimentacao({
                   <div className="space-y-2">
                     <div className="flex flex-row gap-1">
                       <Field>
-                        <FieldLabel htmlFor={`id-${index}`}>
-                          ID produto*
-                        </FieldLabel>
-                        <Input
-                          id={`id-${index}`}
-                          autoComplete="off"
-                          placeholder="68dc2e978a45b02c6d047c00"
-                          value={produto.id}
-                          onChange={(e) =>
-                            atualizarProduto(index, "id", e.target.value)
-                          }
-                        />
-                      </Field>
-
-                      <Field>
                         <FieldLabel htmlFor={`codigo-${index}`}>
-                          Código*
+                          Código do Produto*
                         </FieldLabel>
                         <Input
                           id={`codigo-${index}`}
                           autoComplete="off"
                           placeholder="ABC-1212"
                           value={produto.codigo}
-                          onChange={(e) =>
-                            atualizarProduto(index, "codigo", e.target.value)
-                          }
+                          onChange={(e) => {
+                            atualizarProduto(index, "codigo", e.target.value);
+                            // Buscar produto após 500ms de delay (debounce)
+                            if (searchTimeoutRef.current) {
+                              clearTimeout(searchTimeoutRef.current);
+                            }
+                            searchTimeoutRef.current = setTimeout(() => {
+                              buscarProdutoPorCodigo(e.target.value, index);
+                            }, 500);
+                          }}
+                        />
+                        {errors[`produto_${index}_codigo`] && (
+                          <FieldError>
+                            {errors[`produto_${index}_codigo`]}
+                          </FieldError>
+                        )}
+                      </Field>
+
+                      <Field>
+                        <FieldLabel htmlFor={`nome-${index}`}>
+                          Nome do Produto
+                        </FieldLabel>
+                        <Input
+                          id={`nome-${index}`}
+                          autoComplete="off"
+                          placeholder="Nome será preenchido automaticamente"
+                          value={produto.nome}
+                          readOnly
+                          className="bg-gray-100"
                         />
                       </Field>
                     </div>
@@ -397,9 +601,11 @@ export function CadastroMovimentacao({
           </Button>
           <Button
             onClick={save}
-            className="cursor-pointer bg-blue-600 hover:bg-blue-700"
+            disabled={isPending}
+            className="cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            <Save className="w-4 h-4 mr-1" /> Salvar
+            <Save className="w-4 h-4 mr-1" />
+            {isPending ? "Salvando..." : "Salvar"}
           </Button>
         </div>
       </DialogContent>
