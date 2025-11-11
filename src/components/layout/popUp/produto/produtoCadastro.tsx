@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
-import { Bot, Package, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 import {
   Dialog,
   DialogContent,
@@ -11,21 +12,31 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSeparator,
-  FieldSet,
-  FieldTitle,
-} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { BotaoCadastrar } from "@/components/ui/cadastrarButton";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ProdutoSchema, type FormData } from "@/schemas/produto";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchData } from "@/services/api";
+import { Fornecedor } from "@/types/Fornecedor";
 
 interface CadastroProdutoProps {
   color: "green" | "blue";
@@ -42,23 +53,104 @@ export function CadastroProduto({
   open: controlledOpen,
   onOpenChange,
 }: CadastroProdutoProps) {
+  const { data: session } = useSession();
   const [internalOpen, setInternalOpen] = useState<boolean>(false);
   const isControlled = controlledOpen !== undefined;
   const dialogOpen = isControlled ? controlledOpen : internalOpen;
 
+  const { data: fornecedores, isLoading: isLoadingFornecedores } = useQuery({
+    queryKey: ["listaFornecedores"],
+    queryFn: async () => {
+      if (!session?.user?.accesstoken) {
+        throw new Error("Usuário não autenticado");
+      }
+      const result = await fetchData<{
+        data: {
+          docs: Fornecedor[];
+          totalDocs: number;
+          totalPages: number;
+          page: number;
+          limit: number;
+        };
+      }>("/fornecedores?status=true", "GET", session.user.accesstoken);
+      return result?.data?.docs || [];
+    },
+    enabled: !!session?.user?.accesstoken,
+  });
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(ProdutoSchema),
+    defaultValues: {
+      nome_produto: "",
+      descricao: "",
+      preco: undefined,
+      marca: "",
+      // custo: undefined,
+      estoque_min: undefined,
+      fornecedores: "",
+      codigo_produto: "",
+    },
+  });
+
+  const queryClient = useQueryClient();
+  const { mutate: createProduto, isPending } = useMutation({
+    mutationFn: async (produto: FormData) => {
+      if (!session?.user?.accesstoken) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      return await fetchData<any>(
+        "/produtos",
+        "POST",
+        session.user.accesstoken,
+        produto
+      );
+    },
+
+    onSuccess: () => {
+      toast.success("Produto cadastrado com sucesso!", {
+        description: "O produto foi salvo e adicionado à lista.",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["listaProdutos"] });
+      handleOpenChange(false);
+      form.reset();
+    },
+
+    onError: (error: any) => {
+      const errorData = error?.response?.data || error?.data || error;
+      const errorMessage =
+        errorData?.customMessage ||
+        errorData?.message ||
+        error?.message ||
+        "Falha ao cadastrar produto";
+
+      toast.error("Erro ao cadastrar produto", { description: errorMessage });
+    },
+  });
+
   const handleOpenChange = (value: boolean) => {
+    if (!value && form.formState.isDirty) {
+      const confirmar = window.confirm(
+        "Você tem alterações não salvas. Deseja realmente fechar?"
+      );
+      if (!confirmar) {
+        return; 
+      }
+    }
+
     if (!isControlled) {
       setInternalOpen(value);
     }
     onOpenChange?.(value);
+
+    if (!value) {
+      form.reset();
+    }
   };
 
-  const save = () => {
-    toast.success("Produto cadastrado com sucesso!", {
-      description: "O produto foi salvo e adicionado à lista.",
-    });
-
-    handleOpenChange(false);
+  const onSubmit = (data: FormData) => {
+    createProduto(data);
   };
 
   return (
@@ -81,73 +173,192 @@ export function CadastroProduto({
           </DialogDescription>
         </DialogHeader>
 
-        <FieldSet className="max-h-96 overflow-y-auto">
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="name">Nome do produto*</FieldLabel>
-              <Input
-                id="name"
-                autoComplete="off"
-                placeholder="Mola Siena 1.4 2014"
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-8 max-h-96 overflow-y-auto text-neutral-700"
+            noValidate
+          >
+            <FormField
+              control={form.control}
+              name="nome_produto"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome do produto*</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Smartphone Samsung Galaxy A55"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex flex-row gap-1">
+              <FormField
+                control={form.control}
+                name="fornecedores"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Fornecedor*</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Selecione um fornecedor" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {isLoadingFornecedores ? (
+                          <SelectItem value="loading" disabled>
+                            Carregando...
+                          </SelectItem>
+                        ) : fornecedores && fornecedores.length > 0 ? (
+                          fornecedores.map((fornecedor) => (
+                            <SelectItem
+                              key={fornecedor._id}
+                              value={fornecedor._id}
+                            >
+                              {fornecedor.nome_fornecedor}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="empty" disabled>
+                            Nenhum fornecedor cadastrado
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </Field>
-
-            <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel htmlFor="fornecedor">ID do fornecedor*</FieldLabel>
-                <Input
-                  id="fornecedor"
-                  autoComplete="off"
-                  placeholder="589665443210abcdef12345678"
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="estoque">Estoque mínimo*</FieldLabel>
-                <Input id="estoque" autoComplete="off" placeholder="10" />
-              </Field>
             </div>
 
             <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel htmlFor="marca">Marca*</FieldLabel>
-                <Input id="marca" autoComplete="off" placeholder="FIAT" />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="codigo">Código*</FieldLabel>
-                <Input id="codigo" autoComplete="off" placeholder="ABC-1212" />
-                <FieldDescription className="text-[10px] mx-2 my-0">
-                  O código criado deve ser único
-                </FieldDescription>
-              </Field>
+              <FormField
+                control={form.control}
+                name="marca"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Marca*</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Samsung" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="codigo_produto"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Código*</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="SAM-GAL-A54-002"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(e.target.value.toUpperCase())
+                        }
+                      />
+                    </FormControl>
+                    {/* <FormDescription className="text-[10px]">
+                      O código criado deve ser único
+                    </FormDescription> */}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            <div>
-              <Field>
-                <FieldLabel htmlFor="descricao">Descrição</FieldLabel>
-                <Textarea
-                  className="h-[120px]"
-                  id="descricao"
-                  autoComplete="off"
-                  placeholder="Produto utilizado para abastecer carros da marca FIAT."
-                />
-              </Field>
+            <div className="flex flex-row gap-1">
+              <FormField
+                control={form.control}
+                name="estoque_min"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Estoque mínimo*</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="10"
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value) || undefined)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="preco"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Preço (R$)*</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="1299,99"
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(Number(e.target.value) || undefined)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-          </FieldGroup>
-        </FieldSet>
+
+            <FormField
+              control={form.control}
+              name="descricao"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descrição*</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Smartphone Samsung Galaxy A54 128GB, Tela 6.4 polegadas, Câmera 50MP"
+                      className="h-[100px] resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+
         <div className="pt-2 border-t">
-          <div className="flex flex-row gap-2 justify-end">
+          <div className="flex flex-row gap-1 justify-center">
             <Button
               onClick={() => handleOpenChange(false)}
               className="w-1/2 cursor-pointer text-black bg-transparent border hover:bg-neutral-50"
-              data-slot="dialog-close"
+              type="button"
             >
               Cancelar
             </Button>
             <Button
-              onClick={save}
-              className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isPending}
+              className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              type="button"
             >
-              <Save className="w-4 h-4 mr-1" /> Salvar
+              <Save className="w-4 h-4 mr-1" />
+              {isPending ? "Salvando..." : "Salvar"}
             </Button>
           </div>
         </div>

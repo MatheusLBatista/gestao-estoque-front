@@ -131,7 +131,7 @@ export default function TabelaProdutos({
                   <TableCell className="text-center text-neutral-700">
                     {produto.estoque}
                   </TableCell>
-                  <TableCell className="text-center text-neutral-700">
+                  <TableCell className="text-right text-neutral-700">
                     {AdjustPrice(produto.custo)}
                   </TableCell>
                   <TableCell
