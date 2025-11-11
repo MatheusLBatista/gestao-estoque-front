@@ -106,9 +106,8 @@ export const authOptions: NextAuthOptions = {
         session.user = { ...session.user, ...token };
       }
 
-      // Se o refresh falhou, forçar logout no cliente
-      if (token?.error === "RefreshAccessTokenError" && typeof window !== "undefined") {
-        window.location.href = "/logout";
+      if (token?.error === "RefreshAccessTokenError") {
+        return { ...session, error: "RefreshAccessTokenError" };
       }
 
       return session;

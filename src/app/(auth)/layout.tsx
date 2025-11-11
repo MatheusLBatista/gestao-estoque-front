@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -9,10 +9,19 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   const router = useRouter();
 
   useEffect(() => {
+    // Se não está autenticado, redireciona para login
     if (status === "unauthenticated") {
       router.push("/login");
     }
-  }, [status, router]);
+
+    // Se a sessão tem erro de refresh token, faz logout
+    if (status === "authenticated" && (session as any)?.error === "RefreshAccessTokenError") {
+      signOut({ redirect: false }).then(() => {
+        localStorage.removeItem("manterLogado");
+        router.push("/login");
+      });
+    }
+  }, [status, session, router]);
 
 
 
