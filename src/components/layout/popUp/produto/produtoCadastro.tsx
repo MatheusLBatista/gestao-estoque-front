@@ -37,6 +37,7 @@ import { ProdutoSchema, type FormData } from "@/schemas/produto";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchData } from "@/services/api";
 import { Fornecedor } from "@/types/Fornecedor";
+import { NumericFormat } from "react-number-format";
 
 interface CadastroProdutoProps {
   color: "green" | "blue";
@@ -130,14 +131,15 @@ export function CadastroProduto({
   });
 
   const handleOpenChange = (value: boolean) => {
-    if (!value && form.formState.isDirty) {
-      const confirmar = window.confirm(
-        "Você tem alterações não salvas. Deseja realmente fechar?"
-      );
-      if (!confirmar) {
-        return; 
-      }
-    }
+    // TODO: revisar o progresso do form
+    // if (!value && form.formState.isDirty) {
+    //   const confirmar = window.confirm(
+    //     "Você tem alterações não salvas. Deseja realmente fechar?"
+    //   );
+    //   if (!confirmar) {
+    //     return;
+    //   }
+    // }
 
     if (!isControlled) {
       setInternalOpen(value);
@@ -307,13 +309,20 @@ export function CadastroProduto({
                   <FormItem className="flex-1">
                     <FormLabel>Preço (R$)*</FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="1299,99"
+                      <NumericFormat
                         value={field.value ?? ""}
-                        onChange={(e) =>
-                          field.onChange(Number(e.target.value) || undefined)
-                        }
+                        placeholder="R$ 1299,99"                      
+                        thousandSeparator="."
+                        decimalSeparator=","
+                        decimalScale={2}
+                        fixedDecimalScale
+                        allowNegative={false}
+                        prefix="R$ "                        
+                        customInput={Input}                        
+                        onValueChange={(values) => {
+                          field.onChange(values.floatValue ?? null);
+                        }}                        
+                        onFocus={(e) => e.target.select()}
                       />
                     </FormControl>
                     <FormMessage />

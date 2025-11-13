@@ -96,6 +96,9 @@ export default function TabelaProdutos({
               <TableHead className="text-right text-neutral-500">
                 Custo
               </TableHead>
+              <TableHead className="text-right text-neutral-500">
+                Preço
+              </TableHead>
               <TableHead className="text-left text-neutral-500">
                 Descrição
               </TableHead>
@@ -132,7 +135,10 @@ export default function TabelaProdutos({
                     {produto.estoque}
                   </TableCell>
                   <TableCell className="text-right text-neutral-700">
-                    {AdjustPrice(produto.custo)}
+                    {AdjustPrice(produto.custo ?? 0)}
+                  </TableCell>
+                  <TableCell className="text-right text-neutral-700">
+                    {AdjustPrice(produto.preco ?? 0)}
                   </TableCell>
                   <TableCell
                     className="max-w-xs truncate text-center text-neutral-700"

@@ -29,6 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchData } from "@/services/api";
+import { NumericFormat } from "react-number-format";
 
 interface ProdutoEdicaoProps {
   open: boolean;
@@ -242,12 +243,13 @@ export function ProdutoEdicao({
                     <FormLabel>Estoque mínimo*</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        step="1"
+                        type="text"
                         placeholder="10"
                         value={field.value ?? ""}
                         onChange={(e) =>
-                          field.onChange(parseInt(e.target.value) || undefined)
+                          field.onChange(
+                            e.target.value ? parseInt(e.target.value) : ""
+                          )
                         }
                       />
                     </FormControl>
@@ -263,13 +265,19 @@ export function ProdutoEdicao({
                   <FormItem className="flex-1">
                     <FormLabel>Preço (R$)*</FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="1299,99"
+                      <NumericFormat
                         value={field.value ?? ""}
-                        onChange={(e) =>
-                          field.onChange(Number(e.target.value) || undefined)
-                        }
+                        thousandSeparator="."
+                        decimalSeparator=","
+                        decimalScale={2}
+                        fixedDecimalScale
+                        allowNegative={false}
+                        prefix="R$ "
+                        customInput={Input}
+                        onValueChange={(values) => {
+                          field.onChange(values.floatValue ?? null);
+                        }}
+                        onFocus={(e) => e.target.select()}
                       />
                     </FormControl>
                     <FormMessage />
