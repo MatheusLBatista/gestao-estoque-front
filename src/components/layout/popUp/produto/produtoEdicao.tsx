@@ -11,16 +11,24 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "@/components/ui/field";
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Produto } from "../../../../types/Produto";
 import { AdjustPrice } from "@/lib/adjustPrice";
+import { useSession } from "next-auth/react";
+import { ProdutoSchema, type FormData } from "@/schemas/produto";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchData } from "@/services/api";
 
 interface ProdutoEdicaoProps {
   open: boolean;
@@ -33,52 +41,81 @@ export function ProdutoEdicao({
   onOpenChange,
   produto,
 }: ProdutoEdicaoProps) {
-  const [formData, setFormData] = useState({
-    nome_produto: "",
-    id_fornecedor: "",
-    marca: "",
-    codigo_produto: "",
-    descricao: "",
-    custo: "",
-    preco: "",
-    estoque: "",
-    estoque_min: "",
-    categoria: "",
+  const { data: session } = useSession();
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(ProdutoSchema),
+    defaultValues: {
+      nome_produto: produto?.nome_produto || "",
+      descricao: produto?.descricao || "",
+      preco: produto?.preco || 0,
+      marca: produto?.marca || "",
+      custo: produto?.custo || 0,
+      estoque_min: produto?.estoque_min || 0,
+      fornecedores: produto?.fornecedores?._id || "",
+      codigo_produto: produto?.codigo_produto || "",
+    },
+  });
+
+  const queryClient = useQueryClient();
+
+  const { mutate: updateProduto, isPending } = useMutation({
+    mutationFn: async (data: any) => {
+      if (!session?.user?.accesstoken) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      return await fetchData<any>(
+        `/produtos/${produto?._id}`,
+        "PATCH",
+        session.user.accesstoken,
+        data
+      );
+    },
+    onSuccess: () => {
+      toast.success("Produto editado com sucesso!", {
+        description: "O produto foi salvo e retornado à lista.",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["listaProdutos"] });
+      onOpenChange(false);
+      form.reset();
+    },
+
+    onError: (error: any) => {
+      const errorData = error?.response?.data || error?.data || error;
+      const errorMessage =
+        errorData?.customMessage ||
+        errorData?.message ||
+        error?.message ||
+        "Falha ao editar produto";
+
+      toast.error("Erro ao editar produto", { description: errorMessage });
+    },
   });
 
   useEffect(() => {
-    if (produto) {
-      setFormData({
+    if (produto && open) {
+      form.reset({
         nome_produto: produto.nome_produto || "",
-        id_fornecedor: produto.fornecedores._id || "",
-        marca: produto.marca || "",
-        codigo_produto: produto.codigo_produto || "",
         descricao: produto.descricao || "",
-        custo: produto.custo ? produto.custo.toString() : "",
-        preco: produto.preco ? produto.preco.toString() : "",
-        estoque: produto.estoque ? produto.estoque.toString() : "",
-        estoque_min: produto.estoque_min ? produto.estoque_min.toString() : "",
-        categoria: produto.categoria || "",
+        preco: produto.preco || undefined,
+        marca: produto.marca || "",
+        custo: produto.custo || undefined,
+        estoque_min: produto.estoque_min || undefined,
+        fornecedores: produto.fornecedores?._id || "",
+        codigo_produto: produto.codigo_produto || "",
       });
     }
-  }, [produto]);
+  }, [produto, open, form]);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const save = () => {
-    // TODO: Implementar chamada da API para atualizar o produto
-    console.log("Dados para salvar:", formData);
-
-    toast.success("Produto atualizado com sucesso!", {
-      description: "As alterações foram salvas.",
-    });
-
-    onOpenChange(false);
+  const onSubmit = (data: FormData) => {
+    const updateData = {
+      preco: data.preco,
+      descricao: data.descricao,
+      estoque_min: data.estoque_min,
+    };
+    updateProduto(updateData as any);
   };
 
   if (!produto) return null;
@@ -93,141 +130,173 @@ export function ProdutoEdicao({
           </DialogDescription>
         </DialogHeader>
 
-        <FieldSet className="max-h-96 overflow-y-auto">
-          <FieldGroup>
-            <Field>
-              <FieldLabel>Nome do produto*</FieldLabel>
-              <Input
-                readOnly={true}
-                className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
-                value={formData.nome_produto}
-                onChange={(e) =>
-                  handleInputChange("nome_produto", e.target.value)
-                }
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-8 max-h-96 overflow-y-auto text-neutral-700"
+            noValidate
+          >
+            <FormField
+              control={form.control}
+              name="nome_produto"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome do produto*</FormLabel>
+                  <FormControl>
+                    <Input
+                      className="bg-gray-100 cursor-not-allowed"
+                      readOnly
+                      value={produto?.nome_produto || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex flex-row gap-1">
+              <FormField
+                control={form.control}
+                name="fornecedores"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Fornecedor*</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="bg-gray-100 cursor-not-allowed"
+                        readOnly
+                        value={
+                          produto?.fornecedores?.nome_fornecedor ||
+                          "Sem fornecedor"
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </Field>
 
-            <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel>ID do fornecedor*</FieldLabel>
-                <Input
-                  readOnly={true}
-                  className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
-                  value={formData.id_fornecedor || "Sem fornecedor"}
-                  onChange={(e) =>
-                    handleInputChange("id_fornecedor", e.target.value)
-                  }
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="categoria">Categoria*</FieldLabel>
-                <Input
-                  readOnly={false}
-                  className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
-                  id="categoria"
-                  autoComplete="off"
-                  value={String(formData.categoria ?? "")}
-                  onChange={(e) =>
-                    handleInputChange("categoria", e.target.value)
-                  }
-                />
-              </Field>
+              <FormField
+                control={form.control}
+                name="custo"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Custo*</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="bg-gray-100 cursor-not-allowed"
+                        readOnly
+                        value={AdjustPrice(produto?.custo || 0)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel>Estoque*</FieldLabel>
-                <Input
-                  readOnly={true}
-                  className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
-                  value={formData.estoque ?? "-"}
-                  onChange={(e) => handleInputChange("estoque", e.target.value)}
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="estoque_min">Estoque mínimo*</FieldLabel>
-                <Input
-                  readOnly={false}
-                  className="bg-white border-gray-300 cursor-text hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                  id="estoque_min"
-                  type="number"
-                  autoComplete="off"
-                  value={formData.estoque_min}
-                  onChange={(e) =>
-                    handleInputChange("estoque_min", e.target.value)
-                  }
-                />
-              </Field>
+              <FormField
+                control={form.control}
+                name="marca"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Marca*</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="bg-gray-100 cursor-not-allowed"
+                        readOnly
+                        value={produto?.marca || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="codigo_produto"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Código*</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="bg-gray-100 cursor-not-allowed"
+                        readOnly
+                        value={produto?.codigo_produto}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel htmlFor="marca">Marca*</FieldLabel>
-                <Input
-                  readOnly={false}
-                  className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
-                  id="marca"
-                  autoComplete="off"
-                  value={formData.marca ?? ""}
-                  onChange={(e) => handleInputChange("marca", e.target.value)}
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="codigo">Código*</FieldLabel>
-                <Input
-                  readOnly={false}
-                  className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
-                  id="codigo"
-                  autoComplete="off"
-                  value={formData.codigo_produto ?? ""}
-                  onChange={(e) =>
-                    handleInputChange("codigo_produto", e.target.value)
-                  }
-                />
-              </Field>
+              <FormField
+                control={form.control}
+                name="estoque_min"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Estoque mínimo*</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="1"
+                        placeholder="10"
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value) || undefined)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="preco"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Preço (R$)*</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="1299,99"
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(Number(e.target.value) || undefined)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            <div>
-              <Field>
-                <FieldLabel htmlFor="descricao">Descrição</FieldLabel>
-                <Textarea
-                  className="h-[60px] bg-white border-gray-300 cursor-text hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                  id="descricao"
-                  autoComplete="off"
-                  value={formData.descricao ?? ""}
-                  onChange={(e) =>
-                    handleInputChange("descricao", e.target.value)
-                  }
-                />
-              </Field>
-            </div>
-            <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel htmlFor="preco">Preço</FieldLabel>
-                <Input
-                  readOnly={false}
-                  className="bg-white border-gray-300 cursor-text hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                  id="preco"
-                  type="number"
-                  step="0.01"
-                  value={AdjustPrice(formData.preco) || ""}
-                  onChange={(e) => handleInputChange("preco", e.target.value)}
-                />
-              </Field>
-
-              <Field>
-                <FieldLabel htmlFor="custo">Custo</FieldLabel>
-                <Input
-                  readOnly={true}
-                  className="bg-gray-100 text-gray-600 cursor-not-allowed border-gray-200"
-                  id="custo"
-                  value={AdjustPrice(formData.custo) || ""}
-                  onChange={(e) => handleInputChange("custo", e.target.value)}
-                />
-              </Field>
-            </div>
-          </FieldGroup>
-        </FieldSet>
+            <FormField
+              control={form.control}
+              name="descricao"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descrição*</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Smartphone Samsung Galaxy A54 128GB, Tela 6.4 polegadas, Câmera 50MP"
+                      className="h-[100px] resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
 
         <div className="pt-4 border-t">
           <div className="flex flex-row justify-center gap-1">
@@ -238,10 +307,12 @@ export function ProdutoEdicao({
               Cancelar
             </Button>
             <Button
-              onClick={save}
-              className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isPending}
+              className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white flex items-center gap-1"
             >
-              <Save className="w-4 h-4" /> Salvar alterações
+              <Save className="w-4 h-4" />
+              {isPending ? "Salvando..." : "Salvar alterações"}
             </Button>
           </div>
         </div>
