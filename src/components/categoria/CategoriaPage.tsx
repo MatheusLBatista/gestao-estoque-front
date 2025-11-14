@@ -1,19 +1,30 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
+import { LoaderIcon } from "lucide-react"
 import { fetchData } from "@/services/api"
+import Header from "@/components/layout/header"
+import Footer from "@/components/layout/footer"
+import TabelaCategoriaProdutos from "@/components/layout/table/categoriaTable"
+import { CategoriaStatsCards } from "./CategoriaStatsCards"
+import { CategoriaChart } from "./CategoriaChart"
 import type { CategoriaAResponse, MovimentacoesResponse, Produto, ChartDataItem } from "@/types/Categorias"
 
-interface UseCategoriaResult {
-  loading: boolean
-  produtosFormatados: Produto[]
-  chartData: ChartDataItem[]
-  totalEntradas: number
-  totalSaidas: number
-  totalProdutos: number
+interface CategoriaPageProps {
+  categoria: string
+  titulo: string
+  corEntrada?: string
+  corSaida?: string
 }
 
-export function useCategoria(categoria: string): UseCategoriaResult {
+export function CategoriaPage({
+  categoria,
+  titulo,
+  corEntrada = "#0A2852",
+  corSaida = "#97BDF2"
+}: CategoriaPageProps) {
   const session = useSession()
   const [loading, setLoading] = useState(true)
   const [produtosFormatados, setProdutosFormatados] = useState<Produto[]>([])
@@ -30,17 +41,12 @@ export function useCategoria(categoria: string): UseCategoriaResult {
 
       try {
         setLoading(true)
-        console.log("Sessão autenticada, carregando dados...")
 
-        // Buscar produtos da categoria
-        console.log(`📡 Buscando produtos da categoria ${categoria}...`)
         const produtosResponse = await fetchData<CategoriaAResponse>(
           `/dashboard/categorias/categoria-${categoria.toLowerCase()}`,
           "GET",
           session.data.user.accesstoken
         )
-
-        console.log("📦 Resposta completa da API de produtos:", JSON.stringify(produtosResponse, null, 2))
 
         if (produtosResponse.error) {
           toast.error("Erro ao buscar produtos da categoria")
@@ -60,7 +66,6 @@ export function useCategoria(categoria: string): UseCategoriaResult {
           return
         }
         
-        // Formatar produtos para o formato esperado pela tabela
         const produtosFormatadosData: Produto[] = produtosResponse.data.produtos.map((p: any) => ({
           _id: p._id,
           nome_produto: p.nome_produto,
@@ -80,10 +85,8 @@ export function useCategoria(categoria: string): UseCategoriaResult {
         setTotalProdutos(produtosResponse.data.total || produtosFormatadosData.length)
 
         
-        // Extrair códigos dos produtos da categoria
         const codigosProdutos = produtosResponse.data.produtos.map((p: any) => p.codigo_produto)
         
-        // Buscar movimentações
         const movimentacoesResponse = await fetchData<MovimentacoesResponse>(
           "/movimentacoes?limit=1000",
           "GET",
@@ -91,36 +94,40 @@ export function useCategoria(categoria: string): UseCategoriaResult {
         )
 
         if (!movimentacoesResponse.error && movimentacoesResponse.data) {
-          console.log(`🔢 Total de movimentações na API: ${movimentacoesResponse.data.docs.length}`)
-          console.log(`🏷️ Códigos de produtos da categoria ${categoria} (${codigosProdutos.length}):`, codigosProdutos.slice(0, 5))
+          console.log(`Total de movimentações: ${movimentacoesResponse.data.docs.length}`)
+          console.log(`Códigos de produtos da categoria ${categoria} (${codigosProdutos.length}):`, codigosProdutos.slice(0, 5))
           
-          // Filtrar apenas movimentações de produtos da categoria
           const movimentacoesCategoria = movimentacoesResponse.data.docs.filter(mov =>
             mov.produtos.some(p => codigosProdutos.includes(p.codigo_produto))
           )
 
-          // Processar dados para o gráfico
-          const dataMap = new Map<string, { entradas: number; saidas: number }>()
+          const meses = [
+            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+          ]
+
+          // Inicializa dados 
+          const dataMap = new Map<string, { entradas: number; saidas: number; mesIndex: number }>()
+          meses.forEach((mes, index) => {
+            dataMap.set(mes, { entradas: 0, saidas: 0, mesIndex: index })
+          })
+
           let somaEntradas = 0
           let somaSaidas = 0
 
-          console.log(`📊 Total de movimentações da categoria ${categoria}: ${movimentacoesCategoria.length}`)
+          console.log(`Total de movimentações da categoria ${categoria}: ${movimentacoesCategoria.length}`)
 
           movimentacoesCategoria.forEach((mov, idx) => {
             const date = new Date(mov.data_movimentacao)
-            const mesAno = `${date.toLocaleString('pt-BR', { month: 'short' })}/${date.getFullYear().toString().slice(-2)}`
+            const mesIndex = date.getMonth() 
+            const nomeMes = meses[mesIndex]
             
             if (idx < 5) {
-              console.log(`🗓️ Movimentação ${idx + 1}: ${mov.data_movimentacao} -> ${mesAno}`)
-            }
-            
-            if (!dataMap.has(mesAno)) {
-              dataMap.set(mesAno, { entradas: 0, saidas: 0 })
+              console.log(`Movimentação ${idx + 1}: ${mov.data_movimentacao} -> ${nomeMes}`)
             }
 
-            const current = dataMap.get(mesAno)!
+            const current = dataMap.get(nomeMes)!
             
-            // Somar quantidades apenas dos produtos da categoria
             mov.produtos.forEach(p => {
               if (codigosProdutos.includes(p.codigo_produto)) {
                 if (mov.tipo === "entrada") {
@@ -137,65 +144,81 @@ export function useCategoria(categoria: string): UseCategoriaResult {
           setTotalEntradas(somaEntradas)
           setTotalSaidas(somaSaidas)
 
-          console.log(`📈 Total de Entradas: ${somaEntradas}`)
-          console.log(`📉 Total de Saídas: ${somaSaidas}`)
-          console.log(`📅 Meses únicos no Map:`, Array.from(dataMap.keys()))
-
-          // Função auxiliar para converter mês abreviado em número
-          const getMonthNumber = (mesAbrev: string): number => {
-            const meses: { [key: string]: number } = {
-              'jan': 0, 'fev': 1, 'mar': 2, 'abr': 3, 'mai': 4, 'jun': 5,
-              'jul': 6, 'ago': 7, 'set': 8, 'out': 9, 'nov': 10, 'dez': 11
-            }
-            return meses[mesAbrev.toLowerCase()] ?? -1
-          }
-
-          // Converter para array e ordenar por data CORRETAMENTE
+          // Converte para array mantendo a ordem dos meses (Janeiro a Dezembro)
           const chartDataArray: ChartDataItem[] = Array.from(dataMap.entries())
-            .map(([mesAno, values]) => {
-              // Extrair mês e ano corretamente - remover ponto se houver
-              const parts = mesAno.split('/')
-              const mesAbrev = parts[0].replace('.', '').trim() 
-              const ano = parts[1] 
-              
-              console.log(`🔍 Processando: "${mesAno}" -> mes="${mesAbrev}", ano=20${ano}`)
-              
-              return {
-                mes: mesAno,
-                entradas: values.entradas,
-                saidas: values.saidas,
-                _ano: parseInt(`20${ano}`),
-                _mes: getMonthNumber(mesAbrev)
-              }
-            })
-            .sort((a, b) => {
-              // Ordenar por ano e depois por mês (CRESCENTE)
-              if (a._ano !== b._ano) return a._ano - b._ano
-              return a._mes - b._mes
-            })
-            .map(({ mes, entradas, saidas }) => ({ mes, entradas, saidas })) 
+            .map(([mes, values]) => ({
+              mes,
+              entradas: values.entradas,
+              saidas: values.saidas,
+              mesIndex: values.mesIndex
+            }))
+            .sort((a, b) => a.mesIndex - b.mesIndex)
+            .map(({ mes, entradas, saidas }) => ({ mes, entradas, saidas }))
 
-          console.log("📊 Dados do gráfico FINAL ordenados (todos os meses):", chartDataArray)
           setChartData(chartDataArray)
         }
       } catch (error: any) {
-        console.error("Erro ao carregar dados:", error)
         toast.error("Erro ao carregar dados da categoria")
       } finally {
         setLoading(false)
-        console.log("✅ Carregamento finalizado")
+
       }
     }
 
     loadData()
   }, [session.status, session.data, categoria])
 
-  return {
-    loading,
-    produtosFormatados,
-    chartData,
-    totalEntradas,
-    totalSaidas,
-    totalProdutos
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <main className="flex-1 overflow-y-auto bg-white">
+          <div className="container mx-auto p-6">
+            <div className="flex items-center justify-center min-h-[400px]">
+              <LoaderIcon className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    )
   }
+
+  return (
+    <>
+      <Header />
+      <main className="flex-1 overflow-y-auto bg-white">
+        <div className="container mx-auto p-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">
+            {titulo}
+          </h1>
+
+          <CategoriaStatsCards
+            totalProdutos={totalProdutos}
+            totalEntradas={totalEntradas}
+            totalSaidas={totalSaidas}
+            corEntrada={corEntrada}
+            corSaida={corSaida}
+          />
+
+          <CategoriaChart
+            data={chartData}
+            titulo={`Movimentações de Produtos - Categoria ${categoria}`}
+            descricao="Entradas e saídas dos últimos meses"
+            corEntrada={corEntrada}
+            corSaida={corSaida}
+            categoria={categoria}
+          />
+
+          <div className="mt-6">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+              Lista de Produtos
+            </h2>
+            <TabelaCategoriaProdutos produtos={produtosFormatados} />
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </>
+  )
 }
