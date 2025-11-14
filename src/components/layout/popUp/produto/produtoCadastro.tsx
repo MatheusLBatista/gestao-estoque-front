@@ -38,6 +38,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchData } from "@/services/api";
 import { Fornecedor } from "@/types/Fornecedor";
 import { NumericFormat } from "react-number-format";
+import { capitalizeFirst } from "@/lib/capitalize";
 
 interface CadastroProdutoProps {
   color: "green" | "blue";
@@ -191,6 +192,9 @@ export function CadastroProduto({
                     <Input
                       placeholder="Smartphone Samsung Galaxy A55"
                       {...field}
+                      onChange={(e) =>
+                        field.onChange(capitalizeFirst(e.target.value))
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -249,7 +253,13 @@ export function CadastroProduto({
                   <FormItem className="flex-1">
                     <FormLabel>Marca*</FormLabel>
                     <FormControl>
-                      <Input placeholder="Samsung" {...field} />
+                      <Input
+                        placeholder="Samsung"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(capitalizeFirst(e.target.value))
+                        }
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -271,7 +281,7 @@ export function CadastroProduto({
                         }
                       />
                     </FormControl>
-                    {/* <FormDescription className="text-[10px]">
+                    {/* <FormDescription className="text-[10px] flex-0">
                       O código criado deve ser único
                     </FormDescription> */}
                     <FormMessage />
@@ -311,17 +321,16 @@ export function CadastroProduto({
                     <FormControl>
                       <NumericFormat
                         value={field.value ?? ""}
-                        placeholder="R$ 1299,99"                      
+                        placeholder="R$ 1299,99"
                         thousandSeparator="."
                         decimalSeparator=","
-                        decimalScale={2}
                         fixedDecimalScale
                         allowNegative={false}
-                        prefix="R$ "                        
-                        customInput={Input}                        
+                        prefix="R$ "
+                        customInput={Input}
                         onValueChange={(values) => {
                           field.onChange(values.floatValue ?? null);
-                        }}                        
+                        }}
                         onFocus={(e) => e.target.select()}
                       />
                     </FormControl>
@@ -342,6 +351,9 @@ export function CadastroProduto({
                       placeholder="Smartphone Samsung Galaxy A54 128GB, Tela 6.4 polegadas, Câmera 50MP"
                       className="h-[100px] resize-none"
                       {...field}
+                      onChange={(e) =>
+                        field.onChange(capitalizeFirst(e.target.value))
+                      }
                     />
                   </FormControl>
                   <FormMessage />

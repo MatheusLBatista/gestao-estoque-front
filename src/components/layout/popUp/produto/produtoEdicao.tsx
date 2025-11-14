@@ -30,6 +30,7 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchData } from "@/services/api";
 import { NumericFormat } from "react-number-format";
+import { capitalizeFirst } from "@/lib/capitalize";
 
 interface ProdutoEdicaoProps {
   open: boolean;
@@ -269,7 +270,6 @@ export function ProdutoEdicao({
                         value={field.value ?? ""}
                         thousandSeparator="."
                         decimalSeparator=","
-                        decimalScale={2}
                         fixedDecimalScale
                         allowNegative={false}
                         prefix="R$ "
@@ -297,6 +297,9 @@ export function ProdutoEdicao({
                       placeholder="Smartphone Samsung Galaxy A54 128GB, Tela 6.4 polegadas, Câmera 50MP"
                       className="h-[100px] resize-none"
                       {...field}
+                      onChange={(e) =>
+                        field.onChange(capitalizeFirst(e.target.value))
+                      }
                     />
                   </FormControl>
                   <FormMessage />

@@ -141,7 +141,7 @@ export default function TabelaProdutos({
                     {AdjustPrice(produto.preco ?? 0)}
                   </TableCell>
                   <TableCell
-                    className="max-w-xs truncate text-center text-neutral-700"
+                    className="max-w-xs truncate text-left text-neutral-700"
                     title={produto.descricao}
                   >
                     {produto.descricao}
