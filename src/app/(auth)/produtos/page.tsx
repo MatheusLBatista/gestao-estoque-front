@@ -174,6 +174,7 @@ export default function ProdutosPage() {
             totalDocs={produtosData.totalDocs}
             currentPage={produtosData.page}
             perPage={produtosData.limit}
+            onCadastrar={() => setCadastroOpen(true)}
           />
         )}
       </main>

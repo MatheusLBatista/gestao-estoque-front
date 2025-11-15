@@ -23,6 +23,7 @@ interface TabelaProdutosProps {
   totalDocs: number;
   currentPage: number;
   perPage: number;
+  onCadastrar?: () => void;
 }
 
 export default function TabelaProdutos({
@@ -31,6 +32,7 @@ export default function TabelaProdutos({
   totalDocs,
   currentPage,
   perPage,
+  onCadastrar
 }: TabelaProdutosProps) {
   const [pageState, setPageState] = useQueryState(
     "page",
@@ -143,6 +145,7 @@ export default function TabelaProdutos({
         }}
         onCadastrar={() => {
           setOpen(false);
+          onCadastrar?.()
         }}
       />
 

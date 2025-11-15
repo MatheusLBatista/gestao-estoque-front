@@ -1,6 +1,10 @@
+"use client";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import {
   Dialog,
   DialogContent,
@@ -11,17 +15,13 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSeparator,
-  FieldSet,
-  FieldTitle,
-} from "@/components/ui/field";
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { BotaoCadastrar } from "@/components/ui/cadastrarButton";
 import { Input } from "@/components/ui/input";
 import { Save } from "lucide-react";
@@ -30,6 +30,10 @@ import {
   FornecedorCreateSchema,
   type FornecedorCreateInput,
 } from "@/schemas/fornecedor";
+import { capitalizeFirst } from "@/lib/capitalize";
+import { formatarCnpj } from "@/lib/adjustCNPJ";
+import { formatarTelefone } from "@/lib/adjustPhoneNumber";
+import { formatarCep } from "@/lib/adjustCep";
 
 interface CadastroFornecedorProps {
   color: "green" | "blue";
@@ -46,107 +50,45 @@ export default function FornecedorCadastro({
   open: controlledOpen,
   onOpenChange,
 }: CadastroFornecedorProps) {
+  const { data: session } = useSession();
   const [internalOpen, setInternalOpen] = useState<boolean>(false);
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
+
   const isControlled = controlledOpen !== undefined;
   const dialogOpen = isControlled ? controlledOpen : internalOpen;
 
-  const [formData, setFormData] = useState({
-    nome_fornecedor: "",
-    cnpj: "",
-    telefone: "",
-    email: "",
-    logradouro: "",
-    bairro: "",
-    cep: "",
-    cidade: "",
-    estado: "",
+  const handleOpenChange = (value: boolean) => {
+    if (isControlled) {
+      onOpenChange?.(value);
+    } else {
+      setInternalOpen(value);
+    }
+    if (!value) {
+      form.reset();
+    }
+  };
+
+  const form = useForm<FornecedorCreateInput>({
+    resolver: zodResolver(FornecedorCreateSchema),
+    defaultValues: {
+      nome_fornecedor: "",
+      cnpj: "",
+      telefone: "",
+      email: "",
+      logradouro: "",
+      bairro: "",
+      cep: "",
+      cidade: "",
+      estado: "",
+    },
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isLoadingCep, setIsLoadingCep] = useState(false);
-
-  const clearFieldError = (fieldName: string) => {
-    setErrors((prev) => {
-      const newErrors = { ...prev };
-      delete newErrors[fieldName];
-      return newErrors;
-    });
-  };
-
-  const clearServerErrors = () => {
-    setErrors((prev) => {
-      const newErrors = { ...prev };
-      if (
-        newErrors.cnpj &&
-        (newErrors.cnpj.includes("já está cadastrado") ||
-          newErrors.cnpj.includes("já cadastrado") ||
-          newErrors.cnpj.includes("CNPJ já está cadastrado no sistema"))
-      ) {
-        delete newErrors.cnpj;
-      }
-      if (
-        newErrors.email &&
-        (newErrors.email.includes("já está cadastrado") ||
-          newErrors.email.includes("já cadastrado") ||
-          newErrors.email.includes("Email já está cadastrado no sistema"))
-      ) {
-        delete newErrors.email;
-      }
-      return newErrors;
-    });
-  };
-
-  const formatarCep = (value: string) => {
-    const cep = value.replace(/\D/g, "");
-    if (cep.length <= 5) {
-      return cep;
-    }
-    return `${cep.slice(0, 5)}-${cep.slice(5, 8)}`;
-  };
-
-  const formatarCnpj = (value: string) => {
-    const cnpj = value.replace(/\D/g, "");
-    if (cnpj.length <= 2) return cnpj;
-    if (cnpj.length <= 5) return `${cnpj.slice(0, 2)}.${cnpj.slice(2)}`;
-    if (cnpj.length <= 8)
-      return `${cnpj.slice(0, 2)}.${cnpj.slice(2, 5)}.${cnpj.slice(5)}`;
-    if (cnpj.length <= 12)
-      return `${cnpj.slice(0, 2)}.${cnpj.slice(2, 5)}.${cnpj.slice(
-        5,
-        8
-      )}/${cnpj.slice(8)}`;
-    return `${cnpj.slice(0, 2)}.${cnpj.slice(2, 5)}.${cnpj.slice(
-      5,
-      8
-    )}/${cnpj.slice(8, 12)}-${cnpj.slice(12, 14)}`;
-  };
-
-  const formatarTelefone = (value: string) => {
-    const telefone = value.replace(/\D/g, "");
-    if (telefone.length <= 2) return telefone;
-    if (telefone.length <= 6)
-      return `(${telefone.slice(0, 2)}) ${telefone.slice(2)}`;
-    if (telefone.length <= 10)
-      return `(${telefone.slice(0, 2)}) ${telefone.slice(
-        2,
-        6
-      )}-${telefone.slice(6)}`;
-    return `(${telefone.slice(0, 2)}) ${telefone.slice(2, 7)}-${telefone.slice(
-      7,
-      11
-    )}`;
-  };
-
   const buscarCep = async (cep: string) => {
-    const cepLimpo = cep.replace(/\D/g, "");
-
-    if (cepLimpo.length !== 8) return;
+    if (!cep || cep.length < 8) return;
 
     setIsLoadingCep(true);
     try {
-      const response = await fetch(
-        `https://viacep.com.br/ws/${cepLimpo}/json/`
-      );
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
       const data = await response.json();
 
       if (data.erro) {
@@ -154,27 +96,10 @@ export default function FornecedorCadastro({
         return;
       }
 
-      setFormData((prev) => ({
-        ...prev,
-        logradouro: data.logradouro || prev.logradouro,
-        bairro: data.bairro || prev.bairro,
-        cidade: data.localidade || prev.cidade,
-        estado: data.uf || prev.estado,
-      }));
-
-      ["logradouro", "bairro", "cidade", "estado"].forEach((field) => {
-        if (
-          data[
-            field === "cidade"
-              ? "localidade"
-              : field === "estado"
-              ? "uf"
-              : field
-          ]
-        ) {
-          clearFieldError(field);
-        }
-      });
+      form.setValue("logradouro", data.logradouro || "");
+      form.setValue("bairro", data.bairro || "");
+      form.setValue("cidade", data.localidade || "");
+      form.setValue("estado", data.uf || "");
 
       toast.success("CEP encontrado! Campos preenchidos automaticamente.");
     } catch (error) {
@@ -187,6 +112,10 @@ export default function FornecedorCadastro({
   const queryClient = useQueryClient();
   const { mutate: createFornecedor, isPending } = useMutation({
     mutationFn: async (payload: FornecedorCreateInput) => {
+      if (!session?.user?.accesstoken) {
+        throw new Error("Usuário não autenticado");
+      }
+
       const body = {
         nome_fornecedor: payload.nome_fornecedor,
         cnpj: payload.cnpj,
@@ -204,8 +133,14 @@ export default function FornecedorCadastro({
         ],
       };
 
-      return await fetchData<any>("/fornecedores", "POST", undefined, body);
+      return await fetchData<any>(
+        "/fornecedores",
+        "POST",
+        session.user.accesstoken,
+        body
+      );
     },
+
     onSuccess: () => {
       toast.success("Fornecedor cadastrado com sucesso!", {
         description: "O fornecedor foi salvo e adicionado à lista.",
@@ -213,71 +148,31 @@ export default function FornecedorCadastro({
 
       queryClient.invalidateQueries({ queryKey: ["listaFornecedores"] });
       handleOpenChange(false);
-      setFormData({
-        nome_fornecedor: "",
-        cnpj: "",
-        telefone: "",
-        email: "",
-        logradouro: "",
-        bairro: "",
-        cep: "",
-        cidade: "",
-        estado: "",
-      });
-      setErrors({});
+      form.reset();
     },
-    onError: (error: any) => {
-      const errorData = error?.response?.data || error?.data || error;
-      console.log(errorData)
-      const errorMessage =
-        errorData?.customMessage ||
-        errorData?.message ||
-        error?.message ||
-        error?.toString() ||
-        "";
-      const lowerMessage = errorMessage.toLowerCase();
 
-      if (
-        lowerMessage.includes("cnpj") ||
-        (lowerMessage.includes("email") &&
-          (lowerMessage.includes("duplicado") ||
-            lowerMessage.includes("já está cadastrado") ||
-            lowerMessage.includes("unique")))
-      ) {
-        toast.error(`Campo duplicado`, {
-          description: `${errorMessage}`,
+    onError: (error: any) => {
+      console.error("Erro ao cadastrar fornecedor:", error);
+      const errorMessage = error?.message || "Erro inesperado";
+
+      if (errorMessage.includes("CNPJ já está cadastrado")) {
+        form.setError("cnpj", {
+          message: "CNPJ já está cadastrado no sistema",
+        });
+      } else if (errorMessage.includes("Email já está cadastrado")) {
+        form.setError("email", {
+          message: "Email já está cadastrado no sistema",
         });
       } else {
-        const message = errorMessage || "Falha ao cadastrar fornecedor";
-        toast.error("Erro ao cadastrar fornecedor", { description: message });
+        toast.error("Erro ao cadastrar fornecedor", {
+          description: errorMessage,
+        });
       }
     },
   });
 
-  const handleOpenChange = (value: boolean) => {
-    if (!isControlled) {
-      setInternalOpen(value);
-    }
-    onOpenChange?.(value);
-  };
-
-  const save = () => {
-    const result = FornecedorCreateSchema.safeParse(formData);
-
-    if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
-      result.error.issues.forEach((issue) => {
-        if (issue.path[0]) {
-          fieldErrors[issue.path[0] as string] = issue.message;
-        }
-      });
-      setErrors(fieldErrors);
-      toast.warning("Verifique os campos obrigatórios");
-      return;
-    }
-
-    setErrors({});
-    createFornecedor(result.data);
+  const onSubmit = (data: FornecedorCreateInput) => {
+    createFornecedor(data);
   };
 
   return (
@@ -300,228 +195,204 @@ export default function FornecedorCadastro({
           </DialogDescription>
         </DialogHeader>
 
-        <FieldSet className="max-h-96 overflow-y-auto">
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="name">Nome do fornecedor*</FieldLabel>
-              <div className="flex flex-col">
-                <Input
-                  id="name"
-                  autoComplete="off"
-                  placeholder="Auto Peças Sul Ltda"
-                  value={formData.nome_fornecedor}
-                  onChange={(e) => {
-                    setFormData((s) => ({
-                      ...s,
-                      nome_fornecedor: e.target.value,
-                    }));
-                    clearFieldError("nome_fornecedor");
-                  }}
-                />
-                {errors.nome_fornecedor && (
-                  <FieldError className="text-xs ml-1 mt-1">
-                    {errors.nome_fornecedor}
-                  </FieldError>
-                )}
-              </div>
-            </Field>
-
-            <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel htmlFor="cnpj">CNPJ*</FieldLabel>
-                <div className="flex flex-col">
-                  <Input
-                    id="cnpj"
-                    autoComplete="off"
-                    placeholder="12.345.678/0001-90"
-                    value={formData.cnpj}
-                    onChange={(e) => {
-                      const valorFormatado = formatarCnpj(e.target.value);
-                      setFormData((s) => ({ ...s, cnpj: valorFormatado }));
-                      clearFieldError("cnpj");
-                      clearServerErrors();
-                    }}
-                  />
-                  {errors.cnpj && (
-                    <FieldError className="text-xs ml-1 mt-1">
-                      {errors.cnpj}
-                    </FieldError>
-                  )}
-                </div>
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="telefone">Telefone*</FieldLabel>
-                <div className="flex flex-col">
-                  <Input
-                    id="telefone"
-                    autoComplete="off"
-                    placeholder="(11) 99999-9999"
-                    value={formData.telefone}
-                    onChange={(e) => {
-                      const valorFormatado = formatarTelefone(e.target.value);
-                      setFormData((s) => ({ ...s, telefone: valorFormatado }));
-                      clearFieldError("telefone");
-                    }}
-                  />
-                  {errors.telefone && (
-                    <FieldError className="text-xs ml-1 mt-1">
-                      {errors.telefone}
-                    </FieldError>
-                  )}
-                </div>
-              </Field>
-            </div>
-
-            <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel htmlFor="email">Email*</FieldLabel>
-                <div className="flex flex-col">
-                  <Input
-                    id="email"
-                    autoComplete="off"
-                    placeholder="contato@autopecassul.com"
-                    value={formData.email}
-                    onChange={(e) => {
-                      setFormData((s) => ({ ...s, email: e.target.value }));
-                      clearFieldError("email");
-                      clearServerErrors(); // Limpa erros de duplicação
-                    }}
-                  />
-                  {errors.email && (
-                    <FieldError className="text-xs ml-1 mt-1">
-                      {errors.email}
-                    </FieldError>
-                  )}
-                </div>
-              </Field>
-            </div>
-
-            <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel htmlFor="logradouro">Logradouro*</FieldLabel>
-                <div className="flex flex-col">
-                  <Input
-                    id="logradouro"
-                    autoComplete="off"
-                    placeholder="Rua Exemplo, 123"
-                    value={formData.logradouro}
-                    onChange={(e) => {
-                      setFormData((s) => ({
-                        ...s,
-                        logradouro: e.target.value,
-                      }));
-                      clearFieldError("logradouro");
-                    }}
-                  />
-                  {errors.logradouro && (
-                    <FieldError className="text-xs ml-1 mt-1">
-                      {errors.logradouro}
-                    </FieldError>
-                  )}
-                </div>
-              </Field>
-            </div>
-
-            <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel htmlFor="bairro">Bairro*</FieldLabel>
-                <div className="flex flex-col">
-                  <Input
-                    id="bairro"
-                    autoComplete="off"
-                    placeholder="Centro"
-                    value={formData.bairro}
-                    onChange={(e) => {
-                      setFormData((s) => ({ ...s, bairro: e.target.value }));
-                      clearFieldError("bairro");
-                    }}
-                  />
-                  {errors.bairro && (
-                    <FieldError className="text-xs ml-1 mt-1">
-                      {errors.bairro}
-                    </FieldError>
-                  )}
-                </div>
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="cep">CEP*</FieldLabel>
-                <div className="flex flex-col">
-                  <Input
-                    id="cep"
-                    autoComplete="off"
-                    placeholder="00000-000"
-                    value={formData.cep}
-                    onChange={(e) => {
-                      const valorFormatado = formatarCep(e.target.value);
-                      setFormData((s) => ({ ...s, cep: valorFormatado }));
-                      clearFieldError("cep");
-                    }}
-                    onBlur={(e) => {
-                      const cep = e.target.value.replace(/\D/g, "");
-                      if (cep.length === 8) {
-                        buscarCep(cep);
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="max-h-96 overflow-y-auto space-y-8 text-neutral-700"
+          >
+            <FormField
+              control={form.control}
+              name="nome_fornecedor"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome do produto*</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Auto peças do Sul"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(capitalizeFirst(e.target.value))
                       }
-                    }}
-                    disabled={isLoadingCep}
-                  />
-                  {isLoadingCep && (
-                    <div className="text-xs ml-1 mt-1 text-blue-600">
-                      Buscando CEP...
-                    </div>
-                  )}
-                  {errors.cep && (
-                    <FieldError className="text-xs ml-1 mt-1">
-                      {errors.cep}
-                    </FieldError>
-                  )}
-                </div>
-              </Field>
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex flex-row gap-1">
+              <FormField
+                control={form.control}
+                name="cnpj"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>CNPJ*</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="12.345.678/0001-90"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(formatarCnpj(e.target.value))
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="telefone"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Telefone*</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="(11) 99999-9999"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(formatarTelefone(e.target.value))
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel>Email*</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="contato@email.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex flex-row gap-1">
+              <FormField
+                control={form.control}
+                name="logradouro"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Logradouro*</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Rua Exemplo, 123"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div className="flex flex-row gap-1">
-              <Field>
-                <FieldLabel htmlFor="cidade">Cidade*</FieldLabel>
-                <div className="flex flex-col">
-                  <Input
-                    id="cidade"
-                    autoComplete="off"
-                    placeholder="São Paulo"
-                    value={formData.cidade}
-                    onChange={(e) => {
-                      setFormData((s) => ({ ...s, cidade: e.target.value }));
-                      clearFieldError("cidade");
-                    }}
-                  />
-                  {errors.cidade && (
-                    <FieldError className="text-xs ml-1 mt-1">
-                      {errors.cidade}
-                    </FieldError>
-                  )}
-                </div>
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="estado">Estado*</FieldLabel>
-                <div className="flex flex-col">
-                  <Input
-                    id="estado"
-                    autoComplete="off"
-                    placeholder="SP"
-                    value={formData.estado}
-                    onChange={(e) => {
-                      setFormData((s) => ({ ...s, estado: e.target.value }));
-                      clearFieldError("estado");
-                    }}
-                  />
-                  {errors.estado && (
-                    <FieldError className="text-xs ml-1 mt-1">
-                      {errors.estado}
-                    </FieldError>
-                  )}
-                </div>
-              </Field>
+              <FormField
+                control={form.control}
+                name="bairro"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Bairro*</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Centro"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="cep"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>CEP*</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="76980-000"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(formatarCep(e.target.value))
+                        }
+                        onBlur={(e) => {
+                          const cep = (
+                            e.target as HTMLInputElement
+                          ).value.replace(/\D/g, "");
+                          if (cep.length === 8) {
+                            buscarCep(cep);
+                          }
+                        }}
+                        disabled={isLoadingCep}
+                      />
+                    </FormControl>
+                    {isLoadingCep ? (
+                      <div className="text-xs ml-1 mt-1 text-blue-600">
+                        Buscando CEP...
+                      </div>
+                    ) : null}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-          </FieldGroup>
-        </FieldSet>
+
+            <div className="flex flex-row gap-1">
+              <FormField
+                control={form.control}
+                name="cidade"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Cidade*</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="São Paulo"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="estado"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Estado*</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="SP"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </form>
+        </Form>
         <div className="pt-2 border-t">
           <div className="flex flex-row justify-center gap-1">
             <Button
@@ -532,8 +403,9 @@ export default function FornecedorCadastro({
               Cancelar
             </Button>
             <Button
-              onClick={save}
-              disabled={isPending}
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isPending || isLoadingCep}
               className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
             >
               <Save className="w-4 h-4 mr-1" />{" "}

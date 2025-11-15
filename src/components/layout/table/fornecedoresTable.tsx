@@ -22,6 +22,7 @@ interface TabelaFornecedorProps {
   totalDocs: number;
   currentPage: number;
   perPage: number;
+  onCadastrar?: () => void;
 }
 
 export default function TabelaFornecedores({
@@ -30,6 +31,7 @@ export default function TabelaFornecedores({
   totalDocs,
   currentPage,
   perPage,
+  onCadastrar,
 }: TabelaFornecedorProps) {
   const [pageState, setPageState] = useQueryState(
     "page",
@@ -117,7 +119,7 @@ export default function TabelaFornecedores({
         }}
         onCadastrar={() => {
           setOpen(false);
-          // Cadastro agora é feito na página principal
+          onCadastrar?.();
         }}
         onExcluir={(fornecedor) => {
           setOpen(false);

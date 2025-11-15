@@ -176,6 +176,7 @@ export default function FornecedoresPage() {
             totalDocs={fornecedoresData.totalDocs}
             currentPage={fornecedoresData.page}
             perPage={fornecedoresData.limit}
+            onCadastrar={() => setCadastroOpen(true)}
           />
         )}
       </main>
