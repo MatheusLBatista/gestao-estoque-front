@@ -28,6 +28,7 @@ export interface ProdutosFilterProps {
   estoqueBaixo?: boolean;
   setEstoqueBaixo: (v: boolean) => void;
   onSubmit?: () => void;
+  onClear?: () => void;
 }
 
 export function ProdutosFilter({
@@ -38,6 +39,7 @@ export function ProdutosFilter({
   estoqueBaixo,
   setEstoqueBaixo,
   onSubmit,
+  onClear,
 }: ProdutosFilterProps) {
   useEffect(() => {
     if (onSubmit) {
@@ -95,7 +97,7 @@ export function ProdutosFilter({
           checked={estoqueBaixo || false}
           onCheckedChange={(checked) => {
             setEstoqueBaixo(checked);
-            onSubmit
+            onSubmit;
           }}
         />
       </div>
@@ -107,6 +109,23 @@ export function ProdutosFilter({
         <ListFilter />
         Filtrar
       </Button>
+
+      {(produto || categoria || estoqueBaixo) && (
+        <Button
+          onClick={() => {
+            setProduto("");
+            setCategoria("");
+            setEstoqueBaixo(false);
+            if (onClear) {
+              onClear();
+            }
+          }}
+          variant="outline"
+          className="cursor-pointer"
+        >
+          Limpar
+        </Button>
+      )}
     </div>
   );
 }

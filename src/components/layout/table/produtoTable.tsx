@@ -10,14 +10,11 @@ import {
 import { useState } from "react";
 import { CustomPagination } from "../pagination/paginationWrapper";
 import { ItemsPerPage } from "../pagination/itemsPerPage";
-import { ProdutosFilter } from "../filters/produtosFilter";
-import { CadastroProduto } from "../popUp/produto/produtoCadastro";
 import { ProdutoEdicao } from "../popUp/produto/produtoEdicao";
 import { Produto } from "../../../types/Produto";
 import { ProdutoListagem } from "../popUp/produto/produtoListagem";
 import { AdjustPrice } from "@/lib/adjustPrice";
 import { useQueryState, parseAsInteger } from "nuqs";
-import { ProdutosFilterProps } from "../filters/produtosFilter";
 import { AdjustDate } from "@/lib/adjustDate";
 
 interface TabelaProdutosProps {
@@ -26,7 +23,6 @@ interface TabelaProdutosProps {
   totalDocs: number;
   currentPage: number;
   perPage: number;
-  filtros: ProdutosFilterProps;
 }
 
 export default function TabelaProdutos({
@@ -35,7 +31,6 @@ export default function TabelaProdutos({
   totalDocs,
   currentPage,
   perPage,
-  filtros,
 }: TabelaProdutosProps) {
   const [pageState, setPageState] = useQueryState(
     "page",
@@ -53,28 +48,8 @@ export default function TabelaProdutos({
   const [editOpen, setEditOpen] = useState<boolean>(false);
   const [editProduct, setEditProduct] = useState<Produto | null>(null);
 
-  const [cadastroOpen, setCadastroOpen] = useState<boolean>(false);
-
   return (
     <>
-      <div className="flex flex-row place-content-between pb-2">
-        <ProdutosFilter
-          produto={filtros.produto}
-          setProduto={filtros.setProduto}
-          categoria={filtros.categoria}
-          setCategoria={filtros.setCategoria}
-          estoqueBaixo={filtros.estoqueBaixo}
-          setEstoqueBaixo={filtros.setEstoqueBaixo}
-          onSubmit={filtros.onSubmit}
-        />
-        <CadastroProduto
-          color="green"
-          size="1/8"
-          open={cadastroOpen}
-          onOpenChange={(value) => setCadastroOpen(value)}
-        />
-      </div>
-
       <div className="bg-white rounded-lg shadow">
         <Table>
           <TableHeader>
@@ -106,7 +81,10 @@ export default function TabelaProdutos({
           <TableBody>
             {!produtos || produtos.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-neutral-500">
+                <TableCell
+                  colSpan={6}
+                  className="text-center py-8 text-neutral-500"
+                >
                   Nenhum produto encontrado
                 </TableCell>
               </TableRow>
@@ -165,7 +143,6 @@ export default function TabelaProdutos({
         }}
         onCadastrar={() => {
           setOpen(false);
-          setCadastroOpen(true);
         }}
       />
 
@@ -201,7 +178,11 @@ export default function TabelaProdutos({
                 format: (value) => AdjustPrice(value),
               },
               { key: "estoque", label: "Estoque" },
-              { key: "data_ultima_atualizacao", label: "Última atualização" , format: (value) => AdjustDate(value),},
+              {
+                key: "data_ultima_atualizacao",
+                label: "Última atualização",
+                format: (value) => AdjustDate(value),
+              },
             ]}
           />
 

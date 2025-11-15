@@ -16,6 +16,8 @@ import {
   parseAsString,
   parseAsBoolean,
 } from "nuqs";
+import { ProdutosFilter } from "@/components/layout/filters/produtosFilter";
+import { CadastroProduto } from "@/components/layout/popUp/produto/produtoCadastro";
 
 export default function ProdutosPage() {
   const { data: session, status } = useSession();
@@ -42,16 +44,24 @@ export default function ProdutosPage() {
   const [categoria, setCategoria] = useState("");
   const [produto, setProduto] = useState("");
   const [estoqueBaixo, setEstoqueBaixo] = useState(false);
+  const [cadastroOpen, setCadastroOpen] = useState<boolean>(false);
+
+  const resetFilters = () => {
+    setProdutoFilter("");
+    setCategoriaFilter("");
+    setEstoqueBaixoFilter(false);
+    setPage(1);
+
+    setProduto("");
+    setCategoria("");
+    setEstoqueBaixo(false);
+  };
 
   useEffect(() => {
-    setProduto(produtoFilter)
+    setProduto(produtoFilter);
     setCategoria(categoriaFilter);
     setEstoqueBaixo(estoqueBaixoFilter);
-  }, [
-    produtoFilter,
-    categoriaFilter,
-    estoqueBaixoFilter,
-  ]);
+  }, [produtoFilter, categoriaFilter, estoqueBaixoFilter]);
 
   const {
     data: produtosData,
@@ -80,7 +90,7 @@ export default function ProdutosPage() {
       const params = new URLSearchParams({
         page: page.toString(),
         limite: limite.toString(),
-        ...(produtoFilter && {produto: produtoFilter}),
+        ...(produtoFilter && { produto: produtoFilter }),
         ...(categoriaFilter && { categoria: categoriaFilter }),
         ...(estoqueBaixoFilter && { estoque_baixo: "true" }),
       });
@@ -103,6 +113,10 @@ export default function ProdutosPage() {
 
   useEffect(() => {
     if (produtosIsError) {
+      setTimeout(() => {
+        resetFilters(), 50;
+      });
+
       toast.error("Erro ao carregar produtos", {
         description: (produtosError as Error)?.message || "Erro desconhecido",
       });
@@ -114,14 +128,7 @@ export default function ProdutosPage() {
         duration: 2500,
       });
     }
-  }, [
-    produtosIsError,
-    produtosError,
-    produtosData,
-    limite,
-    setLimite,
-    setPage,
-  ]);
+  }, [produtosIsError, produtosError, produtosData]);
 
   return (
     <div>
@@ -130,31 +137,43 @@ export default function ProdutosPage() {
       <main className="min-h-screen p-8">
         <TypographyH2>Estoque de produtos</TypographyH2>
 
+        <div className="flex flex-row place-content-between pb-2 mb-2">
+          <ProdutosFilter
+            produto={produto}
+            setProduto={setProduto}
+            categoria={categoria}
+            setCategoria={setCategoria}
+            estoqueBaixo={estoqueBaixo}
+            setEstoqueBaixo={setEstoqueBaixo}
+            onSubmit={() => {
+              setProdutoFilter(produto);
+              setCategoriaFilter(categoria);
+              setEstoqueBaixoFilter(estoqueBaixo);
+              setPage(1);
+            }}
+            onClear={resetFilters}
+          />
+          <CadastroProduto
+            color="green"
+            size="1/8"
+            open={cadastroOpen}
+            onOpenChange={(value) => setCadastroOpen(value)}
+          />
+        </div>
+
         {produtosIsLoading && (
-          <LoaderIcon role="status" className="animate-spin mt-20 mx-auto" />
+          <div className="flex justify-center items-center py-20">
+            <LoaderIcon role="status" className="animate-spin mt-20 mx-auto" />
+          </div>
         )}
 
-        {produtosData && (
+        {produtosData && !produtosIsLoading && (
           <TabelaProdutos
             produtos={produtosData.docs}
             totalPages={produtosData.totalPages}
             totalDocs={produtosData.totalDocs}
             currentPage={produtosData.page}
             perPage={produtosData.limit}
-            filtros={{
-              produto,
-              categoria,
-              estoqueBaixo,
-              setProduto,
-              setCategoria,
-              setEstoqueBaixo,
-              onSubmit: () => {
-                setProdutoFilter(produto)
-                setCategoriaFilter(categoria);
-                setEstoqueBaixoFilter(estoqueBaixo);
-                setPage(1);
-              },
-            }}
           />
         )}
       </main>
