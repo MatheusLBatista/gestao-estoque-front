@@ -19,23 +19,19 @@ import {
 
 export default function ProdutosPage() {
   const { data: session, status } = useSession();
-  
+
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limite, setLimite] = useQueryState(
     "limite",
     parseAsInteger.withDefault(10)
   );
 
-  const [nomeProdutoFilter, setNomeProdutoFilter] = useQueryState(
-    "nome_produto",
+  const [produtoFilter, setProdutoFilter] = useQueryState(
+    "produto",
     parseAsString.withDefault("")
   );
   const [categoriaFilter, setCategoriaFilter] = useQueryState(
     "categoria",
-    parseAsString.withDefault("")
-  );
-  const [codigoProdutoFilter, setCodigoProdutoFilter] = useQueryState(
-    "codigo_produto",
     parseAsString.withDefault("")
   );
   const [estoqueBaixoFilter, setEstoqueBaixoFilter] = useQueryState(
@@ -43,20 +39,17 @@ export default function ProdutosPage() {
     parseAsBoolean.withDefault(false)
   );
 
-  const [nomeProduto, setNomeProduto] = useState("");
   const [categoria, setCategoria] = useState("");
-  const [codigoProduto, setCodigoProduto] = useState("");
+  const [produto, setProduto] = useState("");
   const [estoqueBaixo, setEstoqueBaixo] = useState(false);
 
   useEffect(() => {
-    setNomeProduto(nomeProdutoFilter);
+    setProduto(produtoFilter)
     setCategoria(categoriaFilter);
-    setCodigoProduto(codigoProdutoFilter);
     setEstoqueBaixo(estoqueBaixoFilter);
   }, [
-    nomeProdutoFilter,
+    produtoFilter,
     categoriaFilter,
-    codigoProdutoFilter,
     estoqueBaixoFilter,
   ]);
 
@@ -70,8 +63,7 @@ export default function ProdutosPage() {
       "listaProdutos",
       page,
       limite,
-      nomeProdutoFilter,
-      codigoProdutoFilter,
+      produtoFilter,
       categoriaFilter,
       estoqueBaixoFilter,
       session?.user?.accesstoken,
@@ -88,8 +80,7 @@ export default function ProdutosPage() {
       const params = new URLSearchParams({
         page: page.toString(),
         limite: limite.toString(),
-        ...(nomeProdutoFilter && { nome_produto: nomeProdutoFilter }),
-        ...(codigoProdutoFilter && { codigo_produto: codigoProdutoFilter }),
+        ...(produtoFilter && {produto: produtoFilter}),
         ...(categoriaFilter && { categoria: categoriaFilter }),
         ...(estoqueBaixoFilter && { estoque_baixo: "true" }),
       });
@@ -151,18 +142,14 @@ export default function ProdutosPage() {
             currentPage={produtosData.page}
             perPage={produtosData.limit}
             filtros={{
-              nomeProduto,
-              codigoProduto,
+              produto,
               categoria,
               estoqueBaixo,
-              setNomeProduto,
-              setCodigoProduto,
+              setProduto,
               setCategoria,
               setEstoqueBaixo,
               onSubmit: () => {
-                // Aplicar os filtros locais na URL e resetar para a página 1
-                setNomeProdutoFilter(nomeProduto);
-                setCodigoProdutoFilter(codigoProduto);
+                setProdutoFilter(produto)
                 setCategoriaFilter(categoria);
                 setEstoqueBaixoFilter(estoqueBaixo);
                 setPage(1);

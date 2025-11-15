@@ -59,10 +59,8 @@ export default function TabelaProdutos({
     <>
       <div className="flex flex-row place-content-between pb-2">
         <ProdutosFilter
-          nomeProduto={filtros.nomeProduto}
-          setNomeProduto={filtros.setNomeProduto}
-          codigoProduto={filtros.codigoProduto}
-          setCodigoProduto={filtros.setCodigoProduto}
+          produto={filtros.produto}
+          setProduto={filtros.setProduto}
           categoria={filtros.categoria}
           setCategoria={filtros.setCategoria}
           estoqueBaixo={filtros.estoqueBaixo}
