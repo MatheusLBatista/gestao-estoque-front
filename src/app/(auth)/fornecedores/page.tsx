@@ -13,9 +13,10 @@ import {
   useQueryState,
   parseAsInteger,
   parseAsString,
-  parseAsBoolean,
 } from "nuqs";
 import TabelaFornecedores from "@/components/layout/table/fornecedoresTable";
+import { FornecedoresFilter } from "@/components/layout/filters/fornecedoresFilter";
+import FornecedorCadastro from "@/components/layout/popUp/fornecedores/fornecedorCadastro";
 
 export default function FornecedoresPage() {
   const { data: session, status } = useSession();
@@ -40,6 +41,15 @@ export default function FornecedoresPage() {
   const [ativo, setAtivo] = useState<boolean | null>(
     ativoFilter === "todos" ? null : ativoFilter === "true"
   );
+  const [cadastroOpen, setCadastroOpen] = useState<boolean>(false);
+
+  const resetFilters = () => {
+    setNomeFornecedor("");
+    setAtivo(null);
+    setNome_fornecedorFilter("");
+    setAtivoFilter("todos");
+    setPage(1);
+  };
 
   useEffect(() => {
     setNomeFornecedor(nomeFornecedorFilter);
@@ -58,7 +68,7 @@ export default function FornecedoresPage() {
       limite,
       nomeFornecedorFilter,
       ativoFilter,
-      session?.user?.accesstoken
+      session?.user?.accesstoken,
     ],
     queryFn: async () => {
       if (process.env.NEXT_PUBLIC_SIMULAR_ERRO === "true") {
@@ -99,6 +109,8 @@ export default function FornecedoresPage() {
         description:
           (fornecedoresError as Error)?.message || "Erro desconhecido",
       });
+
+      resetFilters();
     }
 
     if (fornecedoresData?.totalDocs) {
@@ -107,14 +119,7 @@ export default function FornecedoresPage() {
         duration: 2500,
       });
     }
-  }, [
-    fornecedoresIsError,
-    fornecedoresError,
-    fornecedoresData,
-    limite,
-    setLimite,
-    setPage,
-  ]);
+  }, [fornecedoresIsError, fornecedoresError, fornecedoresData]);
 
   return (
     <div>
@@ -123,49 +128,54 @@ export default function FornecedoresPage() {
       <main className="min-h-screen p-8">
         <TypographyH2>Gestão de Fornecedores</TypographyH2>
 
+        <div className="flex flex-row place-content-between pb-2 mb-4">
+          <FornecedoresFilter
+            nomeFornecedor={nomeFornecedor}
+            setNomeFornecedor={setNomeFornecedor}
+            ativo={ativo}
+            setAtivo={setAtivo}
+            onSubmit={() => {
+              setPage(1);
+              setNome_fornecedorFilter(nomeFornecedor);
+              setAtivoFilter(
+                ativo === null ? "todos" : ativo === true ? "true" : "false"
+              );
+            }}
+            onClear={resetFilters}
+            onStatusChange={(newStatus) => {
+              setAtivo(newStatus);
+              setPage(1);
+              setAtivoFilter(
+                newStatus === null
+                  ? "todos"
+                  : newStatus === true
+                  ? "true"
+                  : "false"
+              );
+            }}
+          />
+          <FornecedorCadastro
+            color="green"
+            size="1/8"
+            open={cadastroOpen}
+            onOpenChange={(value) => setCadastroOpen(value)}
+          />
+        </div>
+
         {fornecedoresIsLoading && (
-          <LoaderIcon role="status" className="animate-spin mt-20 mx-auto" />
+          <div className="flex justify-center items-center py-20">
+            <LoaderIcon role="status" className="animate-spin w-8 h-8" />
+          </div>
         )}
 
-        {fornecedoresData && (
+        {fornecedoresData && !fornecedoresIsLoading && (
           <TabelaFornecedores
             fornecedores={fornecedoresData.docs}
             totalPages={fornecedoresData.totalPages}
             totalDocs={fornecedoresData.totalDocs}
             currentPage={fornecedoresData.page}
             perPage={fornecedoresData.limit}
-            filtros={{
-              nomeFornecedor,
-              ativo,
-              setNomeFornecedor,
-              setAtivo,
-              onSubmit: () => {
-                setPage(1);
-                setNome_fornecedorFilter(nomeFornecedor);
-                setAtivoFilter(
-                  ativo === null ? "todos" : ativo === true ? "true" : "false"
-                );
-              },
-              onStatusChange: (newStatus) => {
-                if (typeof window !== "undefined") {
-                  const params = new URLSearchParams(window.location.search);
-                  params.set("page", "1");
-                  if (nomeFornecedor && nomeFornecedor.trim() !== "") {
-                    params.set("nome_fornecedor", nomeFornecedor.trim());
-                  } else {
-                    params.delete("nome_fornecedor");
-                  }
-                  const statusStr =
-                    newStatus === null ? "todos" : newStatus ? "true" : "false";
-                  params.set("status", statusStr);
-
-                  const newUrl = `${
-                    window.location.pathname
-                  }?${params.toString()}`;
-                  window.location.href = newUrl;
-                }
-              },
-            }}
+            onCadastrar={() => setCadastroOpen(true)}
           />
         )}
       </main>

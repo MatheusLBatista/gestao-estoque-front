@@ -23,6 +23,7 @@ export interface FornecedoresFilterProps {
   ativo?: boolean | null;
   setAtivo: (v: boolean | null) => void;
   onSubmit?: () => void;
+  onClear?: () => void;
   onStatusChange?: (newStatus: boolean | null) => void;
 }
 
@@ -32,6 +33,7 @@ export function FornecedoresFilter({
   ativo,
   setAtivo,
   onSubmit,
+  onClear,
   onStatusChange,
 }: FornecedoresFilterProps) {
   return (
@@ -80,6 +82,22 @@ export function FornecedoresFilter({
         <ListFilter />
         Filtrar
       </Button>
+
+      {(nomeFornecedor || ativo !== null) && (
+        <Button
+          onClick={() => {
+            setNomeFornecedor("");
+            setAtivo(null);
+            if (onClear) {
+              onClear();
+            }
+          }}
+          variant="outline"
+          className="cursor-pointer"
+        >
+          Limpar
+        </Button>
+      )}
     </div>
   );
 }

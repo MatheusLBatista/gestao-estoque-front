@@ -13,13 +13,8 @@ import { ItemsPerPage } from "../pagination/itemsPerPage";
 import { Fornecedor } from "@/types/Fornecedor";
 import { useQueryState, parseAsInteger } from "nuqs";
 import { AdjustDate } from "@/lib/adjustDate";
-import FornecedorCadastro from "../popUp/fornecedores/fornecedorCadastro";
 import { FornecedorListagem } from "../popUp/fornecedores/fornecedorListagem";
 import { FornecedorEdicao } from "../popUp/fornecedores/fornecedorEdicao";
-import {
-  FornecedoresFilter,
-  FornecedoresFilterProps,
-} from "../filters/fornecedoresFilter";
 
 interface TabelaFornecedorProps {
   fornecedores: Fornecedor[];
@@ -27,7 +22,7 @@ interface TabelaFornecedorProps {
   totalDocs: number;
   currentPage: number;
   perPage: number;
-  filtros: FornecedoresFilterProps;
+  onCadastrar?: () => void;
 }
 
 export default function TabelaFornecedores({
@@ -36,7 +31,7 @@ export default function TabelaFornecedores({
   totalDocs,
   currentPage,
   perPage,
-  filtros,
+  onCadastrar,
 }: TabelaFornecedorProps) {
   const [pageState, setPageState] = useQueryState(
     "page",
@@ -52,32 +47,11 @@ export default function TabelaFornecedores({
   const [selectedFornecedor, setSelectedFornecedor] =
     useState<Fornecedor | null>(null);
 
-  // TODO: review
   const [editOpen, setEditOpen] = useState<boolean>(false);
   const [editFornecedor, setEditFornecedor] = useState<Fornecedor | null>(null);
 
-  const [cadastroOpen, setCadastroOpen] = useState<boolean>(false);
-
   return (
     <>
-      <div className="flex flex-row place-content-between pb-2">
-        <FornecedoresFilter
-          nomeFornecedor={filtros.nomeFornecedor}
-          setNomeFornecedor={filtros.setNomeFornecedor}
-          ativo={filtros.ativo}
-          setAtivo={filtros.setAtivo}
-          onSubmit={filtros.onSubmit}
-          onStatusChange={filtros.onStatusChange}
-        />
-
-        <FornecedorCadastro
-          color="green"
-          size="1/8"
-          open={cadastroOpen}
-          onOpenChange={(value) => setCadastroOpen(value)}
-        />
-      </div>
-
       <div className="bg-white rounded-lg shadow">
         <Table>
           <TableHeader>
@@ -145,7 +119,7 @@ export default function TabelaFornecedores({
         }}
         onCadastrar={() => {
           setOpen(false);
-          setCadastroOpen(true);
+          onCadastrar?.();
         }}
         onExcluir={(fornecedor) => {
           setOpen(false);

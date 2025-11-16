@@ -18,37 +18,48 @@ import { SearchIcon, ListFilter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useEffect } from "react";
 
 export interface ProdutosFilterProps {
-  nomeProduto?: string;
-  setNomeProduto: (v: string) => void;
-  codigoProduto?: string;
-  setCodigoProduto: (v: string) => void;
+  produto?: string;
+  setProduto: (v: string) => void;
   categoria?: string;
   setCategoria: (v: string) => void;
   estoqueBaixo?: boolean;
   setEstoqueBaixo: (v: boolean) => void;
   onSubmit?: () => void;
+  onClear?: () => void;
 }
 
 export function ProdutosFilter({
-  nomeProduto,
-  setNomeProduto,
-  codigoProduto,
-  setCodigoProduto,
+  produto,
+  setProduto,
   categoria,
   setCategoria,
   estoqueBaixo,
   setEstoqueBaixo,
   onSubmit,
+  onClear,
 }: ProdutosFilterProps) {
+  useEffect(() => {
+    if (onSubmit) {
+      onSubmit();
+    }
+  }, [categoria, estoqueBaixo]);
+
   return (
     <div className="mb-4 flex flex-row gap-4">
-      <InputGroup className="w-[240px]">
+      <InputGroup className="w-[360px]">
         <InputGroupInput
-          placeholder="Produto"
-          value={nomeProduto || ""}
-          onChange={(e) => setNomeProduto(e.target.value)}
+          placeholder="Buscar por nome, código ou marca"
+          value={produto || ""}
+          onChange={(e) => setProduto(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && onSubmit) {
+              e.preventDefault?.();
+              onSubmit();
+            }
+          }}
         />
         <InputGroupAddon>
           <SearchIcon className="cursor-pointer" />
@@ -57,7 +68,11 @@ export function ProdutosFilter({
 
       <Select
         value={categoria || ""}
-        onValueChange={(v) => setCategoria(v === "todos" ? "" : v)}
+        onValueChange={(v) => {
+          const novo = v === "todos" ? "" : v;
+          setCategoria(novo);
+          onSubmit;
+        }}
       >
         <SelectTrigger className="w-[120px]">
           <SelectValue placeholder="Categoria" />
@@ -72,17 +87,6 @@ export function ProdutosFilter({
         </SelectContent>
       </Select>
 
-      <InputGroup className="w-[240px]">
-        <InputGroupInput
-          placeholder="Código do produto"
-          value={codigoProduto || ""}
-          onChange={(e) => setCodigoProduto(e.target.value)}
-        />
-        <InputGroupAddon>
-          <SearchIcon className="cursor-pointer" />
-        </InputGroupAddon>
-      </InputGroup>
-
       <div className="flex flex-row items-center space-x-2">
         <Label htmlFor="estoqueBaixo" className="text-muted-foreground">
           Estoque baixo
@@ -91,7 +95,10 @@ export function ProdutosFilter({
           id="estoqueBaixo"
           className="cursor-pointer"
           checked={estoqueBaixo || false}
-          onCheckedChange={setEstoqueBaixo}
+          onCheckedChange={(checked) => {
+            setEstoqueBaixo(checked);
+            onSubmit;
+          }}
         />
       </div>
 
@@ -102,22 +109,23 @@ export function ProdutosFilter({
         <ListFilter />
         Filtrar
       </Button>
-      
-      <Button
-        onClick={() => {
-          setNomeProduto("");
-          setCodigoProduto("");
-          setCategoria("");
-          setEstoqueBaixo(false);
-          if (onSubmit) {
-            setTimeout(() => onSubmit(), 100);
-          }
-        }}
-        variant="outline"
-        className="cursor-pointer"
-      >
-        Limpar
-      </Button>
+
+      {(produto || categoria || estoqueBaixo) && (
+        <Button
+          onClick={() => {
+            setProduto("");
+            setCategoria("");
+            setEstoqueBaixo(false);
+            if (onClear) {
+              onClear();
+            }
+          }}
+          variant="outline"
+          className="cursor-pointer"
+        >
+          Limpar
+        </Button>
+      )}
     </div>
   );
 }

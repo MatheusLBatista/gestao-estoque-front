@@ -92,7 +92,7 @@ export function ProdutoListagem({
           },
           {
             label: "Última Entrada",
-            value: AdjustDate(produto.data_ultima_entrada),
+            value: AdjustDate(produto.data_ultima_atualizacao),
           },
         ],
       },
@@ -250,12 +250,12 @@ export function ProdutoListagem({
                     </Field>
 
                     <Field>
-                      <FieldLabel htmlFor="data_ultima_entrada">
+                      <FieldLabel htmlFor="data_ultima_atualizacao">
                         Data última atualização
                       </FieldLabel>
                       <Input
-                        id="data_ultima_entrada"
-                        value={AdjustDate(produto.data_ultima_entrada) ?? "-"}
+                        id="data_ultima_atualizacao"
+                        value={AdjustDate(produto.data_ultima_atualizacao) ?? "-"}
                         readOnly={true}
                       />
                     </Field>

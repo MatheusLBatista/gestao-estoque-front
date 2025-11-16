@@ -69,7 +69,9 @@ export const FornecedorCreateSchema = z.object({
   estado: z
     .string()
     .trim()
-    .refine(value => estados.map(e => e.uf || e.nome).includes(value), { message: "Estado inválido" }),
+    .refine((value) => estados.map((e) => e.uf || e.nome).includes(value), {
+      message: "Estado inválido",
+    }),
 });
 
-export type FornecedorCreateInput = z.infer<typeof FornecedorCreateSchema>;
+export type FornecedorInput = z.infer<typeof FornecedorCreateSchema>;
