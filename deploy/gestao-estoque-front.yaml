@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestao-estoque-front
+spec:
+  selector:
+    matchLabels:
+      app: gestao-estoque-front
+  template:
+    metadata:
+      labels:
+        app: gestao-estoque-front
+    spec:
+      containers:
+      - name: gestao-estoque-front
+        image: luccalivino/gestao-estoque:latest
+        resources: {}
+        ports:
+        - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: estoque
+spec:
+  selector:
+    app: gestao-estoque-front
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3000
