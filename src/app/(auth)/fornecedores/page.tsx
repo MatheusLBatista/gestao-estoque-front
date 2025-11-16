@@ -13,7 +13,6 @@ import {
   useQueryState,
   parseAsInteger,
   parseAsString,
-  parseAsBoolean,
 } from "nuqs";
 import TabelaFornecedores from "@/components/layout/table/fornecedoresTable";
 import { FornecedoresFilter } from "@/components/layout/filters/fornecedoresFilter";

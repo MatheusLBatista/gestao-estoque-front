@@ -33,7 +33,7 @@ import { Fornecedor, ESTADOS_BRASILEIROS } from "../../../../types/Fornecedor";
 import { fetchData } from "@/services/api";
 import {
   FornecedorCreateSchema,
-  type FornecedorCreateInput,
+  type FornecedorInput,
 } from "@/schemas/fornecedor";
 import { capitalizeFirst } from "@/lib/capitalize";
 import { formatarTelefone } from "@/lib/adjustPhoneNumber";
@@ -56,7 +56,7 @@ export function FornecedorEdicao({
 
   const queryClient = useQueryClient();
 
-  const form = useForm<FornecedorCreateInput>({
+  const form = useForm<FornecedorInput>({
     resolver: zodResolver(FornecedorCreateSchema),
     defaultValues: {
       nome_fornecedor: "",
@@ -151,7 +151,7 @@ export function FornecedorEdicao({
     }
   }, [fornecedor, open, form]);
 
-  const onSubmit = (data: FornecedorCreateInput) => {
+  const onSubmit = (data: FornecedorInput) => {
     updateFornecedor(data);
   };
 
@@ -170,7 +170,7 @@ export function FornecedorEdicao({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="max-h-96 overflow-y-auto space-y-4 text-neutral-700"
+            className="max-h-96 overflow-y-auto space-y-8 text-neutral-700"
           >
             <FormField
               control={form.control}
@@ -226,25 +226,25 @@ export function FornecedorEdicao({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email*</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="contato@empresa.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <div className="flex flex-row gap-1">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Email*</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="contato@empresa.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="telefone"
@@ -264,7 +264,9 @@ export function FornecedorEdicao({
                   </FormItem>
                 )}
               />
+            </div>
 
+            <div className="flex flex-row gap-1">
               <FormField
                 control={form.control}
                 name="cep"
@@ -298,6 +300,24 @@ export function FornecedorEdicao({
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="bairro"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Bairro*</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Nome do bairro"
+                        {...field}
+                        disabled={loadingCep}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <FormField
@@ -321,24 +341,6 @@ export function FornecedorEdicao({
             <div className="flex flex-row gap-1">
               <FormField
                 control={form.control}
-                name="bairro"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Bairro*</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Nome do bairro"
-                        {...field}
-                        disabled={loadingCep}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="cidade"
                 render={({ field }) => (
                   <FormItem className="flex-1">
@@ -354,36 +356,66 @@ export function FornecedorEdicao({
                   </FormItem>
                 )}
               />
-            </div>
 
-            <FormField
-              control={form.control}
-              name="estado"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Estado*</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    disabled={loadingCep}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o estado" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {ESTADOS_BRASILEIROS.map((estado) => (
-                        <SelectItem key={estado.value} value={estado.value}>
-                          {estado.label}
+              <FormField
+                control={form.control}
+                name="estado"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Estado*</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      disabled={loadingCep}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="flex-1 w-2/">
+                          <SelectValue placeholder="Selecione o estado" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="AC">AC - Acre</SelectItem>
+                        <SelectItem value="AL">AL - Alagoas</SelectItem>
+                        <SelectItem value="AP">AP - Amapá</SelectItem>
+                        <SelectItem value="AM">AM - Amazonas</SelectItem>
+                        <SelectItem value="BA">BA - Bahia</SelectItem>
+                        <SelectItem value="CE">CE - Ceará</SelectItem>
+                        <SelectItem value="DF">
+                          DF - Distrito Federal
                         </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                        <SelectItem value="ES">ES - Espírito Santo</SelectItem>
+                        <SelectItem value="GO">GO - Goiás</SelectItem>
+                        <SelectItem value="MA">MA - Maranhão</SelectItem>
+                        <SelectItem value="MT">MT - Mato Grosso</SelectItem>
+                        <SelectItem value="MS">
+                          MS - Mato Grosso do Sul
+                        </SelectItem>
+                        <SelectItem value="MG">MG - Minas Gerais</SelectItem>
+                        <SelectItem value="PA">PA - Pará</SelectItem>
+                        <SelectItem value="PB">PB - Paraíba</SelectItem>
+                        <SelectItem value="PR">PR - Paraná</SelectItem>
+                        <SelectItem value="PE">PE - Pernambuco</SelectItem>
+                        <SelectItem value="PI">PI - Piauí</SelectItem>
+                        <SelectItem value="RJ">RJ - Rio de Janeiro</SelectItem>
+                        <SelectItem value="RN">
+                          RN - Rio Grande do Norte
+                        </SelectItem>
+                        <SelectItem value="RS">
+                          RS - Rio Grande do Sul
+                        </SelectItem>
+                        <SelectItem value="RO">RO - Rondônia</SelectItem>
+                        <SelectItem value="RR">RR - Roraima</SelectItem>
+                        <SelectItem value="SC">SC - Santa Catarina</SelectItem>
+                        <SelectItem value="SP">SP - São Paulo</SelectItem>
+                        <SelectItem value="SE">SE - Sergipe</SelectItem>
+                        <SelectItem value="TO">TO - Tocantins</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </form>
         </Form>
 

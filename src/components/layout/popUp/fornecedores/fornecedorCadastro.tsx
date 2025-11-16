@@ -22,13 +22,20 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { BotaoCadastrar } from "@/components/ui/cadastrarButton";
 import { Input } from "@/components/ui/input";
 import { Save } from "lucide-react";
 import { fetchData } from "@/services/api";
 import {
   FornecedorCreateSchema,
-  type FornecedorCreateInput,
+  type FornecedorInput,
 } from "@/schemas/fornecedor";
 import { capitalizeFirst } from "@/lib/capitalize";
 import { formatarCnpj } from "@/lib/adjustCNPJ";
@@ -68,7 +75,7 @@ export default function FornecedorCadastro({
     }
   };
 
-  const form = useForm<FornecedorCreateInput>({
+  const form = useForm<FornecedorInput>({
     resolver: zodResolver(FornecedorCreateSchema),
     defaultValues: {
       nome_fornecedor: "",
@@ -111,7 +118,7 @@ export default function FornecedorCadastro({
 
   const queryClient = useQueryClient();
   const { mutate: createFornecedor, isPending } = useMutation({
-    mutationFn: async (payload: FornecedorCreateInput) => {
+    mutationFn: async (payload: FornecedorInput) => {
       if (!session?.user?.accesstoken) {
         throw new Error("Usuário não autenticado");
       }
@@ -171,7 +178,7 @@ export default function FornecedorCadastro({
     },
   });
 
-  const onSubmit = (data: FornecedorCreateInput) => {
+  const onSubmit = (data: FornecedorInput) => {
     createFornecedor(data);
   };
 
@@ -283,44 +290,6 @@ export default function FornecedorCadastro({
             <div className="flex flex-row gap-1">
               <FormField
                 control={form.control}
-                name="logradouro"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Logradouro*</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Rua Exemplo, 123"
-                        {...field}
-                        onChange={(e) => field.onChange(e.target.value)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="flex flex-row gap-1">
-              <FormField
-                control={form.control}
-                name="bairro"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Bairro*</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Centro"
-                        {...field}
-                        onChange={(e) => field.onChange(e.target.value)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="cep"
                 render={({ field }) => (
                   <FormItem className="flex-1">
@@ -352,6 +321,44 @@ export default function FornecedorCadastro({
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="bairro"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Bairro*</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Centro"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex flex-row gap-1">
+              <FormField
+                control={form.control}
+                name="logradouro"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Logradouro*</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Rua Exemplo, 123"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div className="flex flex-row gap-1">
@@ -379,13 +386,53 @@ export default function FornecedorCadastro({
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormLabel>Estado*</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="SP"
-                        {...field}
-                        onChange={(e) => field.onChange(e.target.value)}
-                      />
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="flex-1 w-2/">
+                          <SelectValue placeholder="Selecione o estado" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="AC">AC - Acre</SelectItem>
+                        <SelectItem value="AL">AL - Alagoas</SelectItem>
+                        <SelectItem value="AP">AP - Amapá</SelectItem>
+                        <SelectItem value="AM">AM - Amazonas</SelectItem>
+                        <SelectItem value="BA">BA - Bahia</SelectItem>
+                        <SelectItem value="CE">CE - Ceará</SelectItem>
+                        <SelectItem value="DF">
+                          DF - Distrito Federal
+                        </SelectItem>
+                        <SelectItem value="ES">ES - Espírito Santo</SelectItem>
+                        <SelectItem value="GO">GO - Goiás</SelectItem>
+                        <SelectItem value="MA">MA - Maranhão</SelectItem>
+                        <SelectItem value="MT">MT - Mato Grosso</SelectItem>
+                        <SelectItem value="MS">
+                          MS - Mato Grosso do Sul
+                        </SelectItem>
+                        <SelectItem value="MG">MG - Minas Gerais</SelectItem>
+                        <SelectItem value="PA">PA - Pará</SelectItem>
+                        <SelectItem value="PB">PB - Paraíba</SelectItem>
+                        <SelectItem value="PR">PR - Paraná</SelectItem>
+                        <SelectItem value="PE">PE - Pernambuco</SelectItem>
+                        <SelectItem value="PI">PI - Piauí</SelectItem>
+                        <SelectItem value="RJ">RJ - Rio de Janeiro</SelectItem>
+                        <SelectItem value="RN">
+                          RN - Rio Grande do Norte
+                        </SelectItem>
+                        <SelectItem value="RS">
+                          RS - Rio Grande do Sul
+                        </SelectItem>
+                        <SelectItem value="RO">RO - Rondônia</SelectItem>
+                        <SelectItem value="RR">RR - Roraima</SelectItem>
+                        <SelectItem value="SC">SC - Santa Catarina</SelectItem>
+                        <SelectItem value="SP">SP - São Paulo</SelectItem>
+                        <SelectItem value="SE">SE - Sergipe</SelectItem>
+                        <SelectItem value="TO">TO - Tocantins</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
