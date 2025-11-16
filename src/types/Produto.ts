@@ -21,5 +21,5 @@ export interface Produto {
   estoque: number;
   estoque_min: number;
   data_cadastro: string;
-  data_ultima_entrada: string;
+  data_ultima_atualizacao: string;
 }
