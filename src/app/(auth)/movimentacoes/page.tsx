@@ -1,9 +1,10 @@
 "use client";
-
 import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import { TypographyH2 } from "@/components/layout/subtitle";
 import TabelaMovimentacao from "@/components/layout/table/movimentacaoTable";
+import { MovimentacoesFilter } from "@/components/layout/filters/movimentacoesFilter";
+import { CadastroMovimentacao } from "@/components/layout/popUp/movimentacoes/movimentacaoCadastro";
 import { fetchData } from "@/services/api";
 import { Movimentacao } from "@/types/Movimentacao";
 import { AdjustDate } from "@/lib/adjustDate";
@@ -16,7 +17,7 @@ import { useSession } from "next-auth/react";
 
 export default function MovimentacoesPage() {
   const { data: session, status } = useSession();
-  
+
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limite, setLimite] = useQueryState(
     "limite",
@@ -40,17 +41,44 @@ export default function MovimentacoesPage() {
     parseAsString.withDefault("")
   );
 
+  const [movimentacaoFilter, setMovimentacaoFilter] = useQueryState(
+    "movimentacao",
+    parseAsString.withDefault("")
+  );
   const [produtos, setProdutos] = useState(produtosFilter);
+  const [movimentacao, setMovimentacao] = useState(movimentacaoFilter);
   const [tipoProduto, setTipoProduto] = useState(tipoProdutoFilter);
   const [dataInicial, setDataInicial] = useState(dataInicialFilter);
   const [dataFinal, setDataFinal] = useState(dataFinalFilter);
+  const [cadastroOpen, setCadastroOpen] = useState<boolean>(false);
+
+  const resetFilters = () => {
+    setProdutos("");
+    setMovimentacao("");
+    setTipoProduto("");
+    setDataInicial("");
+    setDataFinal("");
+    setProdutosFilter("");
+    setMovimentacaoFilter("");
+    setTipoProdutoFilter("");
+    setDataInicialFilter("");
+    setDataFinalFilter("");
+    setPage(1);
+  };
 
   useEffect(() => {
+    setMovimentacao(movimentacaoFilter);
     setProdutos(produtosFilter);
     setTipoProduto(tipoProdutoFilter);
     setDataInicial(dataInicialFilter);
     setDataFinal(dataFinalFilter);
-  }, [produtosFilter, tipoProdutoFilter, dataInicialFilter, dataFinalFilter]);
+  }, [
+    movimentacaoFilter,
+    produtosFilter,
+    tipoProdutoFilter,
+    dataInicialFilter,
+    dataFinalFilter,
+  ]);
 
   const {
     data: movimentacoesData,
@@ -62,6 +90,7 @@ export default function MovimentacoesPage() {
       "listarMovimentacoes",
       page,
       limite,
+      movimentacaoFilter,
       produtosFilter,
       tipoProdutoFilter,
       dataInicialFilter,
@@ -80,6 +109,7 @@ export default function MovimentacoesPage() {
       const params = new URLSearchParams({
         page: page.toString(),
         limite: limite.toString(),
+        ...(movimentacaoFilter ? { movimentacao: movimentacaoFilter } : {}),
         ...(produtosFilter ? { nome_produto: produtosFilter } : {}),
         ...(tipoProdutoFilter ? { tipo: tipoProdutoFilter } : {}),
         ...(dataInicialFilter ? { data_inicio: dataInicialFilter } : {}),
@@ -94,22 +124,31 @@ export default function MovimentacoesPage() {
           page: number;
           limit: number;
         };
-      }>(`/movimentacoes?${params.toString()}`, "GET", session.user.accesstoken);
+      }>(
+        `/movimentacoes?${params.toString()}`,
+        "GET",
+        session.user.accesstoken
+      );
 
       if (result.data?.docs) {
-        result.data.docs = result.data.docs.map(movimentacao => ({
+        result.data.docs = result.data.docs.map((movimentacao) => ({
           ...movimentacao,
-          data_movimentacao: movimentacao.data_movimentacao ? 
-            AdjustDate(movimentacao.data_movimentacao) : 
-            AdjustDate(movimentacao.data_cadastro),
+          data_movimentacao: movimentacao.data_movimentacao
+            ? AdjustDate(movimentacao.data_movimentacao)
+            : AdjustDate(movimentacao.data_cadastro),
           data_cadastro: AdjustDate(movimentacao.data_cadastro),
-          data_ultima_atualizacao: AdjustDate(movimentacao.data_ultima_atualizacao),
-          ...(movimentacao.tipo === 'entrada' && (movimentacao as any).nota_fiscal?.data_emissao && {
-            nota_fiscal: {
-              ...(movimentacao as any).nota_fiscal,
-              data_emissao: AdjustDate((movimentacao as any).nota_fiscal.data_emissao)
-            }
-          })
+          data_ultima_atualizacao: AdjustDate(
+            movimentacao.data_ultima_atualizacao
+          ),
+          ...(movimentacao.tipo === "entrada" &&
+            (movimentacao as any).nota_fiscal?.data_emissao && {
+              nota_fiscal: {
+                ...(movimentacao as any).nota_fiscal,
+                data_emissao: AdjustDate(
+                  (movimentacao as any).nota_fiscal.data_emissao
+                ),
+              },
+            }),
         }));
       }
 
@@ -121,10 +160,38 @@ export default function MovimentacoesPage() {
 
   useEffect(() => {
     if (movimentacoesIsError) {
-      toast.error("Erro ao carregar movimentações", {
-        description:
-          (movimentacoesError as Error).message || "Erro desconhecido",
-      });
+      let errorMessage = "Erro desconhecido";
+
+      if (movimentacoesError && typeof movimentacoesError === "object") {
+        const errorObj = movimentacoesError as any;
+        const rawMessage = errorObj?.response?.data?.message;
+
+        if (rawMessage) {
+          try {
+            const parsedError = JSON.parse(rawMessage);
+
+            if (Array.isArray(parsedError) && parsedError.length > 0) {
+              const firstError = parsedError[0];
+              errorMessage = firstError.message || "Erro de validação";
+            }
+          } catch (parseError) {
+            errorMessage = rawMessage;
+          }
+        } else if (errorObj.message) {
+          errorMessage = errorObj.message;
+        }
+
+        toast.error("Erro ao carregar movimentações", {
+          description: errorMessage,
+        });
+      } else {
+        toast.error("Erro ao carregar movimentações", {
+          description:
+            (movimentacoesError as Error)?.message || "Erro desconhecido",
+        });
+      }
+
+      resetFilters();
     }
 
     if (movimentacoesData?.docs) {
@@ -133,14 +200,7 @@ export default function MovimentacoesPage() {
         duration: 2500,
       });
     }
-  }, [
-    movimentacoesError,
-    movimentacoesIsError,
-    movimentacoesData,
-    limite,
-    setLimite,
-    setPage,
-  ]);
+  }, [movimentacoesError, movimentacoesIsError, movimentacoesData]);
 
   return (
     <div>
@@ -149,46 +209,50 @@ export default function MovimentacoesPage() {
       <main className="min-h-screen p-8">
         <TypographyH2>Estoque de movimentações</TypographyH2>
 
+        <div className="flex flex-row place-content-between pb-2 mb-2">
+          <MovimentacoesFilter
+            movimentacao={movimentacao}
+            setMovimentacao={setMovimentacao}
+            produtos={produtos}
+            setProdutos={setProdutos}
+            tipoProduto={tipoProduto}
+            setTipoProduto={setTipoProduto}
+            dataInicial={dataInicial}
+            setDataInicial={setDataInicial}
+            dataFinal={dataFinal}
+            setDataFinal={setDataFinal}
+            onSubmit={() => {
+              setMovimentacaoFilter(movimentacao);
+              setProdutosFilter(produtos);
+              setTipoProdutoFilter(tipoProduto);
+              setDataInicialFilter(dataInicial);
+              setDataFinalFilter(dataFinal);
+              setPage(1);
+            }}
+            onClear={resetFilters}
+          />
+          <CadastroMovimentacao
+            color="green"
+            size="1/8"
+            open={cadastroOpen}
+            onOpenChange={(value) => setCadastroOpen(value)}
+          />
+        </div>
+
         {movimentacoesIsLoading && (
-          <LoaderIcon role="status" className="animate-spin mt-20 mx-auto" />
+          <div className="flex justify-center items-center py-20">
+            <LoaderIcon role="status" className="animate-spin w-8 h-8" />
+          </div>
         )}
 
-        {movimentacoesData && (
+        {movimentacoesData && !movimentacoesIsLoading && (
           <TabelaMovimentacao
             movimentacoes={movimentacoesData.docs}
             totalPages={movimentacoesData.totalPages}
             totalDocs={movimentacoesData.totalDocs}
             currentPage={movimentacoesData.page}
             perPage={movimentacoesData.limit}
-            filtros={{
-              produtos,
-              setProdutos,
-              tipoProduto,
-              setTipoProduto,
-              dataInicial,
-              setDataInicial,
-              dataFinal,
-              setDataFinal,
-              onSubmit: () => {
-                if (!dataInicial || !dataFinal) {
-                  toast.error(
-                    "Data inicial e final são obrigatórias",
-                    {
-                      description:
-                        "Informe tanto a data inicial quanto a data final para filtrar por período.",
-                    }
-                  );
-                  setDataInicialFilter("");
-                  setDataFinalFilter("");
-                  return;
-                }
-                setProdutosFilter(produtos);
-                setTipoProdutoFilter(tipoProduto);
-                setDataInicialFilter(dataInicial);
-                setDataFinalFilter(dataFinal);
-                setPage(1);
-              },
-            }}
+            onCadastrar={() => setCadastroOpen(true)}
           />
         )}
       </main>

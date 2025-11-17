@@ -128,7 +128,7 @@ export default function FornecedoresPage() {
       <main className="min-h-screen p-8">
         <TypographyH2>Gestão de Fornecedores</TypographyH2>
 
-        <div className="flex flex-row place-content-between pb-2 mb-4">
+        <div className="flex flex-row place-content-between pb-2 mb-2">
           <FornecedoresFilter
             nomeFornecedor={nomeFornecedor}
             setNomeFornecedor={setNomeFornecedor}
