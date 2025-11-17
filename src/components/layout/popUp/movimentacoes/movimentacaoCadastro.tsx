@@ -12,6 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { NumericFormat } from "react-number-format";
 import {
   Field,
   FieldContent,
@@ -40,13 +41,14 @@ import {
   MovimentacaoCreateSchema,
 } from "@/schemas/movimentacao";
 import { fetchData } from "@/services/api";
+import { capitalizeFirst } from "@/lib/capitalize";
 
 interface Produtos {
   id: string;
   codigo: string;
   nome: string;
-  valor: number;
-  quantidade: number;
+  valor: number | undefined;
+  quantidade: number | undefined;
 }
 
 interface NotaFiscal {
@@ -202,8 +204,8 @@ export function CadastroMovimentacao({
       id: "",
       codigo: "",
       nome: "",
-      quantidade: 0,
-      valor: 0,
+      quantidade: undefined,
+      valor: undefined,
     };
     setProdutos([...produtos, novoProduto]);
   };
@@ -347,8 +349,6 @@ export function CadastroMovimentacao({
       })),
     };
 
-    console.log("Payload antes da validação:", payload);
-
     const result = MovimentacaoCreateSchema.safeParse(payload);
 
     if (!result.success) {
@@ -410,7 +410,7 @@ export function CadastroMovimentacao({
                   placeholder="Depósito José"
                   value={destino}
                   onChange={(e) => {
-                    setDestino(e.target.value);
+                    setDestino(capitalizeFirst(e.target.value));
                   }}
                 />
               </Field>
@@ -495,7 +495,9 @@ export function CadastroMovimentacao({
                   id="observacoes"
                   placeholder="Informações adicionais sobre a movimentação..."
                   value={observacoes}
-                  onChange={(e) => setObservacoes(e.target.value)}
+                  onChange={(e) =>
+                    setObservacoes(capitalizeFirst(e.target.value))
+                  }
                   rows={3}
                 />
               </Field>
@@ -593,14 +595,20 @@ export function CadastroMovimentacao({
                         <FieldLabel htmlFor={`valor-${index}`}>
                           {tipo === "entrada" ? "Custo (R$)*" : "Valor (R$)*"}
                         </FieldLabel>
-                        <Input
+
+                        <NumericFormat
                           id={`valor-${index}`}
-                          type="number"
                           autoComplete="off"
-                          placeholder="150.00"
+                          placeholder="R$ 1.150,00"
                           value={produto.valor}
+                          thousandSeparator="."
+                          decimalSeparator=","
+                          fixedDecimalScale
+                          allowNegative={false}
+                          prefix="R$ "
+                          customInput={Input}
                           onChange={(e) =>
-                            atualizarProduto(index, "valor", e.target.value)
+                            atualizarProduto(index, "valor", (e.target.value))
                           }
                         />
                       </Field>
