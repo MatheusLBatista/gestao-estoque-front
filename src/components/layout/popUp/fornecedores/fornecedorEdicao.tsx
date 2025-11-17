@@ -103,6 +103,10 @@ export function FornecedorEdicao({
         throw new Error("Usuário não autenticado");
       }
 
+      if(!session || !session.user.accesstoken) {
+        throw new Error("Usuário não autenticado");
+      }
+
       return await fetchData<any>(
         `/fornecedores/${fornecedor?._id}`,
         "PATCH",

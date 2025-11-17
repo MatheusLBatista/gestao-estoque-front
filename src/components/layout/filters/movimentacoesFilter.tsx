@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -22,8 +22,6 @@ import {
   ArrowRightLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import * as React from "react";
 import { ChevronDownIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
@@ -34,6 +32,8 @@ import {
 } from "@/components/ui/popover";
 
 export interface MovimentacaoFilterProps {
+  movimentacao?: string;
+  setMovimentacao: (v: string) => void;
   produtos?: string;
   setProdutos: (v: string) => void;
   tipoProduto?: string;
@@ -43,6 +43,7 @@ export interface MovimentacaoFilterProps {
   dataFinal?: string;
   setDataFinal: (v: string) => void;
   onSubmit?: () => void;
+  onClear?: () => void;
 }
 
 function CalendarPicker({
@@ -87,6 +88,8 @@ function CalendarPicker({
 }
 
 export function MovimentacoesFilter({
+  movimentacao,
+  setMovimentacao,
   produtos,
   setProdutos,
   tipoProduto,
@@ -96,14 +99,27 @@ export function MovimentacoesFilter({
   dataFinal,
   setDataFinal,
   onSubmit,
+  onClear,
 }: MovimentacaoFilterProps) {
+  useEffect(() => {
+    if (onSubmit) {
+      onSubmit();
+    }
+  }, [tipoProduto, dataFinal]);
+
   return (
     <div className="mb-4 flex flex-row gap-4">
-      <InputGroup className="w-[240px]">
+      <InputGroup className="w-[420px]">
         <InputGroupInput
-          placeholder="Produto"
-          value={produtos}
-          onChange={(e) => setProdutos(e.target.value)}
+          placeholder="Buscar por produto, usuário, destino ou observação"
+          value={movimentacao}
+          onChange={(e) => setMovimentacao(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && onSubmit) {
+              e.preventDefault?.();
+              onSubmit();
+            }
+          }}
         />
         <InputGroupAddon>
           <SearchIcon className="cursor-pointer" />
@@ -112,7 +128,10 @@ export function MovimentacoesFilter({
 
       <Select
         value={tipoProduto || ""}
-        onValueChange={(v) => setTipoProduto(v === "todos" ? "" : v)}
+        onValueChange={(v) => {
+          const novo = v === "todos" ? "" : v;
+          setTipoProduto(novo);
+        }}
       >
         <SelectTrigger className="w-[120px] cursor-pointer">
           <SelectValue placeholder="Tipo" />
@@ -180,7 +199,10 @@ export function MovimentacoesFilter({
               const day = date.getDate().toString().padStart(2, "0");
               const month = (date.getMonth() + 1).toString().padStart(2, "0");
               const year = date.getFullYear();
-              setDataFinal(`${day}-${month}-${year}`);
+              const formatted = `${day}-${month}-${year}`;
+
+              setDataFinal(formatted);
+              onSubmit;
             } else {
               setDataFinal("");
             }
@@ -188,13 +210,36 @@ export function MovimentacoesFilter({
         />
       </div>
 
-      <Button
+      {/* <Button
         onClick={onSubmit}
         className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
       >
         <ListFilter />
         Filtrar
-      </Button>
+      </Button> */}
+
+      {(movimentacao ||
+        produtos ||
+        tipoProduto ||
+        dataInicial ||
+        dataFinal) && (
+        <Button
+          onClick={() => {
+            setMovimentacao("");
+            setProdutos("");
+            setTipoProduto("");
+            setDataInicial("");
+            setDataFinal("");
+            if (onClear) {
+              onClear();
+            }
+          }}
+          variant="outline"
+          className="cursor-pointer"
+        >
+          Limpar
+        </Button>
+      )}
     </div>
   );
 }
