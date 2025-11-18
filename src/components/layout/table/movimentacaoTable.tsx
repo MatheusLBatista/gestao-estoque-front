@@ -25,7 +25,6 @@ import {
   MovimentacoesFilter,
 } from "../filters/movimentacoesFilter";
 import { MovimentacaoListagem } from "../popUp/movimentacoes/movimentacaoListagem";
-import { CadastroMovimentacao } from "../popUp/movimentacoes/movimentacaoCadastro";
 
 interface TabelaMovimentacaoProps {
   movimentacoes: Movimentacao[];
@@ -34,6 +33,7 @@ interface TabelaMovimentacaoProps {
   currentPage: number;
   perPage: number;
   filtros?: MovimentacaoFilterProps;
+  onCadastrar?: () => void;
 }
 
 export default function TabelaMovimentacao({
@@ -43,6 +43,7 @@ export default function TabelaMovimentacao({
   currentPage,
   perPage,
   filtros,
+  onCadastrar,
 }: TabelaMovimentacaoProps) {
   if (!movimentacoes || movimentacoes.length === 0) return null;
 
@@ -59,32 +60,9 @@ export default function TabelaMovimentacao({
   const [open, setOpen] = useState<boolean>(false);
   const [selectedMovimentacao, setSelectedMovimentacao] =
     useState<Movimentacao | null>(null);
-  const [cadastroOpen, setCadastroOpen] = useState<boolean>(false);
 
   return (
     <>
-      {filtros && (
-        <div className="flex flex-row justify-between">
-          <MovimentacoesFilter
-            produtos={filtros.produtos}
-            setProdutos={filtros.setProdutos}
-            tipoProduto={filtros.tipoProduto}
-            setTipoProduto={filtros.setTipoProduto}
-            dataInicial={filtros.dataInicial}
-            setDataInicial={filtros.setDataInicial}
-            dataFinal={filtros.dataFinal}
-            setDataFinal={filtros.setDataFinal}
-            onSubmit={filtros.onSubmit}
-          />
-          <CadastroMovimentacao
-            color="green"
-            size="1/8"
-            open={cadastroOpen}
-            onOpenChange={(value) => setCadastroOpen(value)}
-          />
-        </div>
-      )}
-
       <div className="bg-white rounded-lg shadow">
         <TooltipProvider>
           <Table>
@@ -263,9 +241,9 @@ export default function TabelaMovimentacao({
           setOpen(value);
           if (!value) setSelectedMovimentacao(null);
         }}
-        onNovaMovimentacao={() => {
+        onCadastrar={() => {
           setOpen(false);
-          // TODO:Implementar lógica para nova movimentação se necessário
+          onCadastrar?.();
         }}
       />
     </>

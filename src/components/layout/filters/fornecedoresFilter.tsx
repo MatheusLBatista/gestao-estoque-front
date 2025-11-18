@@ -75,13 +75,13 @@ export function FornecedoresFilter({
         </SelectContent>
       </Select>
 
-      <Button
+      {/* <Button
         onClick={onSubmit}
         className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
       >
         <ListFilter />
         Filtrar
-      </Button>
+      </Button> */}
 
       {(nomeFornecedor || ativo !== null) && (
         <Button
