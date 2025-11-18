@@ -57,11 +57,10 @@ export function FuncionarioListagem({
   onExcluir,
 }: FuncionarioListarProps) {
   const { data: session } = useSession();
-  
+
   const queryClient = useQueryClient();
   const { printRecord } = useRecordPrint();
 
-  // Função para imprimir dados do funcionário
   const handlePrintFuncionario = () => {
     if (!funcionario) {
       toast.error("Nenhum funcionário selecionado para impressão");
@@ -113,12 +112,9 @@ export function FuncionarioListagem({
       }
 
       const result = await fetchData(
-        `/usuarios/desativar/${id}`,
+        `/usuarios/desativar/${funcionario?.matricula}`,
         "PATCH",
-        session?.user?.accesstoken,
-        {
-          ativo: false,
-        }
+        session?.user?.accesstoken
       );
       return result;
     },
@@ -168,8 +164,8 @@ export function FuncionarioListagem({
                         <AlertDialogDescription>
                           Tem certeza que deseja desativar o funcionário "
                           {funcionario.nome_usuario}"? Esta ação não pode ser
-                          desfeita e o funcionário não aparecerá mais na listagem
-                          padrão.
+                          desfeita e o funcionário não aparecerá mais na
+                          listagem padrão.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

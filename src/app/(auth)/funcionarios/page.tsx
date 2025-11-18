@@ -3,6 +3,7 @@ import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import { TypographyH2 } from "@/components/layout/subtitle";
 import TabelaFuncionarios from "@/components/layout/table/funcionarioTable";
+import { FuncionariosFilter } from "@/components/layout/filters/funcionariosFilter";
 import { fetchData } from "@/services/api";
 import { Funcionario } from "@/types/Funcionario";
 import { AdjustDate } from "@/lib/adjustDate";
@@ -14,7 +15,7 @@ import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 
 export default function FuncionariosPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
 
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limite, setLimite] = useQueryState(
@@ -22,31 +23,39 @@ export default function FuncionariosPage() {
     parseAsInteger.withDefault(10)
   );
 
-  const [nomeFilter, setNomeFilter] = useQueryState(
-    "nome",
+  const [usuarioFilter, setUsuarioFilter] = useQueryState(
+    "usuario",
     parseAsString.withDefault("")
   );
-  const [cargoFilter, setCargoFilter] = useQueryState(
-    "cargo",
+  const [perfilFilter, setPerfilFilter] = useQueryState(
+    "perfil",
     parseAsString.withDefault("")
+  );
+  const [statusFilter, setStatusFilter] = useQueryState(
+    "status",
+    parseAsString.withDefault("ativo")
   );
 
-  const [nome, setNome] = useState(nomeFilter);
-  const [cargo, setCargo] = useState(cargoFilter);
+  const [usuario, setUsuario] = useState(usuarioFilter);
+  const [perfil, setPerfil] = useState(perfilFilter);
+  const [status, setStatus] = useState(statusFilter);
   const [cadastroOpen, setCadastroOpen] = useState<boolean>(false);
 
   const resetFilters = () => {
-    setNome("");
-    setCargo("");
-    setNomeFilter("");
-    setCargoFilter("");
+    setUsuario("");
+    setPerfil("");
+    setStatus("");
+    setUsuarioFilter("");
+    setPerfilFilter("");
+    setStatusFilter("");
     setPage(1);
   };
 
   useEffect(() => {
-    setNome(nomeFilter);
-    setCargo(cargoFilter);
-  }, [nomeFilter, cargoFilter]);
+    setUsuario(usuarioFilter);
+    setPerfil(perfilFilter);
+    setStatus(statusFilter);
+  }, [usuarioFilter, perfilFilter, statusFilter]);
 
   const {
     data: funcionariosData,
@@ -58,8 +67,9 @@ export default function FuncionariosPage() {
       "listaFuncionarios",
       page,
       limite,
-      nomeFilter,
-      cargoFilter,
+      usuarioFilter,
+      perfilFilter,
+      statusFilter,
       session?.user?.accesstoken,
     ],
     queryFn: async () => {
@@ -74,8 +84,10 @@ export default function FuncionariosPage() {
       const params = new URLSearchParams({
         page: page.toString(),
         limite: limite.toString(),
-        ...(nomeFilter ? { nome: nomeFilter } : {}),
-        ...(cargoFilter ? { cargo: cargoFilter } : {}),
+        ...(usuarioFilter ? { funcionario: usuarioFilter } : {}),
+        ...(perfilFilter ? { perfil: perfilFilter } : {}),
+        ...(statusFilter === "ativo" ? { ativo: "true" } : {}),
+        ...(statusFilter === "inativo" ? { ativo: "false" } : {}),
       });
 
       const result = await fetchData<{
@@ -86,11 +98,7 @@ export default function FuncionariosPage() {
           page: number;
           limit: number;
         };
-      }>(
-        `/usuarios?${params.toString()}`,
-        "GET",
-        session.user.accesstoken
-      );
+      }>(`/usuarios?${params.toString()}`, "GET", session.user.accesstoken);
 
       if (result.data?.docs) {
         result.data.docs = result.data.docs.map((funcionario) => ({
@@ -105,7 +113,7 @@ export default function FuncionariosPage() {
       return result.data || [];
     },
     retry: false,
-    enabled: status === "authenticated" && !!session?.user?.accesstoken,
+    enabled: sessionStatus === "authenticated" && !!session?.user?.accesstoken,
   });
 
   useEffect(() => {
@@ -160,7 +168,27 @@ export default function FuncionariosPage() {
         <TypographyH2>Gestão de funcionários</TypographyH2>
 
         <div className="flex flex-row place-content-between pb-2 mb-2">
-          {/* Filtros serão implementados depois */}
+          <FuncionariosFilter
+            usuario={usuarioFilter}
+            setUsuario={(value) => {
+              setUsuarioFilter(value);
+              setPage(1);
+            }}
+            perfil={perfilFilter}
+            setPerfil={(value) => {
+              setPerfilFilter(value);
+              setPage(1);
+            }}
+            status={statusFilter}
+            setStatus={(value) => {
+              setStatusFilter(value);
+              setPage(1);
+            }}
+            onSubmit={() => {
+              // A busca será disparada automaticamente pela mudança nos query states
+            }}
+            onClear={() => resetFilters()}
+          />
           <div className="flex-1"></div>
           {/* <CadastroFuncionario
             color="green"

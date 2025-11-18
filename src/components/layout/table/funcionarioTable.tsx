@@ -67,6 +67,9 @@ export default function TabelaFuncionarios({
                 Email
               </TableHead>
               <TableHead className="text-center text-neutral-500">
+                Telefone
+              </TableHead>
+              <TableHead className="text-center text-neutral-500">
                 Perfil
               </TableHead>
               <TableHead className="text-center text-neutral-500">
@@ -93,6 +96,9 @@ export default function TabelaFuncionarios({
                 </TableCell>
                 <TableCell className="text-center text-neutral-700">
                   {funcionario.email}
+                </TableCell>
+                <TableCell className="text-center text-neutral-700">
+                  {funcionario.telefone}
                 </TableCell>
                 <TableCell className="text-center text-neutral-700">
                   {capitalizeFirst(funcionario.perfil)}
