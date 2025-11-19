@@ -18,6 +18,12 @@ export default function Login() {
   // Verifica se deve redirecionar baseado em manter logado
   useEffect(() => {
     if (status === "authenticated") {
+      // limpa localStorage
+      if ((session as any)?.error === "RefreshAccessTokenError") {
+        localStorage.removeItem("manterLogado");
+        return;
+      }
+
       const manterLogadoStorage = localStorage.getItem("manterLogado");
       
       // Se manterLogado está ativo, redireciona para home
@@ -28,7 +34,7 @@ export default function Login() {
         localStorage.removeItem("manterLogado");
       }
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,9 +75,14 @@ export default function Login() {
 
   // Não renderiza o formulário se já estiver autenticado E manterLogado estiver ativo
   if (status === "authenticated") {
-    const manterLogadoStorage = typeof window !== "undefined" ? localStorage.getItem("manterLogado") : null;
-    if (manterLogadoStorage === "true") {
-      return null; 
+    // Se tem erro de refresh token, mostra o formulário
+    if ((session as any)?.error === "RefreshAccessTokenError") {
+      // Permite mostrar o formulário para novo login
+    } else {
+      const manterLogadoStorage = typeof window !== "undefined" ? localStorage.getItem("manterLogado") : null;
+      if (manterLogadoStorage === "true") {
+        return null; 
+      }
     }
     // Se não está com manterLogado, mostra o formulário normalmente
   }
