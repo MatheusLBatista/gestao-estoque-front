@@ -12,6 +12,8 @@ import { Produto } from "../../../types/Produto";
 import { ProdutoListagem } from "../popUp/produto/produtoListagem";
 import { ProdutoEdicao } from "../popUp/produto/produtoEdicao";
 import { AdjustPrice } from "@/lib/adjustPrice";
+import { CustomPagination } from "../pagination/paginationWrapper";
+import { ItemsPerPage } from "../pagination/itemsPerPage";
 
 interface TabelaCategoriaProdutosProps {
   produtos: Produto[];
@@ -25,6 +27,14 @@ export default function TabelaCategoriaProdutos({
 
   const [editOpen, setEditOpen] = useState<boolean>(false);
   const [editProduct, setEditProduct] = useState<Produto | null>(null);
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [perPage, setPerPage] = useState<number>(10);
+
+  const totalPages = Math.ceil(produtos.length / perPage);
+  const startIndex = (currentPage - 1) * perPage;
+  const endIndex = startIndex + perPage;
+  const produtosPaginados = produtos.slice(startIndex, endIndex);
 
   return (
     <>
@@ -61,7 +71,7 @@ export default function TabelaCategoriaProdutos({
                 </TableCell>
               </TableRow>
             ) : (
-              produtos.map((produto) => (
+              produtosPaginados.map((produto) => (
                 <TableRow
                   key={produto._id}
                   onClick={() => {
@@ -97,6 +107,24 @@ export default function TabelaCategoriaProdutos({
           </TableBody>
         </Table>
       </div>
+
+      {produtos && produtos.length > 0 && (
+        <div className="mt-4 flex items-center justify-between">
+          <ItemsPerPage
+            perPage={perPage}
+            setPerPage={(value) => {
+              setPerPage(value);
+              setCurrentPage(1);
+            }}
+            totalItems={produtos.length}
+          />
+          <CustomPagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
 
       <ProdutoListagem
         open={open}
