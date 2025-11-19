@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { LoaderIcon } from "lucide-react"
+import { LoaderIcon, ArrowLeft } from "lucide-react"
 import { fetchData } from "@/services/api"
 import Header from "@/components/layout/header"
 import Footer from "@/components/layout/footer"
 import TabelaCategoriaProdutos from "@/components/layout/table/categoriaTable"
 import { CategoriaStatsCards } from "./CategoriaStatsCards"
 import { CategoriaChart } from "./CategoriaChart"
+import { Button } from "@/components/ui/button"
 import type { CategoriaAResponse, MovimentacoesResponse, Produto, ChartDataItem } from "@/types/Categorias"
 
 interface CategoriaPageProps {
@@ -26,6 +28,7 @@ export function CategoriaPage({
   corSaida = "#97BDF2"
 }: CategoriaPageProps) {
   const session = useSession()
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [produtosFormatados, setProdutosFormatados] = useState<Produto[]>([])
   const [chartData, setChartData] = useState<ChartDataItem[]>([])
@@ -88,7 +91,7 @@ export function CategoriaPage({
         const codigosProdutos = produtosResponse.data.produtos.map((p: any) => p.codigo_produto)
         
         const movimentacoesResponse = await fetchData<MovimentacoesResponse>(
-          "/movimentacoes?limit=1000",
+          "/movimentacoes?limit=5000",
           "GET",
           session.data.user.accesstoken
         )
@@ -117,13 +120,17 @@ export function CategoriaPage({
 
           console.log(`Total de movimentações da categoria ${categoria}: ${movimentacoesCategoria.length}`)
 
+          let entradasCount = 0
+          let saidasCount = 0
+
           movimentacoesCategoria.forEach((mov, idx) => {
             const date = new Date(mov.data_movimentacao)
+            const ano = date.getFullYear()
             const mesIndex = date.getMonth() 
             const nomeMes = meses[mesIndex]
             
             if (idx < 5) {
-              console.log(`Movimentação ${idx + 1}: ${mov.data_movimentacao} -> ${nomeMes}`)
+              console.log(`Movimentação ${idx + 1}: tipo=${mov.tipo}, ano=${ano}, data=${mov.data_movimentacao} -> ${nomeMes}, produtos:`, mov.produtos)
             }
 
             const current = dataMap.get(nomeMes)!
@@ -133,13 +140,18 @@ export function CategoriaPage({
                 if (mov.tipo === "entrada") {
                   current.entradas += p.quantidade_produtos
                   somaEntradas += p.quantidade_produtos
+                  entradasCount++
                 } else {
                   current.saidas += p.quantidade_produtos
                   somaSaidas += p.quantidade_produtos
+                  saidasCount++
                 }
               }
             })
           })
+
+          console.log(`Categoria ${categoria}: ${entradasCount} entradas, ${saidasCount} saídas processadas`)
+          console.log(`Total entradas: ${somaEntradas}, Total saídas: ${somaSaidas}`)
 
           setTotalEntradas(somaEntradas)
           setTotalSaidas(somaSaidas)
@@ -189,9 +201,19 @@ export function CategoriaPage({
       <Header />
       <main className="flex-1 overflow-y-auto bg-white">
         <div className="container mx-auto p-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            {titulo}
-          </h1>
+          <div className="flex items-center gap-4 mb-6">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => router.push('/home')}
+              className="flex-shrink-0"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {titulo}
+            </h1>
+          </div>
 
           <CategoriaStatsCards
             totalProdutos={totalProdutos}
