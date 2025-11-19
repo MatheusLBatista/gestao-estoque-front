@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 import type { ChartDataItem } from "@/types/Categorias"
 
 interface CategoriaChartProps {
@@ -56,6 +56,14 @@ export function CategoriaChart({
               axisLine={false}
               tickMargin={8}
               tickFormatter={(value) => value}
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              domain={[0, 'auto']}
+              tickCount={10}
+              tickFormatter={(value) => value.toString()}
             />
             <ChartTooltip
               cursor={false}
