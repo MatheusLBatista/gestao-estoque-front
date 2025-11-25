@@ -13,6 +13,7 @@ import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import { CadastroFuncionario } from "@/components/layout/popUp/funcionarios/funcionarioCadastro";
 
 export default function FuncionariosPage() {
   const { data: session, status: sessionStatus } = useSession();
@@ -190,12 +191,12 @@ export default function FuncionariosPage() {
             onClear={() => resetFilters()}
           />
           <div className="flex-1"></div>
-          {/* <CadastroFuncionario
+           <CadastroFuncionario
             color="green"
             size="1/8"
             open={cadastroOpen}
             onOpenChange={(value) => setCadastroOpen(value)}
-          /> */}
+          />
         </div>
 
         {funcionariosIsLoading && (

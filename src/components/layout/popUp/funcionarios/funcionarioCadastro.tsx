@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useState } from "react";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
@@ -9,9 +9,11 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BotaoCadastrar } from "@/components/ui/cadastrarButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -29,73 +31,66 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  FuncionarioEdicaoSchema,
-  type FormDataEdicao,
-} from "@/schemas/funcionario";
+import { FuncionarioSchema, type FormData } from "@/schemas/funcionario";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchData } from "@/services/api";
-import { Funcionario } from "@/types/Funcionario";
+import { capitalizeFirst } from "@/lib/capitalize";
 import { formatarTelefone } from "@/lib/adjustPhoneNumber";
 
-interface FuncionarioEdicaoProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  funcionario: Funcionario | null;
+interface CadastroFuncionarioProps {
+  color: "green" | "blue";
+  size: "1/8" | "1/2";
+  onTrigger?: () => void;
+  open?: boolean;
+  onOpenChange?: (value: boolean) => void;
 }
 
-export function FuncionarioEdicao({
-  open,
+export function CadastroFuncionario({
+  color,
+  size,
+  onTrigger,
+  open: controlledOpen,
   onOpenChange,
-  funcionario,
-}: FuncionarioEdicaoProps) {
+}: CadastroFuncionarioProps) {
   const { data: session } = useSession();
+  const [internalOpen, setInternalOpen] = useState<boolean>(false);
+  const isControlled = controlledOpen !== undefined;
+  const dialogOpen = isControlled ? controlledOpen : internalOpen;
 
-  const form = useForm<FormDataEdicao>({
-    resolver: zodResolver(FuncionarioEdicaoSchema),
+  const form = useForm<FormData>({
+    resolver: zodResolver(FuncionarioSchema),
     defaultValues: {
+      nome_usuario: "",
       email: "",
       telefone: "",
       perfil: "",
+      matricula: "",
     },
   });
 
-  useEffect(() => {
-    if (funcionario) {
-      form.reset({
-        email: funcionario.email || "",
-        telefone: funcionario.telefone || "",
-        perfil: funcionario.perfil || "",
-      });
-    }
-  }, [funcionario, form]);
-
   const queryClient = useQueryClient();
-  const { mutate: updateFuncionario, isPending } = useMutation({
-    mutationFn: async (data: FormDataEdicao) => {
+  const { mutate: createFuncionario, isPending } = useMutation({
+    mutationFn: async (funcionario: FormData) => {
       if (!session?.user?.accesstoken) {
         throw new Error("Usuário não autenticado");
       }
 
-      if (!funcionario?._id) {
-        throw new Error("ID do funcionário não encontrado");
-      }
-
       return await fetchData<any>(
-        `/usuarios/${funcionario._id}`,
-        "PATCH",
+        "/usuarios",
+        "POST",
         session.user.accesstoken,
-        data
+        funcionario
       );
     },
 
     onSuccess: () => {
-      toast.success("Funcionário atualizado com sucesso!", {
-        description: "As informações foram salvas.",
+      toast.success("Funcionário cadastrado com sucesso!", {
+        description: "O funcionário foi salvo e adicionado à lista.",
       });
 
       queryClient.invalidateQueries({ queryKey: ["listaFuncionarios"] });
-      onOpenChange(false);
+      handleOpenChange(false);
+      form.reset();
     },
 
     onError: (error: any) => {
@@ -104,27 +99,46 @@ export function FuncionarioEdicao({
         errorData?.customMessage ||
         errorData?.message ||
         error?.message ||
-        "Falha ao atualizar funcionário";
+        "Falha ao cadastrar funcionário";
 
-      toast.error("Erro ao atualizar funcionário", {
+      toast.error("Erro ao cadastrar funcionário", {
         description: errorMessage,
       });
     },
   });
 
-  const onSubmit = (data: FormDataEdicao) => {
-    updateFuncionario(data);
+  const handleOpenChange = (value: boolean) => {
+    if (!isControlled) {
+      setInternalOpen(value);
+    }
+    onOpenChange?.(value);
+
+    if (!value) {
+      form.reset();
+    }
+  };
+
+  const onSubmit = (data: FormData) => {
+    createFuncionario(data);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <BotaoCadastrar
+          onClick={() => {
+            onTrigger?.();
+          }}
+          color={color}
+          size={size}
+        />
+      </DialogTrigger>
+
       <DialogContent showCloseButton={false} className="gap-8">
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
-          <DialogTitle>Editar Funcionário</DialogTitle>
+          <DialogTitle>Cadastro de funcionário</DialogTitle>
           <DialogDescription>
-            {funcionario
-              ? `Editando informações de ${funcionario.nome_usuario}`
-              : "Nenhum funcionário selecionado"}
+            Formulário para o cadastro de novos funcionários
           </DialogDescription>
         </DialogHeader>
 
@@ -135,25 +149,46 @@ export function FuncionarioEdicao({
             noValidate
           >
             <div className="space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <FormLabel>Nome completo</FormLabel>
-                  <Input
-                    className="bg-gray-100 cursor-not-allowed"
-                    readOnly
-                    value={funcionario?.nome_usuario || ""}
-                  />
-                </div>
+              <FormField
+                control={form.control}
+                name="nome_usuario"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome completo*</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="João da Silva"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(capitalizeFirst(e.target.value))
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <div>
-                  <FormLabel>Matrícula</FormLabel>
-                  <Input
-                    className="bg-gray-100 cursor-not-allowed"
-                    readOnly
-                    value={funcionario?.matricula || ""}
-                  />
-                </div>
-              </div>
+              <FormField
+                control={form.control}
+                name="matricula"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Matrícula*</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        placeholder="ADMIN-003"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(e.target.value.toUpperCase())
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -199,7 +234,10 @@ export function FuncionarioEdicao({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Perfil*</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Selecione um perfil" />
@@ -224,7 +262,7 @@ export function FuncionarioEdicao({
         <div className="pt-2 border-t">
           <div className="flex flex-row gap-1 justify-center">
             <Button
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleOpenChange(false)}
               className="w-1/2 cursor-pointer text-black bg-transparent border hover:bg-neutral-50"
               type="button"
             >
