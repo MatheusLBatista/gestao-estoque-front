@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Footer from "@/components/layout/footer";
 import { LoaderIcon } from "lucide-react";
 
@@ -18,9 +19,13 @@ export default function Login() {
   // Verifica se deve redirecionar baseado em manter logado
   useEffect(() => {
     if (status === "authenticated") {
-      // limpa localStorage
+      // Se tem erro de refresh, limpa tudo e força logout
       if ((session as any)?.error === "RefreshAccessTokenError") {
         localStorage.removeItem("manterLogado");
+        // Força signOut para limpar sessão inválida
+        import("next-auth/react").then(({ signOut }) => {
+          signOut({ redirect: false });
+        });
         return;
       }
 
@@ -179,12 +184,12 @@ export default function Login() {
 
                 <div className="mt-6 text-center">
                   <span className="text-sm text-gray-600">Esqueceu a senha? </span>
-                  <button 
-                    type="button"
+                  <Link 
+                    href="/recuperar-senha"
                     className="text-sm text-[#0042D9] hover:underline font-medium"
                   >
                     Clique aqui
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
