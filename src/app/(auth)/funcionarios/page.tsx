@@ -84,7 +84,7 @@ export default function FuncionariosPage() {
       const params = new URLSearchParams({
         page: page.toString(),
         limite: limite.toString(),
-        ...(usuarioFilter ? { funcionario: usuarioFilter } : {}),
+        ...(usuarioFilter ? { usuario: usuarioFilter } : {}),
         ...(perfilFilter ? { perfil: perfilFilter } : {}),
         ...(statusFilter === "ativo" ? { ativo: "true" } : {}),
         ...(statusFilter === "inativo" ? { ativo: "false" } : {}),
