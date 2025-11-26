@@ -23,6 +23,7 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import {
   Select,
@@ -84,8 +85,9 @@ export function CadastroFuncionario({
     },
 
     onSuccess: () => {
-      toast.success("Funcionário cadastrado com sucesso!", {
-        description: "O funcionário foi salvo e adicionado à lista.",
+      toast.success("Funcionário preenchido com sucesso!", {
+        description:
+          "O email de ativação de conta foi enviado ao email cadastrado!",
       });
 
       queryClient.invalidateQueries({ queryKey: ["listaFuncionarios"] });
@@ -145,117 +147,118 @@ export function CadastroFuncionario({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-8 max-h-96 overflow-y-auto text-neutral-700"
+            className="max-h-96 overflow-y-auto space-y-8 text-neutral-700"
             noValidate
           >
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="nome_usuario"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome completo*</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="João da Silva"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(capitalizeFirst(e.target.value))
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="nome_usuario"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome completo*</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="João da Silva"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(capitalizeFirst(e.target.value))
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="matricula"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Matrícula*</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        placeholder="ADMIN-003"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(e.target.value.toUpperCase())
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="matricula"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Matrícula*</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="ADMIN-003"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(e.target.value.toUpperCase())
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  <FormDescription>
+                    A matrícula deve ser única e conter 7 caracteres
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>E-mail*</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="joao.silva@empresa.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-mail*</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="joao.silva@empresa.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="telefone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Telefone*</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="(11) 99999-9999"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(formatarTelefone(e.target.value))
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="telefone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefone*</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="(11) 99999-9999"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(formatarTelefone(e.target.value))
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="perfil"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Perfil*</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Selecione um perfil" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="administrador">
-                          Administrador
-                        </SelectItem>
-                        <SelectItem value="gerente">Gerente</SelectItem>
-                        <SelectItem value="estoquista">Estoquista</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="perfil"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Perfil*</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione um perfil" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="administrador">
+                        Administrador
+                      </SelectItem>
+                      <SelectItem value="gerente">Gerente</SelectItem>
+                      <SelectItem value="estoquista">Estoquista</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </form>
         </Form>
 

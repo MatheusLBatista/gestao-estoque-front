@@ -134,90 +134,86 @@ export function FuncionarioEdicao({
             className="space-y-8 max-h-96 overflow-y-auto text-neutral-700"
             noValidate
           >
-            <div className="space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <FormLabel>Nome completo</FormLabel>
-                  <Input
-                    className="bg-gray-100 cursor-not-allowed"
-                    readOnly
-                    value={funcionario?.nome_usuario || ""}
-                  />
-                </div>
-
-                <div>
-                  <FormLabel>Matrícula</FormLabel>
-                  <Input
-                    className="bg-gray-100 cursor-not-allowed"
-                    readOnly
-                    value={funcionario?.matricula || ""}
-                  />
-                </div>
-              </div>
-
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>E-mail*</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="joao.silva@empresa.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="telefone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Telefone*</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="(11) 99999-9999"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(formatarTelefone(e.target.value))
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="perfil"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Perfil*</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Selecione um perfil" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="administrador">
-                          Administrador
-                        </SelectItem>
-                        <SelectItem value="gerente">Gerente</SelectItem>
-                        <SelectItem value="estoquista">Estoquista</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            <div>
+              <FormLabel>Nome completo</FormLabel>
+              <Input
+                className="bg-gray-100 cursor-not-allowed"
+                readOnly
+                value={funcionario?.nome_usuario || ""}
               />
             </div>
+
+            <div>
+              <FormLabel>Matrícula</FormLabel>
+              <Input
+                className="bg-gray-100 cursor-not-allowed"
+                readOnly
+                value={funcionario?.matricula || ""}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-mail*</FormLabel>
+                  <FormControl>
+                    <Input
+                      readOnly
+                      className="bg-gray-100 cursor-not-allowed"
+                      value={funcionario?.email || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="telefone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefone*</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="(11) 99999-9999"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(formatarTelefone(e.target.value))
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="perfil"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Perfil*</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione um perfil" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="administrador">
+                        Administrador
+                      </SelectItem>
+                      <SelectItem value="gerente">Gerente</SelectItem>
+                      <SelectItem value="estoquista">Estoquista</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </form>
         </Form>
 
