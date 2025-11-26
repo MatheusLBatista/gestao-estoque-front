@@ -14,7 +14,10 @@ async function refreshAccessToken(token: JWT) {
       body: JSON.stringify({ refreshToken: token.refreshtoken }),
     });
 
-    if (!res.ok) throw new Error("Falha ao renovar token");
+    if (!res.ok) {
+      console.error("Refresh token inválido ou expirado");
+      return { ...token, error: "RefreshAccessTokenError" };
+    }
 
     const json = await res.json();
     const data = json.data;
@@ -92,22 +95,42 @@ export const authOptions: NextAuthOptions = {
         };
       }
 
+      // Se não tem refreshtoken, não tenta renovar (usuário não autenticado)
+      if (!token.refreshtoken) {
+        return token;
+      }
+
+      // Se já teve erro de refresh, não tenta novamente
+      if (token.error === "RefreshAccessTokenError") {
+        return token;
+      }
+
       // 2️⃣ Token ainda válido
       if (Date.now() < Number(token.accessTokenExpires ?? 0)) {
         return token;
       }
 
       // 3️⃣ Token expirou → tenta renovar
-      return await refreshAccessToken(token);
+      const refreshedToken = await refreshAccessToken(token);
+      
+      // Se falhou o refresh, força logout limpando os dados sensíveis
+      if (refreshedToken.error === "RefreshAccessTokenError") {
+        return {
+          error: "RefreshAccessTokenError"
+        } as JWT;
+      }
+
+      return refreshedToken;
     },
 
     async session({ session, token }) {
-      if (token && session.user) {
-        session.user = { ...session.user, ...token };
-      }
-
+      // Se tem erro de refresh, retorna sessão inválida para forçar logout
       if (token?.error === "RefreshAccessTokenError") {
         return { ...session, error: "RefreshAccessTokenError" };
+      }
+
+      if (token && session.user) {
+        session.user = { ...session.user, ...token };
       }
 
       return session;
