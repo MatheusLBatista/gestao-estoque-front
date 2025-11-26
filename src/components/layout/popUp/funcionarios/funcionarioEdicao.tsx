@@ -82,7 +82,7 @@ export function FuncionarioEdicao({
       }
 
       return await fetchData<any>(
-        `/usuarios/${funcionario._id}`,
+        `/usuarios/${funcionario.matricula}`,
         "PATCH",
         session.user.accesstoken,
         data

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+const telefoneRegex = /^(\(\d{2}\)\s?\d{4,5}-\d{4}|\d{10,11})$/;
+
 export const FuncionarioSchema = z.object({
   nome_usuario: z
     .string("Nome é obrigatório")
@@ -9,9 +11,9 @@ export const FuncionarioSchema = z.object({
   email: z.string("E-mail é obrigatório").email({ message: "E-mail inválido" }),
 
   telefone: z
-    .string("Telefone é obrigatório")
-    .min(10, { message: "Telefone deve ter no mínimo 10 dígitos" })
-    .max(15, { message: "Telefone deve ter no máximo 15 dígitos" }),
+    .string({ message: "Telefone é obrigatório" })
+    .trim()
+    .regex(telefoneRegex, "Telefone inválido"),
 
   perfil: z
     .string("Perfil é obrigatório")

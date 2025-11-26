@@ -202,8 +202,12 @@ export function FuncionarioListagem({
                 <FieldGroup>
                   <div className="flex flex-row gap-1">
                     <Field>
-                      <FieldLabel htmlFor="id">ID do funcionário</FieldLabel>
-                      <Input id="id" value={funcionario._id} readOnly={true} />
+                      <FieldLabel htmlFor="matricula">Matrícula</FieldLabel>
+                      <Input
+                        id="matricula"
+                        value={funcionario.matricula}
+                        readOnly={true}
+                      />
                     </Field>
 
                     <Field>
@@ -229,18 +233,11 @@ export function FuncionarioListagem({
 
                   <div className="flex flex-row gap-1">
                     <Field>
-                      <FieldLabel htmlFor="matricula">Matrícula</FieldLabel>
+                      <FieldLabel htmlFor="email">Email</FieldLabel>
                       <Input
-                        id="matricula"
-                        value={funcionario.matricula}
-                        readOnly={true}
-                      />
-                    </Field>
-                    <Field>
-                      <FieldLabel htmlFor="cargo">Perfil</FieldLabel>
-                      <Input
-                        id="cargo"
-                        value={capitalizeFirst(funcionario.perfil)}
+                        id="email"
+                        value={funcionario.email}
+                        autoComplete="off"
                         readOnly={true}
                       />
                     </Field>
@@ -248,11 +245,10 @@ export function FuncionarioListagem({
 
                   <div className="flex flex-row gap-1">
                     <Field>
-                      <FieldLabel htmlFor="email">Email</FieldLabel>
+                      <FieldLabel htmlFor="perfil">Perfil</FieldLabel>
                       <Input
-                        id="email"
-                        value={funcionario.email}
-                        autoComplete="off"
+                        id="perfil"
+                        value={capitalizeFirst(funcionario.perfil)}
                         readOnly={true}
                       />
                     </Field>
