@@ -91,7 +91,7 @@ export function FuncionarioEdicao({
 
     onSuccess: () => {
       toast.success("Funcionário atualizado com sucesso!", {
-        description: "As informações foram salvas.",
+        description: "O funcionário foi salvo e retornado à lista.",
       });
 
       queryClient.invalidateQueries({ queryKey: ["listaFuncionarios"] });
