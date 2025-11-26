@@ -22,6 +22,7 @@ export const FuncionarioSchema = z.object({
     .string("Matrícula é obrigatória")
     .trim()
     .min(2, "Informe pelo menos 2 caracteres")
+    .max(8, "Matrícula deve ter no máximo 8 caracteres")
     .regex(
       /^[A-Za-z0-9-]+$/,
       "A matrícula deve conter apenas letras, números e hífens"

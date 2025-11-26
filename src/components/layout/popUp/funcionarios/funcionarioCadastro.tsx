@@ -188,7 +188,7 @@ export function CadastroFuncionario({
                   </FormControl>
                   <FormMessage />
                   <FormDescription>
-                    A matrícula deve ser única e conter 7 caracteres
+                    A matrícula deve ser única
                   </FormDescription>
                 </FormItem>
               )}
