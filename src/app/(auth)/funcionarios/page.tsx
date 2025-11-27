@@ -14,9 +14,11 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { CadastroFuncionario } from "@/components/layout/popUp/funcionarios/funcionarioCadastro";
+import { canModifyFuncionarios } from "@/lib/permissions";
 
 export default function FuncionariosPage() {
   const { data: session, status: sessionStatus } = useSession();
+  const canModify = canModifyFuncionarios(session?.user?.perfil);
 
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limite, setLimite] = useQueryState(
@@ -191,12 +193,14 @@ export default function FuncionariosPage() {
             onClear={() => resetFilters()}
           />
           <div className="flex-1"></div>
-           <CadastroFuncionario
-            color="green"
-            size="1/8"
-            open={cadastroOpen}
-            onOpenChange={(value) => setCadastroOpen(value)}
-          />
+          {canModify && (
+            <CadastroFuncionario
+              color="green"
+              size="1/8"
+              open={cadastroOpen}
+              onOpenChange={(value) => setCadastroOpen(value)}
+            />
+          )}
         </div>
 
         {funcionariosIsLoading && (

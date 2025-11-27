@@ -37,6 +37,7 @@ import {
   createStatusBadge,
 } from "@/components/layout/print/RecordPrint";
 import { useSession } from "next-auth/react";
+import { canModifyFornecedores } from "@/lib/permissions";
 
 interface FornecedorListarProps {
   open: boolean;
@@ -58,6 +59,7 @@ export function FornecedorListagem({
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const { printRecord } = useRecordPrint();
+  const canModify = canModifyFornecedores(session?.user?.perfil);
 
   // Função para imprimir dados do fornecedor
   const handlePrintFornecedor = () => {
@@ -156,14 +158,16 @@ export function FornecedorListagem({
             {fornecedor ? (
               <div className="bold text-1xl flex gap-2">
                 {fornecedor.nome_fornecedor}
-                <Pencil
-                  className="cursor-pointer w-4 h-4 hover:text-blue-600"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEditar(fornecedor);
-                  }}
-                />
-                {fornecedor.status && (
+                {canModify && (
+                  <Pencil
+                    className="cursor-pointer w-4 h-4 hover:text-blue-600"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditar(fornecedor);
+                    }}
+                  />
+                )}
+                {canModify && fornecedor.status && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Trash2
@@ -372,11 +376,20 @@ export function FornecedorListagem({
               <Printer className="w-4 h-4" /> Imprimir
             </Button>
 
-            <BotaoCadastrar
-              color="blue"
-              size="1/2"
-              onClick={() => onCadastrar()}
-            />
+            {canModify ? (
+              <BotaoCadastrar
+                color="blue"
+                size="1/2"
+                onClick={() => onCadastrar()}
+              />
+            ) : (
+              <Button
+                className="flex-1 cursor-pointer text-black bg-transparent border hover:bg-neutral-50"
+                onClick={() => onOpenChange(false)}
+              >
+                Fechar
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>
