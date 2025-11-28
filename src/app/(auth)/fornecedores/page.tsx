@@ -9,17 +9,15 @@ import { LoaderIcon } from "lucide-react";
 import { toast } from "sonner";
 import { use, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import {
-  useQueryState,
-  parseAsInteger,
-  parseAsString,
-} from "nuqs";
+import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
 import TabelaFornecedores from "@/components/layout/table/fornecedoresTable";
 import { FornecedoresFilter } from "@/components/layout/filters/fornecedoresFilter";
 import FornecedorCadastro from "@/components/layout/popUp/fornecedores/fornecedorCadastro";
+import { canModifyFornecedores } from "@/lib/permissions";
 
 export default function FornecedoresPage() {
   const { data: session, status } = useSession();
+  const canModify = canModifyFornecedores(session?.user?.perfil);
 
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limite, setLimite] = useQueryState(
@@ -154,12 +152,14 @@ export default function FornecedoresPage() {
               );
             }}
           />
-          <FornecedorCadastro
-            color="green"
-            size="1/8"
-            open={cadastroOpen}
-            onOpenChange={(value) => setCadastroOpen(value)}
-          />
+          {canModify && (
+            <FornecedorCadastro
+              color="green"
+              size="1/8"
+              open={cadastroOpen}
+              onOpenChange={(value) => setCadastroOpen(value)}
+            />
+          )}
         </div>
 
         {fornecedoresIsLoading && (

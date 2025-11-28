@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Fornecedor } from "@/types/Fornecedor";
+import { Funcionario } from "@/types/Funcionario";
 import { Pencil, Printer, Trash2 } from "lucide-react";
 import {
   Field,
@@ -36,63 +36,53 @@ import {
   useRecordPrint,
   createStatusBadge,
 } from "@/components/layout/print/RecordPrint";
+import { capitalizeFirst } from "@/lib/capitalize";
 import { useSession } from "next-auth/react";
-import { canModifyFornecedores } from "@/lib/permissions";
+import { canModifyFuncionarios } from "@/lib/permissions";
 
-interface FornecedorListarProps {
+interface FuncionarioListarProps {
   open: boolean;
-  fornecedor: Fornecedor | null;
+  funcionario: Funcionario | null;
   onOpenChange: (value: boolean) => void;
-  onEditar: (fornecedor: Fornecedor) => void;
+  onEditar: (funcionario: Funcionario) => void;
   onCadastrar: () => void;
-  onExcluir?: (fornecedor: Fornecedor) => void;
+  onExcluir?: (funcionario: Funcionario) => void;
 }
 
-export function FornecedorListagem({
+export function FuncionarioListagem({
   open,
-  fornecedor,
+  funcionario,
   onOpenChange,
   onEditar,
   onCadastrar,
   onExcluir,
-}: FornecedorListarProps) {
+}: FuncionarioListarProps) {
   const { data: session } = useSession();
+
   const queryClient = useQueryClient();
   const { printRecord } = useRecordPrint();
-  const canModify = canModifyFornecedores(session?.user?.perfil);
+  const canModify = canModifyFuncionarios(session?.user?.perfil);
 
-  // Função para imprimir dados do fornecedor
-  const handlePrintFornecedor = () => {
-    if (!fornecedor) {
-      toast.error("Nenhum fornecedor selecionado para impressão");
+  const handlePrintFuncionario = () => {
+    if (!funcionario) {
+      toast.error("Nenhum funcionário selecionado para impressão");
       return;
     }
-
-    const enderecoPrincipal = fornecedor.endereco?.[0];
 
     const sections = [
       {
         title: "Informações Básicas",
         fields: [
-          { label: "ID do Fornecedor", value: fornecedor._id },
-          { label: "Status", value: createStatusBadge(fornecedor.status) },
+          { label: "ID do Funcionário", value: funcionario._id },
+          { label: "Status", value: createStatusBadge(funcionario.ativo) },
           {
-            label: "Nome do Fornecedor",
-            value: fornecedor.nome_fornecedor || "-",
+            label: "Nome do Funcionário",
+            value: funcionario.nome_usuario || "-",
           },
-          { label: "CNPJ", value: fornecedor.cnpj || "-" },
-          { label: "Telefone", value: fornecedor.telefone || "-" },
-          { label: "Email", value: fornecedor.email || "-" },
-        ],
-      },
-      {
-        title: "Endereço",
-        fields: [
-          { label: "Logradouro", value: enderecoPrincipal?.logradouro || "-" },
-          { label: "Bairro", value: enderecoPrincipal?.bairro || "-" },
-          { label: "Cidade", value: enderecoPrincipal?.cidade || "-" },
-          { label: "Estado", value: enderecoPrincipal?.estado || "-" },
-          { label: "CEP", value: enderecoPrincipal?.cep || "-" },
+          { label: "Matrícula", value: funcionario.matricula || "-" },
+          { label: "Perfil", value: funcionario.perfil || "-" },
+          { label: "Email", value: funcionario.email || "-" },
+          { label: "Telefone", value: funcionario.telefone || "-" },
         ],
       },
       {
@@ -100,19 +90,19 @@ export function FornecedorListagem({
         fields: [
           {
             label: "Data de Cadastro",
-            value: AdjustDate(fornecedor.data_cadastro),
+            value: AdjustDate(funcionario.data_cadastro),
           },
           {
             label: "Última Atualização",
-            value: AdjustDate(fornecedor.data_ultima_atualizacao),
+            value: AdjustDate(funcionario.data_ultima_atualizacao),
           },
         ],
       },
     ];
 
     printRecord({
-      title: "Detalhes do Fornecedor",
-      recordId: fornecedor.nome_fornecedor,
+      title: "Detalhes do Funcionário",
+      recordId: funcionario.nome_usuario,
       sections,
     });
   };
@@ -124,50 +114,45 @@ export function FornecedorListagem({
       }
 
       const result = await fetchData(
-        `/fornecedores/${id}`,
+        `/usuarios/desativar/${funcionario?.matricula}`,
         "PATCH",
-        session?.user?.accesstoken,
-        {
-          status: false,
-        }
+        session?.user?.accesstoken
       );
       return result;
     },
     onSuccess: () => {
-      toast.success("Fornecedor desativado com sucesso!");
-      queryClient.invalidateQueries({ queryKey: ["listaFornecedores"] });
+      toast.success("Funcionário desativado com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ["listaFuncionarios"] });
       onOpenChange(false);
-      if (onExcluir && fornecedor) {
-        onExcluir(fornecedor);
+      if (onExcluir && funcionario) {
+        onExcluir(funcionario);
       }
     },
     onError: (error) => {
-      toast.error("Erro ao desativar fornecedor", {
+      toast.error("Erro ao desativar funcionário", {
         description: (error as Error)?.message || "Erro desconhecido",
       });
     },
   });
-
-  const enderecoFornecedor = fornecedor?.endereco?.[0];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent showCloseButton={false} className="gap-4">
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>
-            {fornecedor ? (
+            {funcionario ? (
               <div className="bold text-1xl flex gap-2">
-                {fornecedor.nome_fornecedor}
+                {funcionario.nome_usuario}
                 {canModify && (
                   <Pencil
                     className="cursor-pointer w-4 h-4 hover:text-blue-600"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onEditar(fornecedor);
+                      onEditar(funcionario);
                     }}
                   />
                 )}
-                {canModify && fornecedor.status && (
+                {canModify && funcionario.ativo && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Trash2
@@ -178,21 +163,21 @@ export function FornecedorListagem({
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>
-                          Desativar fornecedor
+                          Desativar funcionário
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                          Tem certeza que deseja desativar o fornecedor "
-                          {fornecedor.nome_fornecedor}"? Esta ação não pode ser
-                          desfeita e o fornecedor não aparecerá mais na listagem
-                          padrão.
+                          Tem certeza que deseja desativar o funcionário "
+                          {funcionario.nome_usuario}"? Esta ação não pode ser
+                          desfeita e o funcionário não aparecerá mais na
+                          listagem padrão.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={() => {
-                            if (fornecedor) {
-                              desativarMutation.mutate(fornecedor._id);
+                            if (funcionario) {
+                              desativarMutation.mutate(funcionario._id);
                             }
                           }}
                           disabled={desativarMutation.isPending}
@@ -208,70 +193,54 @@ export function FornecedorListagem({
                 )}
               </div>
             ) : (
-              <div>Nenhum fornecedor selecionado.</div>
+              <div>Nenhum funcionário selecionado.</div>
             )}
           </DialogTitle>
-          <DialogDescription>Informações do fornecedor</DialogDescription>
+          <DialogDescription>Informações do funcionário</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-0.5 text-sm text-neutral-700 max-h-96 overflow-y-auto">
-          {fornecedor ? (
+          {funcionario ? (
             <>
               <FieldSet>
                 <FieldGroup>
                   <div className="flex flex-row gap-1">
                     <Field>
-                      <FieldLabel htmlFor="id">ID do fornecedor</FieldLabel>
-                      <Input id="id" value={fornecedor._id} readOnly={true} />
+                      <FieldLabel htmlFor="matricula">Matrícula</FieldLabel>
+                      <Input
+                        id="matricula"
+                        value={funcionario.matricula}
+                        readOnly={true}
+                      />
                     </Field>
 
                     <Field>
                       <FieldLabel htmlFor="status">Status</FieldLabel>
                       <Input
                         id="status"
-                        value={fornecedor.status === true ? "Ativo" : "Inativo"}
+                        value={funcionario.ativo === true ? "Ativo" : "Inativo"}
                         readOnly={true}
                       />
                     </Field>
                   </div>
 
                   <Field>
-                    <FieldLabel htmlFor="nome_fornecedor">
-                      Nome do fornecedor
+                    <FieldLabel htmlFor="nome_usuario">
+                      Nome do funcionário
                     </FieldLabel>
                     <Input
-                      id="nome_fornecedor"
-                      value={fornecedor.nome_fornecedor}
+                      id="nome_usuario"
+                      value={funcionario.nome_usuario}
                       readOnly={true}
                     />
                   </Field>
 
                   <div className="flex flex-row gap-1">
                     <Field>
-                      <FieldLabel htmlFor="telefone">Telefone</FieldLabel>
-                      <Input
-                        id="telefone"
-                        value={fornecedor.telefone}
-                        readOnly={true}
-                      />
-                    </Field>
-                    <Field>
-                      <FieldLabel htmlFor="cnpj">CNPJ</FieldLabel>
-                      <Input
-                        id="cnpj"
-                        autoComplete="off"
-                        value={fornecedor.cnpj}
-                        readOnly={true}
-                      />
-                    </Field>
-                  </div>
-
-                  <div className="flex flex-row gap-1">
-                    <Field>
                       <FieldLabel htmlFor="email">Email</FieldLabel>
                       <Input
                         id="email"
-                        value={fornecedor.email}
+                        value={funcionario.email}
                         autoComplete="off"
                         readOnly={true}
                       />
@@ -280,52 +249,18 @@ export function FornecedorListagem({
 
                   <div className="flex flex-row gap-1">
                     <Field>
-                      <FieldLabel htmlFor="logradouro">Logradouro</FieldLabel>
+                      <FieldLabel htmlFor="perfil">Perfil</FieldLabel>
                       <Input
-                        id="logradouro"
-                        value={enderecoFornecedor?.logradouro}
-                        autoComplete="off"
-                        readOnly={true}
-                      />
-                    </Field>
-                  </div>
-
-                  <div className="flex flex-row gap-1">
-                    <Field>
-                      <FieldLabel htmlFor="cep">CEP</FieldLabel>
-                      <Input
-                        id="cep"
-                        value={enderecoFornecedor?.cep}
-                        readOnly={true}
-                        autoComplete="off"
-                      />
-                    </Field>
-                    <Field>
-                      <FieldLabel htmlFor="bairro">Bairro</FieldLabel>
-                      <Input
-                        id="bairro"
-                        value={enderecoFornecedor?.bairro}
-                        autoComplete="off"
-                        readOnly={true}
-                      />
-                    </Field>
-                  </div>
-
-                  <div className="flex flex-row gap-1">
-                    <Field>
-                      <FieldLabel htmlFor="cidade">Cidade</FieldLabel>
-                      <Input
-                        id="cidade"
-                        value={enderecoFornecedor?.cidade}
-                        autoComplete="off"
+                        id="perfil"
+                        value={capitalizeFirst(funcionario.perfil)}
                         readOnly={true}
                       />
                     </Field>
                     <Field>
-                      <FieldLabel htmlFor="estado">Estado</FieldLabel>
+                      <FieldLabel htmlFor="telefone">Telefone</FieldLabel>
                       <Input
-                        id="estado"
-                        value={enderecoFornecedor?.estado}
+                        id="telefone"
+                        value={funcionario.telefone}
                         autoComplete="off"
                         readOnly={true}
                       />
@@ -339,19 +274,19 @@ export function FornecedorListagem({
                       </FieldLabel>
                       <Input
                         id="data_cadastro"
-                        value={AdjustDate(fornecedor.data_cadastro) ?? "-"}
+                        value={AdjustDate(funcionario.data_cadastro) ?? "-"}
                         readOnly={true}
                       />
                     </Field>
 
                     <Field>
-                      <FieldLabel htmlFor="data_ultima_entrada">
+                      <FieldLabel htmlFor="data_ultima_atualizacao">
                         Data última atualização
                       </FieldLabel>
                       <Input
-                        id="data_ultima_entrada"
+                        id="data_ultima_atualizacao"
                         value={
-                          AdjustDate(fornecedor.data_ultima_atualizacao) ?? "-"
+                          AdjustDate(funcionario.data_ultima_atualizacao) ?? "-"
                         }
                         readOnly={true}
                       />
@@ -362,7 +297,7 @@ export function FornecedorListagem({
             </>
           ) : (
             <div className="text-neutral-500">
-              Nenhum fornecedor selecionado.
+              Nenhum funcionário selecionado.
             </div>
           )}
         </div>
@@ -371,7 +306,7 @@ export function FornecedorListagem({
           <div className="flex flex-row justify-center gap-1">
             <Button
               className="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
-              onClick={handlePrintFornecedor}
+              onClick={handlePrintFuncionario}
             >
               <Printer className="w-4 h-4" /> Imprimir
             </Button>

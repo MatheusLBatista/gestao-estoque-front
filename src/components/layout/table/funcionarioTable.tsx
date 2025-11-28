@@ -10,14 +10,15 @@ import {
 import { useState } from "react";
 import { CustomPagination } from "../pagination/paginationWrapper";
 import { ItemsPerPage } from "../pagination/itemsPerPage";
-import { Fornecedor } from "@/types/Fornecedor";
+import { Funcionario } from "@/types/Funcionario";
 import { useQueryState, parseAsInteger } from "nuqs";
 import { AdjustDate } from "@/lib/adjustDate";
-import { FornecedorListagem } from "../popUp/fornecedores/fornecedorListagem";
-import { FornecedorEdicao } from "../popUp/fornecedores/fornecedorEdicao";
+import { FuncionarioListagem } from "../popUp/funcionarios/funcionarioListagem";
+import { FuncionarioEdicao } from "../popUp/funcionarios/funcionarioEdicao";
+import { capitalizeFirst } from "@/lib/capitalize";
 
-interface TabelaFornecedorProps {
-  fornecedores: Fornecedor[];
+interface TabelaFuncionariosProps {
+  funcionarios: Funcionario[];
   totalPages: number;
   totalDocs: number;
   currentPage: number;
@@ -25,14 +26,14 @@ interface TabelaFornecedorProps {
   onCadastrar?: () => void;
 }
 
-export default function TabelaFornecedores({
-  fornecedores,
+export default function TabelaFuncionarios({
+  funcionarios,
   totalPages,
   totalDocs,
   currentPage,
   perPage,
   onCadastrar,
-}: TabelaFornecedorProps) {
+}: TabelaFuncionariosProps) {
   const [pageState, setPageState] = useQueryState(
     "page",
     parseAsInteger.withDefault(currentPage)
@@ -44,11 +45,11 @@ export default function TabelaFornecedores({
   );
 
   const [open, setOpen] = useState<boolean>(false);
-  const [selectedFornecedor, setSelectedFornecedor] =
-    useState<Fornecedor | null>(null);
+  const [selectedFuncionario, setSelectedFuncionario] =
+    useState<Funcionario | null>(null);
 
   const [editOpen, setEditOpen] = useState<boolean>(false);
-  const [editFornecedor, setEditFornecedor] = useState<Fornecedor | null>(null);
+  const [editFuncionario, setEditFuncionario] = useState<Funcionario | null>(null);
 
   return (
     <>
@@ -57,16 +58,19 @@ export default function TabelaFornecedores({
           <TableHeader>
             <TableRow>
               <TableHead className="text-left text-neutral-500">
-                Nome do fornecedor
+                Nome do funcionário
+              </TableHead>
+              <TableHead className="text-center text-neutral-500">
+                Matrícula
               </TableHead>
               <TableHead className="text-left text-neutral-500">
                 Email
               </TableHead>
               <TableHead className="text-center text-neutral-500">
-                CNPJ
-              </TableHead>              
-              <TableHead className="text-center text-neutral-500">
                 Telefone
+              </TableHead>
+              <TableHead className="text-center text-neutral-500">
+                Perfil
               </TableHead>
               <TableHead className="text-center text-neutral-500">
                 Data cadastro
@@ -75,29 +79,32 @@ export default function TabelaFornecedores({
           </TableHeader>
 
           <TableBody>
-            {fornecedores.map((fornecedor) => (
+            {funcionarios.map((funcionario) => (
               <TableRow
-                key={fornecedor._id}
+                key={funcionario._id}
                 onClick={() => {
-                  setSelectedFornecedor(fornecedor);
+                  setSelectedFuncionario(funcionario);
                   setOpen(true);
                 }}
                 className="hover:bg-slate-50 cursor-pointer"
               >
                 <TableCell className="font-medium text-left text-neutral-700">
-                  {fornecedor.nome_fornecedor}
+                  {funcionario.nome_usuario}
+                </TableCell>
+                <TableCell className="text-center text-neutral-700">
+                  {funcionario.matricula}
                 </TableCell>
                 <TableCell className="text-left text-neutral-700">
-                  {fornecedor.email}
+                  {funcionario.email}
                 </TableCell>
                 <TableCell className="text-center text-neutral-700">
-                  {fornecedor.cnpj}
-                </TableCell>                
-                <TableCell className="text-center text-neutral-700">
-                  {fornecedor.telefone}
+                  {funcionario.telefone}
                 </TableCell>
                 <TableCell className="text-center text-neutral-700">
-                  {AdjustDate(fornecedor.data_cadastro)}
+                  {capitalizeFirst(funcionario.perfil)}
+                </TableCell>
+                <TableCell className="text-center text-neutral-700">
+                  {AdjustDate(funcionario.data_cadastro)}
                 </TableCell>
               </TableRow>
             ))}
@@ -105,35 +112,35 @@ export default function TabelaFornecedores({
         </Table>
       </div>
 
-      <FornecedorListagem
+      <FuncionarioListagem
         open={open}
-        fornecedor={selectedFornecedor}
+        funcionario={selectedFuncionario}
         onOpenChange={(value) => {
           setOpen(value);
-          if (!value) setSelectedFornecedor(null);
+          if (!value) setSelectedFuncionario(null);
         }}
-        onEditar={(fornecedor) => {
+        onEditar={(funcionario) => {
           setOpen(false);
-          setEditFornecedor(fornecedor);
+          setEditFuncionario(funcionario);
           setEditOpen(true);
         }}
         onCadastrar={() => {
           setOpen(false);
           onCadastrar?.();
         }}
-        onExcluir={(fornecedor) => {
+        onExcluir={(funcionario) => {
           setOpen(false);
-          setSelectedFornecedor(null);
+          setSelectedFuncionario(null);
         }}
       />
 
-      <FornecedorEdicao
+      <FuncionarioEdicao
         open={editOpen}
         onOpenChange={(value) => {
           setEditOpen(value);
-          if (!value) setEditFornecedor(null);
+          if (!value) setEditFuncionario(null);
         }}
-        fornecedor={editFornecedor}
+        funcionario={editFuncionario}
       />
 
       <div className="flex justify-between">
@@ -145,31 +152,27 @@ export default function TabelaFornecedores({
               setPageState(1);
             }}
             totalItems={Number(totalDocs)}
-            tableData={fornecedores}
-            tableTitle="Relatório de Fornecedores"
+            tableData={funcionarios}
+            tableTitle="Relatório de Funcionários"
             tableColumns={[
-              { key: "nome_fornecedor", label: "Nome do Fornecedor" },
-              { key: "cnpj", label: "CNPJ" },
-              { key: "telefone", label: "Telefone" },
+              { key: "nome_usuario", label: "Nome do Funcionário" },
+              { key: "matricula", label: "Matrícula" },
               { key: "email", label: "Email" },
+              { key: "perfil", label: "Perfil" },
+              { key: "telefone", label: "Telefone" },
               {
-                key: "status",
+                key: "ativo",
                 label: "Status",
                 format: (value) => (value ? "Ativo" : "Inativo"),
               },
               {
-                key: "endereco",
-                label: "Cidade/UF",
-                format: (value) => {
-                  const endereco = value?.[0];
-                  return endereco
-                    ? `${endereco.cidade}/${endereco.estado}`
-                    : "-";
-                },
-              },
-              {
                 key: "data_cadastro",
                 label: "Data de cadastro",
+                format: (value) => (value ? AdjustDate(value) : "-"),
+              },
+              {
+                key: "data_ultima_atualizacao",
+                label: "Data de última atualização",
                 format: (value) => (value ? AdjustDate(value) : "-"),
               },
             ]}
