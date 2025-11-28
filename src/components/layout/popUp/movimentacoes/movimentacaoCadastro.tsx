@@ -340,13 +340,22 @@ export function CadastroMovimentacao({
                 : undefined,
             }
           : undefined,
-      produtos: produtos.map((produto) => ({
-        idProduto: produto.id,
-        codigo_produto: produto.codigo,
-        quantidade_produtos: Number(produto.quantidade) || 0,
-        custo: tipo === "entrada" ? Number(produto.valor) || 0 : 0,
-        preco: tipo === "saida" ? Number(produto.valor) || 0 : 0,
-      })),
+      produtos: produtos.map((produto) => {
+        const valorLimpo = String(produto.valor || "")
+          .replace(/R\$/g, "")
+          .replace(/\./g, "")
+          .replace(/,/g, ".")
+          .trim();
+        const valorNumerico = Number(valorLimpo) || 0;
+
+        return {
+          idProduto: produto.id,
+          codigo_produto: produto.codigo,
+          quantidade_produtos: Number(produto.quantidade) || 0,
+          custo: tipo === "entrada" ? valorNumerico : 0,
+          preco: tipo === "saida" ? valorNumerico : 0,
+        };
+      }),
     };
 
     const result = MovimentacaoCreateSchema.safeParse(payload);
@@ -608,7 +617,7 @@ export function CadastroMovimentacao({
                           prefix="R$ "
                           customInput={Input}
                           onChange={(e) =>
-                            atualizarProduto(index, "valor", (e.target.value))
+                            atualizarProduto(index, "valor", e.target.value)
                           }
                         />
                       </Field>

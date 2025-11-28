@@ -87,7 +87,7 @@ export default function TabelaCategoriaProdutos({
                   <TableCell className="font-medium text-neutral-700">
                     {produto.nome_produto}
                   </TableCell>
-                  <TableCell className="text-center font-mono text-sm text-neutral-700">
+                  <TableCell className="text-center text-sm text-neutral-700">
                     {produto.codigo_produto}
                   </TableCell>
                   <TableCell className="text-center text-neutral-700">

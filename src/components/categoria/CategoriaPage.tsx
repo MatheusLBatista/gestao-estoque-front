@@ -81,8 +81,8 @@ export function CategoriaPage({
           categoria: p.categoria,
           estoque: p.estoque,
           estoque_min: p.estoque_min || 0,
-          data_cadastro: '',
-          data_ultima_atualizacao: '',
+          data_cadastro: p.data_cadastro || '',
+          data_ultima_atualizacao: p.data_ultima_atualizacao || '',
         }))
         setProdutosFormatados(produtosFormatadosData)
         setTotalProdutos(produtosResponse.data.total || produtosFormatadosData.length)
