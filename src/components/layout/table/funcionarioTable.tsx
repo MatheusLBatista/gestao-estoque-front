@@ -63,7 +63,7 @@ export default function TabelaFuncionarios({
               <TableHead className="text-center text-neutral-500">
                 Matrícula
               </TableHead>
-              <TableHead className="text-center text-neutral-500">
+              <TableHead className="text-left text-neutral-500">
                 Email
               </TableHead>
               <TableHead className="text-center text-neutral-500">
@@ -94,7 +94,7 @@ export default function TabelaFuncionarios({
                 <TableCell className="text-center text-neutral-700">
                   {funcionario.matricula}
                 </TableCell>
-                <TableCell className="text-center text-neutral-700">
+                <TableCell className="text-left text-neutral-700">
                   {funcionario.email}
                 </TableCell>
                 <TableCell className="text-center text-neutral-700">

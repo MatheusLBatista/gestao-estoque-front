@@ -14,6 +14,7 @@ import { ProdutoEdicao } from "../popUp/produto/produtoEdicao";
 import { AdjustPrice } from "@/lib/adjustPrice";
 import { CustomPagination } from "../pagination/paginationWrapper";
 import { ItemsPerPage } from "../pagination/itemsPerPage";
+import { AdjustDate } from "@/lib/adjustDate";
 
 interface TabelaCategoriaProdutosProps {
   produtos: Produto[];
@@ -66,7 +67,10 @@ export default function TabelaCategoriaProdutos({
           <TableBody>
             {!produtos || produtos.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-neutral-500">
+                <TableCell
+                  colSpan={6}
+                  className="text-center py-8 text-neutral-500"
+                >
                   Nenhum produto encontrado
                 </TableCell>
               </TableRow>
@@ -93,7 +97,7 @@ export default function TabelaCategoriaProdutos({
                     {AdjustPrice(produto.custo)}
                   </TableCell>
                   <TableCell className="text-right text-neutral-700">
-                    {produto.preco ? AdjustPrice(produto.preco) : '-'}
+                    {produto.preco ? AdjustPrice(produto.preco) : "-"}
                   </TableCell>
                   <TableCell
                     className="max-w-xs truncate text-neutral-700"
@@ -117,6 +121,29 @@ export default function TabelaCategoriaProdutos({
               setCurrentPage(1);
             }}
             totalItems={produtos.length}
+            tableData={produtos}
+            tableTitle="Relatório de Produtos por Categoria"
+            tableColumns={[
+              { key: "nome_produto", label: "Nome do Produto" },
+              { key: "codigo_produto", label: "Código" },
+              { key: "estoque", label: "Estoque" },
+              {
+                key: "custo",
+                label: "Custo",
+                format: (value) => (value ? AdjustPrice(value) : "-"),
+              },
+              {
+                key: "preco",
+                label: "Preço",
+                format: (value) => (value ? AdjustPrice(value) : "-"),
+              },
+              { key: "descricao", label: "Descrição" },
+              {
+                key: "data_ultima_atualizacao",
+                label: "Última atualização",
+                format: (value) => (value ? AdjustDate(value) : "-"),
+              },
+            ]}
           />
           <CustomPagination
             totalPages={totalPages}

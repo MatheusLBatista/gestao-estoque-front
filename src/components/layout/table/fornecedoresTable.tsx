@@ -59,12 +59,12 @@ export default function TabelaFornecedores({
               <TableHead className="text-left text-neutral-500">
                 Nome do fornecedor
               </TableHead>
-              <TableHead className="text-center text-neutral-500">
-                CNPJ
-              </TableHead>
-              <TableHead className="text-center text-neutral-500">
+              <TableHead className="text-left text-neutral-500">
                 Email
               </TableHead>
+              <TableHead className="text-center text-neutral-500">
+                CNPJ
+              </TableHead>              
               <TableHead className="text-center text-neutral-500">
                 Telefone
               </TableHead>
@@ -87,12 +87,12 @@ export default function TabelaFornecedores({
                 <TableCell className="font-medium text-left text-neutral-700">
                   {fornecedor.nome_fornecedor}
                 </TableCell>
-                <TableCell className="text-center text-neutral-700">
-                  {fornecedor.cnpj}
-                </TableCell>
-                <TableCell className="text-center text-neutral-700">
+                <TableCell className="text-left text-neutral-700">
                   {fornecedor.email}
                 </TableCell>
+                <TableCell className="text-center text-neutral-700">
+                  {fornecedor.cnpj}
+                </TableCell>                
                 <TableCell className="text-center text-neutral-700">
                   {fornecedor.telefone}
                 </TableCell>

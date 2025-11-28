@@ -100,7 +100,7 @@ export default function TabelaProdutos({
                   }}
                   className="hover:bg-slate-50 cursor-pointer"
                 >
-                  <TableCell className="font-medium text-center text-neutral-700">
+                  <TableCell className="font-medium text-left text-neutral-700">
                     {produto.nome_produto}
                   </TableCell>
                   <TableCell className="text-center text-neutral-700">

@@ -13,6 +13,7 @@ export interface ProdutoAPI {
   fornecedores?: any
   nome_fornecedor?: string
   id_fornecedor?: number
+  data_ultima_atualizacao?: string
 }
 
 export interface CategoriaAResponse {
@@ -69,5 +70,5 @@ export interface Produto {
   estoque: number
   estoque_min: number
   data_cadastro: string
-  data_ultima_entrada: string
+  data_ultima_atualizacao: string
 }
