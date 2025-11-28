@@ -2,16 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { getAllowedRoutes, type RouteKey } from "@/lib/permissions";
 
 export default function Navigation() {
   const pathname = usePathname() || "/";
+  const { data: session } = useSession();
 
-  const items = [
-    { label: "Produtos", href: "/produtos" },
-    { label: "Movimentações", href: "/movimentacoes" },
-    { label: "Fornecedores", href: "/fornecedores" },
-    { label: "Funcionários", href: "/funcionarios" },
+  const allItems: Array<{ label: string; href: string; key: RouteKey }> = [
+    { label: "Produtos", href: "/produtos", key: "produtos" },
+    { label: "Movimentações", href: "/movimentacoes", key: "movimentacoes" },
+    { label: "Fornecedores", href: "/fornecedores", key: "fornecedores" },
+    { label: "Funcionários", href: "/funcionarios", key: "funcionarios" },
   ];
+
+  const allowedRoutes = getAllowedRoutes(session?.user?.perfil);
+  const items = allItems.filter((item) => allowedRoutes.includes(item.key));
 
   return (
     <nav>

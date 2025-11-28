@@ -75,7 +75,7 @@ export function ProdutoEdicao({
       );
     },
     onSuccess: () => {
-      toast.success("Produto editado com sucesso!", {
+      toast.success("Produto atualizado com sucesso!", {
         description: "O produto foi salvo e retornado à lista.",
       });
 

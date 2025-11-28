@@ -116,7 +116,7 @@ export function FornecedorEdicao({
     },
     onSuccess: () => {
       toast.success("Fornecedor atualizado com sucesso!", {
-        description: "As alterações foram salvas.",
+        description: "O fornecedor foi salvo e retornado à lista.",
       });
 
       queryClient.invalidateQueries({ queryKey: ["listaFornecedores"] });

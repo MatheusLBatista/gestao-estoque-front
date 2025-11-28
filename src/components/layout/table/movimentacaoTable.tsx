@@ -71,7 +71,7 @@ export default function TabelaMovimentacao({
                 <TableHead className="text-center text-neutral-500">
                   ID
                 </TableHead>
-                <TableHead className="text-left text-neutral-500">
+                <TableHead className="text-center text-neutral-500">
                   Tipo
                 </TableHead>
                 <TableHead className="text-left text-neutral-500">
@@ -87,7 +87,7 @@ export default function TabelaMovimentacao({
                   Quantidade
                 </TableHead>
                 <TableHead className="text-center text-neutral-500">
-                  Data
+                  Data cadastro
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -106,7 +106,7 @@ export default function TabelaMovimentacao({
                     {m._id}
                   </TableCell>
 
-                  <TableCell className="text-left text-sm text-neutral-700 capitalize">
+                  <TableCell className="text-center text-sm text-neutral-700 capitalize">
                     {m.tipo === "entrada" ? "Entrada" : "Saída"}
                   </TableCell>
 
