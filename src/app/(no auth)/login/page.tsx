@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
@@ -30,7 +30,7 @@ export default function Login() {
       }
 
       const manterLogadoStorage = localStorage.getItem("manterLogado");
-      
+
       // Se manterLogado está ativo, redireciona para home
       if (manterLogadoStorage === "true") {
         router.push("/home");
@@ -73,7 +73,7 @@ export default function Login() {
   if (status === "loading") {
     return (
       <div className="fixed inset-0 z-9999 flex items-center justify-center bg-white">
-          <LoaderIcon role="status" className="animate-spin mt-20 mx-auto" />
+        <LoaderIcon role="status" className="animate-spin mt-20 mx-auto" />
       </div>
     );
   }
@@ -84,9 +84,12 @@ export default function Login() {
     if ((session as any)?.error === "RefreshAccessTokenError") {
       // Permite mostrar o formulário para novo login
     } else {
-      const manterLogadoStorage = typeof window !== "undefined" ? localStorage.getItem("manterLogado") : null;
+      const manterLogadoStorage =
+        typeof window !== "undefined"
+          ? localStorage.getItem("manterLogado")
+          : null;
       if (manterLogadoStorage === "true") {
-        return null; 
+        return null;
       }
     }
     // Se não está com manterLogado, mostra o formulário normalmente
@@ -95,34 +98,36 @@ export default function Login() {
   return (
     <div>
       <main className="min-h-screen bg-white p-6 flex flex-col relative overflow-hidden">
-
         <div className="flex items-center space-x-3">
-                <h1 className="text-xl font-bold">Gestão de Estoque</h1>
+          <h1 className="text-xl font-bold">Gestão de Estoque</h1>
         </div>
 
-        <div 
+        <div
           className="absolute w-[2500px] h-[2500px] pointer-events-none"
           style={{
-            right: '-400.05px',
-            top: '-251.77px',
-            transform: 'rotate(15deg)',
-            transformOrigin: 'center'
+            right: "-400.05px",
+            top: "-251.77px",
+            transform: "rotate(15deg)",
+            transformOrigin: "center",
           }}
         >
           <div className="w-full h-full bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] rounded-tl-full"></div>
         </div>
 
         <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 relative z-10">
-          
-
           <div className="flex-1 flex flex-col justify-center">
             <div className="max-w-md mx-auto w-full">
               <div className="bg-white rounded-2xl shadow-2xl p-8 backdrop-blur-sm border border-white/20">
-                <h1 className="text-2xl font-bold text-gray-800 text-center mb-8">Login</h1>
-                
+                <h1 className="text-2xl font-bold text-gray-800 text-center mb-8">
+                  Login
+                </h1>
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <label htmlFor="matricula" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="matricula"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Matrícula*
                     </label>
                     <input
@@ -134,11 +139,15 @@ export default function Login() {
                       placeholder="Digite sua matrícula"
                       required
                       disabled={isLoading}
+                      data-test="matricula"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="senha" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="senha"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Senha*
                     </label>
                     <input
@@ -150,6 +159,7 @@ export default function Login() {
                       placeholder="Digite sua senha"
                       required
                       disabled={isLoading}
+                      data-test="senha"
                     />
                   </div>
 
@@ -161,14 +171,21 @@ export default function Login() {
                       onChange={(e) => setManterLogado(e.target.checked)}
                       className="h-4 w-4 text-[#0042D9] focus:ring-[#0042D9] border-gray-300 rounded"
                       disabled={isLoading}
+                      data-test="manter-logado"
                     />
-                    <label htmlFor="manterLogado" className="ml-2 block text-sm text-gray-700">
+                    <label
+                      htmlFor="manterLogado"
+                      className="ml-2 block text-sm text-gray-700"
+                    >
                       Manter logado
                     </label>
                   </div>
 
                   {error && (
-                    <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm">
+                    <div
+                      className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm"
+                      data-test="error-message"
+                    >
                       {error}
                     </div>
                   )}
@@ -177,14 +194,17 @@ export default function Login() {
                     type="submit"
                     disabled={isLoading}
                     className="w-full bg-[#0042D9] text-white py-3 px-4 rounded-xl font-medium hover:bg-[#0042D9]/90 focus:ring-2 focus:ring-[#0042D9] focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    data-test="login-button"
                   >
                     {isLoading ? "Entrando..." : "Entrar"}
                   </button>
                 </form>
 
                 <div className="mt-6 text-center">
-                  <span className="text-sm text-gray-600">Esqueceu a senha? </span>
-                  <Link 
+                  <span className="text-sm text-gray-600">
+                    Esqueceu a senha?{" "}
+                  </span>
+                  <Link
                     href="/recuperar-senha"
                     className="text-sm text-[#0042D9] hover:underline font-medium"
                   >
