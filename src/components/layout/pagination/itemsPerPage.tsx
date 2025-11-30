@@ -162,13 +162,17 @@ export function ItemsPerPage({
         value={String(perPage)}
         onValueChange={(v) => setPerPage(Number(v))}
       >
-        <SelectTrigger className="w-[73px]">
+        <SelectTrigger className="w-[73px]" data-test="select-itens-por-pagina">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             {options.map((value) => (
-              <SelectItem key={value} value={String(value)}>
+              <SelectItem
+                data-test={`select-item-${value}`}
+                key={value}
+                value={String(value)}
+              >
                 {value}
               </SelectItem>
             ))}

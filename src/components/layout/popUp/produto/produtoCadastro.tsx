@@ -168,7 +168,11 @@ export function CadastroProduto({
         />
       </DialogTrigger>
 
-      <DialogContent showCloseButton={false} className="gap-8">
+      <DialogContent
+        data-test="dialog-cadastro-produto"
+        showCloseButton={false}
+        className="gap-8"
+      >
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>Cadastro de produto</DialogTitle>
           <DialogDescription>
@@ -190,6 +194,7 @@ export function CadastroProduto({
                   <FormLabel>Nome do produto*</FormLabel>
                   <FormControl>
                     <Input
+                      data-test="input-nome-produto"
                       placeholder="Smartphone Samsung Galaxy A55"
                       {...field}
                       onChange={(e) =>
@@ -214,7 +219,10 @@ export function CadastroProduto({
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger
+                          data-test="select-fornecedor"
+                          className="w-full"
+                        >
                           <SelectValue placeholder="Selecione um fornecedor" />
                         </SelectTrigger>
                       </FormControl>
@@ -226,6 +234,7 @@ export function CadastroProduto({
                         ) : fornecedores && fornecedores.length > 0 ? (
                           fornecedores.map((fornecedor) => (
                             <SelectItem
+                              data-test={`select-item`}
                               key={fornecedor._id}
                               value={fornecedor._id}
                             >
@@ -254,6 +263,7 @@ export function CadastroProduto({
                     <FormLabel>Marca*</FormLabel>
                     <FormControl>
                       <Input
+                        data-test="input-marca"
                         placeholder="Samsung"
                         {...field}
                         onChange={(e) =>
@@ -274,6 +284,7 @@ export function CadastroProduto({
                     <FormLabel>Código*</FormLabel>
                     <FormControl>
                       <Input
+                        data-test="input-codigo-produto"
                         placeholder="SAM-GAL-A54-002"
                         {...field}
                         onChange={(e) =>
@@ -299,6 +310,7 @@ export function CadastroProduto({
                     <FormLabel>Estoque mínimo*</FormLabel>
                     <FormControl>
                       <Input
+                        data-test="input-estoque-min"
                         type="number"
                         placeholder="10"
                         value={field.value ?? ""}
@@ -320,6 +332,7 @@ export function CadastroProduto({
                     <FormLabel>Preço (R$)*</FormLabel>
                     <FormControl>
                       <NumericFormat
+                        data-test="input-preco"
                         value={field.value ?? ""}
                         placeholder="R$ 1299,99"
                         thousandSeparator="."
@@ -348,6 +361,7 @@ export function CadastroProduto({
                   <FormLabel>Descrição*</FormLabel>
                   <FormControl>
                     <Textarea
+                      data-test="textarea-descricao"
                       placeholder="Smartphone Samsung Galaxy A54 128GB, Tela 6.4 polegadas, Câmera 50MP"
                       className="h-[100px] resize-none"
                       {...field}
@@ -373,6 +387,7 @@ export function CadastroProduto({
               Cancelar
             </Button>
             <Button
+              data-test="btn-salvar"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isPending}
               className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"

@@ -107,13 +107,18 @@ export function ProdutoListagem({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="gap-4">
+      <DialogContent
+        data-test="dialog-listagem-produto"
+        showCloseButton={false}
+        className="gap-4"
+      >
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>
             {produto ? (
               <div className="bold text-1xl flex gap-2">
                 {produto.nome_produto}
                 <Pencil
+                  data-test="btn-editar-produto"
                   className="cursor-pointer w-4 h-4 hover:text-blue-600"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -255,7 +260,9 @@ export function ProdutoListagem({
                       </FieldLabel>
                       <Input
                         id="data_ultima_atualizacao"
-                        value={AdjustDate(produto.data_ultima_atualizacao) ?? "-"}
+                        value={
+                          AdjustDate(produto.data_ultima_atualizacao) ?? "-"
+                        }
                         readOnly={true}
                       />
                     </Field>
@@ -271,6 +278,7 @@ export function ProdutoListagem({
         <div className="pt-2 border-t">
           <div className="flex flex-row justify-center gap-1">
             <Button
+              data-test="btn-imprimir"
               className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
               onClick={handlePrintProduto}
             >

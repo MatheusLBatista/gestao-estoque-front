@@ -27,6 +27,7 @@ export function CustomPagination({
       <PaginationContent className="text-neutral-500">
         <PaginationItem>
           <PaginationPrevious
+            data-test="btn-pagina-anterior"
             className={`w-1 ${
               prevDisabled
                 ? "opacity-50 pointer-events-none"
@@ -65,6 +66,7 @@ export function CustomPagination({
           );
         })}
         <PaginationNext
+          data-test="btn-proxima-pagina"
           className={`w-1 ${
             nextDisabled
               ? "opacity-50 pointer-events-none"

@@ -51,6 +51,7 @@ export function ProdutosFilter({
     <div className="mb-4 flex flex-row gap-4">
       <InputGroup className="w-[360px]">
         <InputGroupInput
+          data-test="input-busca-produto"
           placeholder="Buscar por nome, código ou marca"
           value={produto || ""}
           onChange={(e) => setProduto(e.target.value)}
@@ -74,15 +75,15 @@ export function ProdutosFilter({
           onSubmit;
         }}
       >
-        <SelectTrigger className="w-[120px]">
+        <SelectTrigger data-test="select-categoria" className="w-[120px]">
           <SelectValue placeholder="Categoria" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             <SelectItem value="todos">Todas</SelectItem>
-            <SelectItem value="a">A</SelectItem>
-            <SelectItem value="b">B</SelectItem>
-            <SelectItem value="c">C</SelectItem>
+            <SelectItem value="a" data-test="select-item-a">A</SelectItem>
+            <SelectItem value="b" data-test="select-item-b">B</SelectItem>
+            <SelectItem value="c" data-test="select-item-c">C</SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>
@@ -92,6 +93,7 @@ export function ProdutosFilter({
           Estoque baixo
         </Label>
         <Switch
+          data-test="switch-estoque-baixo"
           id="estoqueBaixo"
           className="cursor-pointer"
           checked={estoqueBaixo || false}
@@ -112,6 +114,7 @@ export function ProdutosFilter({
 
       {(produto || categoria || estoqueBaixo) && (
         <Button
+          data-test="btn-limpar-filtros"
           onClick={() => {
             setProduto("");
             setCategoria("");
