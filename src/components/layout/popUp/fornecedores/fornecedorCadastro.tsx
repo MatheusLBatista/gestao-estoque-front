@@ -194,7 +194,11 @@ export default function FornecedorCadastro({
         />
       </DialogTrigger>
 
-      <DialogContent showCloseButton={false} className="gap-8">
+      <DialogContent
+        showCloseButton={false}
+        className="gap-8"
+        data-test="dialog-cadastro-fornecedor"
+      >
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>Cadastro de fornecedor</DialogTitle>
           <DialogDescription>
@@ -206,6 +210,7 @@ export default function FornecedorCadastro({
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="max-h-96 overflow-y-auto space-y-8 text-neutral-700"
+            data-test="fornecedor-cadastro-form"
           >
             <FormField
               control={form.control}
@@ -220,6 +225,7 @@ export default function FornecedorCadastro({
                       onChange={(e) =>
                         field.onChange(capitalizeFirst(e.target.value))
                       }
+                      data-test="input-nome-fornecedor"
                     />
                   </FormControl>
                   <FormMessage />
@@ -241,6 +247,7 @@ export default function FornecedorCadastro({
                         onChange={(e) =>
                           field.onChange(formatarCnpj(e.target.value))
                         }
+                        data-test="input-cnpj"
                       />
                     </FormControl>
                     <FormMessage />
@@ -261,6 +268,7 @@ export default function FornecedorCadastro({
                         onChange={(e) =>
                           field.onChange(formatarTelefone(e.target.value))
                         }
+                        data-test="input-telefone"
                       />
                     </FormControl>
                     <FormMessage />
@@ -280,6 +288,7 @@ export default function FornecedorCadastro({
                       type="email"
                       placeholder="contato@email.com"
                       {...field}
+                      data-test="input-email"
                     />
                   </FormControl>
                   <FormMessage />
@@ -310,6 +319,7 @@ export default function FornecedorCadastro({
                           }
                         }}
                         disabled={isLoadingCep}
+                        data-test="input-cep"
                       />
                     </FormControl>
                     {isLoadingCep ? (
@@ -333,6 +343,7 @@ export default function FornecedorCadastro({
                         placeholder="Centro"
                         {...field}
                         onChange={(e) => field.onChange(e.target.value)}
+                        data-test="input-bairro"
                       />
                     </FormControl>
                     <FormMessage />
@@ -353,6 +364,7 @@ export default function FornecedorCadastro({
                         placeholder="Rua Exemplo, 123"
                         {...field}
                         onChange={(e) => field.onChange(e.target.value)}
+                        data-test="input-logradouro"
                       />
                     </FormControl>
                     <FormMessage />
@@ -373,6 +385,7 @@ export default function FornecedorCadastro({
                         placeholder="São Paulo"
                         {...field}
                         onChange={(e) => field.onChange(e.target.value)}
+                        data-test="input-cidade"
                       />
                     </FormControl>
                     <FormMessage />
@@ -391,7 +404,10 @@ export default function FornecedorCadastro({
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="flex-1 w-2/">
+                        <SelectTrigger
+                          className="flex-1 w-2/"
+                          data-test="select-estado"
+                        >
                           <SelectValue placeholder="Selecione o estado" />
                         </SelectTrigger>
                       </FormControl>
@@ -446,6 +462,7 @@ export default function FornecedorCadastro({
               onClick={() => handleOpenChange(false)}
               className="w-1/2 cursor-pointer text-black bg-transparent border hover:bg-neutral-50"
               data-slot="dialog-close"
+              data-test="btn-cancelar"
             >
               Cancelar
             </Button>
@@ -454,6 +471,7 @@ export default function FornecedorCadastro({
               onClick={form.handleSubmit(onSubmit)}
               disabled={isPending || isLoadingCep}
               className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
+              data-test="btn-salvar"
             >
               <Save className="w-4 h-4 mr-1" />{" "}
               {isPending ? "Salvando..." : "Salvar"}

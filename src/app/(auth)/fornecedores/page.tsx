@@ -123,7 +123,7 @@ export default function FornecedoresPage() {
     <div>
       <Header />
 
-      <main className="min-h-screen p-8">
+      <main className="min-h-screen p-8" data-test="pagina-fornecedores">
         <TypographyH2>Gestão de Fornecedores</TypographyH2>
 
         <div className="flex flex-row place-content-between pb-2 mb-2">

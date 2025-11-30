@@ -103,7 +103,7 @@ export function FornecedorEdicao({
         throw new Error("Usuário não autenticado");
       }
 
-      if(!session || !session.user.accesstoken) {
+      if (!session || !session.user.accesstoken) {
         throw new Error("Usuário não autenticado");
       }
 
@@ -163,7 +163,11 @@ export function FornecedorEdicao({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="gap-8 max-w-2xl">
+      <DialogContent
+        showCloseButton={false}
+        className="gap-8 max-w-2xl"
+        data-test="dialog-edicao-fornecedor"
+      >
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>Editar fornecedor</DialogTitle>
           <DialogDescription>
@@ -175,6 +179,7 @@ export function FornecedorEdicao({
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="max-h-96 overflow-y-auto space-y-8 text-neutral-700"
+            data-test="fornecedor-edicao-form"
           >
             <FormField
               control={form.control}
@@ -223,6 +228,7 @@ export function FornecedorEdicao({
                       onChange={(e) =>
                         field.onChange(capitalizeFirst(e.target.value))
                       }
+                      data-test="input-nome-fornecedor"
                     />
                   </FormControl>
                   <FormMessage />
@@ -242,6 +248,7 @@ export function FornecedorEdicao({
                         type="email"
                         placeholder="contato@empresa.com"
                         {...field}
+                        data-test="input-email"
                       />
                     </FormControl>
                     <FormMessage />
@@ -262,6 +269,7 @@ export function FornecedorEdicao({
                         onChange={(e) =>
                           field.onChange(formatarTelefone(e.target.value))
                         }
+                        data-test="input-telefone"
                       />
                     </FormControl>
                     <FormMessage />
@@ -293,6 +301,7 @@ export function FornecedorEdicao({
                           }
                         }}
                         disabled={loadingCep}
+                        data-test="input-cep"
                       />
                     </FormControl>
                     {loadingCep && (
@@ -316,6 +325,7 @@ export function FornecedorEdicao({
                         placeholder="Nome do bairro"
                         {...field}
                         disabled={loadingCep}
+                        data-test="input-bairro"
                       />
                     </FormControl>
                     <FormMessage />
@@ -335,6 +345,7 @@ export function FornecedorEdicao({
                       placeholder="Rua, Avenida, etc..."
                       {...field}
                       disabled={loadingCep}
+                      data-test="input-logradouro"
                     />
                   </FormControl>
                   <FormMessage />
@@ -354,6 +365,7 @@ export function FornecedorEdicao({
                         placeholder="Nome da cidade"
                         {...field}
                         disabled={loadingCep}
+                        data-test="input-cidade"
                       />
                     </FormControl>
                     <FormMessage />
@@ -373,7 +385,10 @@ export function FornecedorEdicao({
                       disabled={loadingCep}
                     >
                       <FormControl>
-                        <SelectTrigger className="flex-1 w-2/">
+                        <SelectTrigger
+                          className="flex-1 w-2/"
+                          data-test="select-estado"
+                        >
                           <SelectValue placeholder="Selecione o estado" />
                         </SelectTrigger>
                       </FormControl>
@@ -428,6 +443,7 @@ export function FornecedorEdicao({
             <Button
               onClick={() => onOpenChange(false)}
               className="w-1/2 cursor-pointer text-black bg-transparent border hover:bg-neutral-50 flex items-center gap-1"
+              data-test="btn-cancelar"
             >
               Cancelar
             </Button>
@@ -435,6 +451,7 @@ export function FornecedorEdicao({
               onClick={form.handleSubmit(onSubmit)}
               disabled={isPending}
               className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1 disabled:opacity-60"
+              data-test="btn-salvar"
             >
               <Save className="w-4 h-4" />
               {isPending ? "Salvando..." : "Salvar alterações"}

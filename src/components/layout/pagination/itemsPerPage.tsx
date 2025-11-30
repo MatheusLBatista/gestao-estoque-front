@@ -179,6 +179,7 @@ export function ItemsPerPage({
       <span>de {totalItems}</span>
       <div className="flex px-3">
         <Printer
+          data-test="btn-imprimir"
           onClick={handlePrint}
           className="w-4 h-4 text-neutral-400 cursor-pointer hover:text-neutral-600"
         />
