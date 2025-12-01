@@ -23,6 +23,7 @@ export function BotaoCadastrar({
     <Button
       className={`cursor-pointer text-white ${colorClasses} ${sizeClasses}`}
       onClick={onClick}
+      data-test="btn-abrir-cadastro"
     >
       <PackagePlus className="w-4 h-4 mr-1" />
       Cadastrar

@@ -124,7 +124,11 @@ export function ProdutoEdicao({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="gap-8 max-w-2xl">
+      <DialogContent
+        data-test="dialog-edicao-produto"
+        showCloseButton={false}
+        className="gap-8 max-w-2xl"
+      >
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>Editar produto</DialogTitle>
           <DialogDescription>
@@ -244,6 +248,7 @@ export function ProdutoEdicao({
                     <FormLabel>Estoque mínimo*</FormLabel>
                     <FormControl>
                       <Input
+                        data-test="input-estoque-min"
                         type="text"
                         placeholder="10"
                         value={field.value ?? ""}
@@ -267,6 +272,7 @@ export function ProdutoEdicao({
                     <FormLabel>Preço (R$)*</FormLabel>
                     <FormControl>
                       <NumericFormat
+                        data-test="input-preco"
                         value={field.value ?? ""}
                         thousandSeparator="."
                         decimalSeparator=","
@@ -294,6 +300,7 @@ export function ProdutoEdicao({
                   <FormLabel>Descrição*</FormLabel>
                   <FormControl>
                     <Textarea
+                      data-test="textarea-descricao"
                       placeholder="Smartphone Samsung Galaxy A54 128GB, Tela 6.4 polegadas, Câmera 50MP"
                       className="h-[100px] resize-none"
                       {...field}
@@ -318,6 +325,7 @@ export function ProdutoEdicao({
               Cancelar
             </Button>
             <Button
+              data-test="btn-salvar"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isPending}
               className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white flex items-center gap-1"

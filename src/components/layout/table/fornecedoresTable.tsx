@@ -53,7 +53,7 @@ export default function TabelaFornecedores({
   return (
     <>
       <div className="bg-white rounded-lg shadow">
-        <Table>
+        <Table data-test="tabela-fornecedores">
           <TableHeader>
             <TableRow>
               <TableHead className="text-left text-neutral-500">
@@ -64,7 +64,7 @@ export default function TabelaFornecedores({
               </TableHead>
               <TableHead className="text-center text-neutral-500">
                 CNPJ
-              </TableHead>              
+              </TableHead>
               <TableHead className="text-center text-neutral-500">
                 Telefone
               </TableHead>
@@ -83,6 +83,7 @@ export default function TabelaFornecedores({
                   setOpen(true);
                 }}
                 className="hover:bg-slate-50 cursor-pointer"
+                data-test={`fornecedor-row-${fornecedor._id}`}
               >
                 <TableCell className="font-medium text-left text-neutral-700">
                   {fornecedor.nome_fornecedor}
@@ -92,7 +93,7 @@ export default function TabelaFornecedores({
                 </TableCell>
                 <TableCell className="text-center text-neutral-700">
                   {fornecedor.cnpj}
-                </TableCell>                
+                </TableCell>
                 <TableCell className="text-center text-neutral-700">
                   {fornecedor.telefone}
                 </TableCell>

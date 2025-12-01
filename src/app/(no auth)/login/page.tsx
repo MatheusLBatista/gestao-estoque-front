@@ -26,7 +26,7 @@ export default function Login() {
         return;
       }
 
-      const manterLogadoStorage = localStorage.getItem("manterLogado");
+      const manterLogadoStorage = localStorage.getItem("manterLogado")
       
       if (manterLogadoStorage === "true") {
         router.push("/home");
@@ -128,6 +128,7 @@ export default function Login() {
                       placeholder="Digite sua matrícula"
                       required
                       disabled={isLoading}
+                      data-test="matricula"
                     />
                   </div>
 
@@ -147,6 +148,7 @@ export default function Login() {
                       placeholder="Digite sua senha"
                       required
                       disabled={isLoading}
+                      data-test="senha"
                     />
                   </div>
 
@@ -158,6 +160,7 @@ export default function Login() {
                       onChange={(e) => setManterLogado(e.target.checked)}
                       className="h-4 w-4 text-[#0042D9] focus:ring-[#0042D9] border-gray-300 rounded"
                       disabled={isLoading}
+                      data-test="manter-logado"
                     />
                     <label
                       htmlFor="manterLogado"
@@ -168,7 +171,10 @@ export default function Login() {
                   </div>
 
                   {error && (
-                    <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm">
+                    <div
+                      className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm"
+                      data-test="error-message"
+                    >
                       {error}
                     </div>
                   )}
@@ -177,6 +183,7 @@ export default function Login() {
                     type="submit"
                     disabled={isLoading}
                     className="w-full bg-[#0042D9] text-white py-3 px-4 rounded-xl font-medium hover:bg-[#0042D9]/90 focus:ring-2 focus:ring-[#0042D9] focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    data-test="login-button"
                   >
                     {isLoading ? "Entrando..." : "Entrar"}
                   </button>

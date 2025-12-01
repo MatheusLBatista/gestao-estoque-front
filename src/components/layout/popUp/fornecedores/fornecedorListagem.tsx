@@ -152,7 +152,11 @@ export function FornecedorListagem({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="gap-4">
+      <DialogContent
+        showCloseButton={false}
+        className="gap-4"
+        data-test="dialog-listagem-fornecedor"
+      >
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>
             {fornecedor ? (
@@ -165,6 +169,7 @@ export function FornecedorListagem({
                       e.stopPropagation();
                       onEditar(fornecedor);
                     }}
+                    data-test="btn-editar-fornecedor"
                   />
                 )}
                 {canModify && fornecedor.status && (
@@ -173,6 +178,7 @@ export function FornecedorListagem({
                       <Trash2
                         className="cursor-pointer w-4 h-4 hover:text-red-600 text-red-500 ml-auto"
                         onClick={(e) => e.stopPropagation()}
+                        data-test="btn-excluir-fornecedor"
                       />
                     </AlertDialogTrigger>
                     <AlertDialogContent>
@@ -197,6 +203,7 @@ export function FornecedorListagem({
                           }}
                           disabled={desativarMutation.isPending}
                           className="bg-red-600 hover:bg-red-700"
+                          data-test="btn-confirmar-excluir"
                         >
                           {desativarMutation.isPending
                             ? "Desativando..."
@@ -372,6 +379,7 @@ export function FornecedorListagem({
             <Button
               className="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
               onClick={handlePrintFornecedor}
+              data-test="btn-imprimir"
             >
               <Printer className="w-4 h-4" /> Imprimir
             </Button>
@@ -386,6 +394,7 @@ export function FornecedorListagem({
               <Button
                 className="flex-1 cursor-pointer text-black bg-transparent border hover:bg-neutral-50"
                 onClick={() => onOpenChange(false)}
+                data-test="btn-fechar"
               >
                 Fechar
               </Button>
