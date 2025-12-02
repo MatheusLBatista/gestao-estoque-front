@@ -362,7 +362,7 @@ export function MovimentacaoListagem({
             <Button
               className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
               onClick={handlePrintMovimentacao}
-              data-test="btn-imprimir"
+              data-test="btn-imprimir-movimentacao"
             >
               <Printer className="w-4 h-4" /> Imprimir
             </Button>

@@ -46,6 +46,7 @@ export function FuncionariosFilter({
     <div className="mb-4 flex flex-row gap-4">
       <InputGroup className="w-[360px]">
         <InputGroupInput
+          data-test="input-busca-funcionario"
           placeholder="Buscar por nome, matrícula ou email"
           value={usuario || ""}
           onChange={(e) => setUsuario(e.target.value)}
@@ -69,15 +70,15 @@ export function FuncionariosFilter({
           onSubmit;
         }}
       >
-        <SelectTrigger className="w-[120px]">
+        <SelectTrigger className="w-[120px]" data-test="select-perfil-filtro">
           <SelectValue placeholder="Perfil" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            <SelectItem value="todos">Todos</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="gerente">Gerente</SelectItem>
-            <SelectItem value="estoquista">Estoquista</SelectItem>
+            <SelectItem value="todos" data-test="select-item-todos">Todos</SelectItem>
+            <SelectItem value="administrador" data-test="select-item-administrador">Administrador</SelectItem>
+            <SelectItem value="gerente" data-test="select-item-gerente">Gerente</SelectItem>
+            <SelectItem value="estoquista" data-test="select-item-estoquista">Estoquista</SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>
@@ -90,20 +91,21 @@ export function FuncionariosFilter({
           onSubmit;
         }}
       >
-        <SelectTrigger className="w-[120px]">
+        <SelectTrigger className="w-[120px]" data-test="select-status-filtro">
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            <SelectItem value="todos">Todos</SelectItem>
-            <SelectItem value="ativo">Ativo</SelectItem>
-            <SelectItem value="inativo">Inativo</SelectItem>
+            <SelectItem value="todos" data-test="select-item-status-todos">Todos</SelectItem>
+            <SelectItem value="ativo" data-test="select-item-status-ativo">Ativo</SelectItem>
+            <SelectItem value="inativo" data-test="select-item-status-inativo">Inativo</SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>
 
       {(usuario || perfil || status) && (
         <Button
+          data-test="btn-limpar-filtros"
           onClick={() => {
             setUsuario("");
             setPerfil("");

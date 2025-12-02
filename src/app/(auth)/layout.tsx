@@ -3,6 +3,7 @@
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { UserProfileProvider } from "@/contexts/UserProfileContext";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -27,7 +28,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
   // Se está autenticado, renderiza os filhos
   if (status === "authenticated") {
-    return <>{children}</>;
+    return <UserProfileProvider>{children}</UserProfileProvider>;
   }
 
   // Evita renderizar algo antes da verificação

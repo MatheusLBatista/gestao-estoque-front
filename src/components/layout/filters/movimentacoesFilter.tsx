@@ -138,7 +138,7 @@ export function MovimentacoesFilter({
         }}
         data-test="select-tipo-movimentacao"
       >
-        <SelectTrigger className="w-[120px] cursor-pointer">
+        <SelectTrigger className="w-[120px] cursor-pointer" data-test="select-tipo-movimentacao">
           <SelectValue placeholder="Tipo" />
         </SelectTrigger>
         <SelectContent>

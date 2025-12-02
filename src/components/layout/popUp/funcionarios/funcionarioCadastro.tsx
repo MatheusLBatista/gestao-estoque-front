@@ -136,7 +136,11 @@ export function CadastroFuncionario({
         />
       </DialogTrigger>
 
-      <DialogContent showCloseButton={false} className="gap-8">
+      <DialogContent
+        showCloseButton={false}
+        className="gap-8"
+        data-test="dialog-cadastro-funcionario"
+      >
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>Cadastro de funcionário</DialogTitle>
           <DialogDescription>
@@ -158,6 +162,7 @@ export function CadastroFuncionario({
                   <FormLabel>Nome completo*</FormLabel>
                   <FormControl>
                     <Input
+                      data-test="input-nome-funcionario"
                       placeholder="João da Silva"
                       {...field}
                       onChange={(e) =>
@@ -178,6 +183,7 @@ export function CadastroFuncionario({
                   <FormLabel>Matrícula*</FormLabel>
                   <FormControl>
                     <Input
+                      data-test="input-matricula"
                       type="text"
                       placeholder="ADMIN-003"
                       {...field}
@@ -187,9 +193,7 @@ export function CadastroFuncionario({
                     />
                   </FormControl>
                   <FormMessage />
-                  <FormDescription>
-                    A matrícula deve ser única
-                  </FormDescription>
+                  <FormDescription>A matrícula deve ser única</FormDescription>
                 </FormItem>
               )}
             />
@@ -202,6 +206,7 @@ export function CadastroFuncionario({
                   <FormLabel>E-mail*</FormLabel>
                   <FormControl>
                     <Input
+                      data-test="input-email"
                       type="email"
                       placeholder="joao.silva@empresa.com"
                       {...field}
@@ -220,6 +225,7 @@ export function CadastroFuncionario({
                   <FormLabel>Telefone*</FormLabel>
                   <FormControl>
                     <Input
+                      data-test="input-telefone"
                       placeholder="(11) 99999-9999"
                       {...field}
                       onChange={(e) =>
@@ -243,16 +249,32 @@ export function CadastroFuncionario({
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger
+                        className="w-full"
+                        data-test="select-perfil"
+                      >
                         <SelectValue placeholder="Selecione um perfil" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="administrador">
+                      <SelectItem
+                        value="administrador"
+                        data-test="select-item-administrador"
+                      >
                         Administrador
                       </SelectItem>
-                      <SelectItem value="gerente">Gerente</SelectItem>
-                      <SelectItem value="estoquista">Estoquista</SelectItem>
+                      <SelectItem
+                        value="gerente"
+                        data-test="select-item-gerente"
+                      >
+                        Gerente
+                      </SelectItem>
+                      <SelectItem
+                        value="estoquista"
+                        data-test="select-item-estoquista"
+                      >
+                        Estoquista
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -272,6 +294,7 @@ export function CadastroFuncionario({
               Cancelar
             </Button>
             <Button
+              data-test="btn-salvar"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isPending}
               className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"

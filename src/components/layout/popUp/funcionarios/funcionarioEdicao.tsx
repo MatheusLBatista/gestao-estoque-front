@@ -118,7 +118,11 @@ export function FuncionarioEdicao({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="gap-8">
+      <DialogContent
+        showCloseButton={false}
+        className="gap-8"
+        data-test="dialog-edicao-funcionario"
+      >
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>Editar Funcionário</DialogTitle>
           <DialogDescription>
@@ -178,6 +182,7 @@ export function FuncionarioEdicao({
                   <FormLabel>Telefone*</FormLabel>
                   <FormControl>
                     <Input
+                      data-test="input-telefone"
                       placeholder="(11) 99999-9999"
                       {...field}
                       onChange={(e) =>
@@ -198,16 +203,32 @@ export function FuncionarioEdicao({
                   <FormLabel>Perfil*</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger
+                        className="w-full"
+                        data-test="select-perfil"
+                      >
                         <SelectValue placeholder="Selecione um perfil" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="administrador">
+                      <SelectItem
+                        value="administrador"
+                        data-test="select-item-administrador"
+                      >
                         Administrador
                       </SelectItem>
-                      <SelectItem value="gerente">Gerente</SelectItem>
-                      <SelectItem value="estoquista">Estoquista</SelectItem>
+                      <SelectItem
+                        value="gerente"
+                        data-test="select-item-gerente"
+                      >
+                        Gerente
+                      </SelectItem>
+                      <SelectItem
+                        value="estoquista"
+                        data-test="select-item-estoquista"
+                      >
+                        Estoquista
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -227,6 +248,7 @@ export function FuncionarioEdicao({
               Cancelar
             </Button>
             <Button
+              data-test="btn-salvar"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isPending}
               className="w-1/2 cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"

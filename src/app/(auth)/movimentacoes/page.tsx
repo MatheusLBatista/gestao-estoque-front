@@ -195,10 +195,22 @@ export default function MovimentacoesPage() {
     }
 
     if (movimentacoesData?.docs) {
-      toast.info("Movimentações encontradas", {
-        description: `${movimentacoesData.totalDocs} movimentações encontrada(s). Exibindo na página.`,
-        duration: 2500,
-      });
+      if (movimentacoesData.totalDocs === 0) {
+        toast.info(
+          <span data-test="toast-info-nenhuma-movimentacao">
+            Nenhuma movimentação encontrada.
+          </span>,
+          {
+            description: "Tente ajustar os filtros para encontrar resultados.",
+            duration: 3000,
+          }
+        );
+      } else {
+        toast.info("Movimentações encontradas", {
+          description: `${movimentacoesData.totalDocs} movimentações encontrada(s). Exibindo na página.`,
+          duration: 2000,
+        });
+      }
     }
   }, [movimentacoesError, movimentacoesIsError, movimentacoesData]);
 

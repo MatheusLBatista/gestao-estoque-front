@@ -137,7 +137,11 @@ export function FuncionarioListagem({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="gap-4">
+      <DialogContent
+        showCloseButton={false}
+        className="gap-4"
+        data-test="dialog-listagem-funcionario"
+      >
         <DialogHeader className="flex flex-col gap-4 py-2 border-b">
           <DialogTitle>
             {funcionario ? (
@@ -145,6 +149,7 @@ export function FuncionarioListagem({
                 {funcionario.nome_usuario}
                 {canModify && (
                   <Pencil
+                    data-test="btn-editar-funcionario"
                     className="cursor-pointer w-4 h-4 hover:text-blue-600"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -208,6 +213,7 @@ export function FuncionarioListagem({
                     <Field>
                       <FieldLabel htmlFor="matricula">Matrícula</FieldLabel>
                       <Input
+                        data-test="input-matricula"
                         id="matricula"
                         value={funcionario.matricula}
                         readOnly={true}
@@ -229,6 +235,7 @@ export function FuncionarioListagem({
                       Nome do funcionário
                     </FieldLabel>
                     <Input
+                      data-test="input-nome-funcionario"
                       id="nome_usuario"
                       value={funcionario.nome_usuario}
                       readOnly={true}
@@ -239,6 +246,7 @@ export function FuncionarioListagem({
                     <Field>
                       <FieldLabel htmlFor="email">Email</FieldLabel>
                       <Input
+                        data-test="input-email-funcionario"
                         id="email"
                         value={funcionario.email}
                         autoComplete="off"
@@ -305,6 +313,7 @@ export function FuncionarioListagem({
         <div className="pt-2 border-t">
           <div className="flex flex-row justify-center gap-1">
             <Button
+              data-test="btn-imprimir-funcionario"
               className="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
               onClick={handlePrintFuncionario}
             >

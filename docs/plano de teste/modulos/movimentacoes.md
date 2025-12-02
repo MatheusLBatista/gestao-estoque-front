@@ -4,19 +4,21 @@
 
 ### 1.1 Objetivo
 
-Validar a funcionalidade completa do módulo de Movimentações em um sistema de gestão de estoque, assegurando que operações de CRUD (Criar, Ler), filtros, validações, paginação e interações com a interface funcionem corretamente. Os testes visam identificar defeitos, garantir usabilidade e conformidade com os requisitos funcionais, utilizando testes automatizados para reduzir erros manuais e aumentar a eficiência.
+Validar a funcionalidade completa do módulo de Movimentações em um sistema de gestão de estoque, assegurando que operações de CRUD (Criar, Ler), filtros, validações, paginação, verificação de atualização de estoque e interações com a interface funcionem corretamente. Os testes foram implementados para identificar defeitos, garantir usabilidade e conformidade com os requisitos funcionais, utilizando testes automatizados para reduzir erros manuais e aumentar a eficiência.
 
 ### 1.2 Escopo
 
-- **Incluído**: Testes E2E para cadastro, filtros, validações de formulários, paginação e impressão de relatórios.
+- **Incluído**: Testes E2E para cadastro, filtros, validações de formulários, paginação, verificação de atualização de estoque e impressão de relatórios.
 - **Excluído**: Testes de performance, carga, segurança avançada, integração com APIs externas (exceto mocks básicos) e testes manuais não automatizados.
 - **Ferramentas**: Cypress (para execução), Docker (para ambiente), Node.js (para execução local).
+- **Status**: Implementado e funcional.
 
 ### 1.3 Critérios de Aceitação
 
-- Todos os casos de teste devem passar (status "Aprovado") em pelo menos 80% das execuções.
-- Não devem haver falhas críticas (ex.: crashes ou dados incorretos).
-- Cobertura mínima de 90% dos cenários funcionais identificados.
+- Todos os casos de teste implementados e executando com sucesso.
+- Não há falhas críticas (ex.: crashes ou dados incorretos).
+- Cobertura completa dos cenários funcionais identificados.
+- Validação da atualização de estoque para movimentações de entrada e saída.
 
 ## 2. Requisitos Funcionais
 
@@ -29,7 +31,8 @@ Os testes são baseados nos seguintes requisitos funcionais extraídos do códig
 - **RF05**: O usuário deve poder filtrar movimentações por busca, tipo ou datas, com opção de limpar filtros.
 - **RF06**: O usuário deve poder navegar entre páginas e alterar o número de itens por página.
 - **RF07**: O usuário deve poder imprimir detalhes de uma movimentação sem erros.
-- **RF08**: Todas as operações devem exibir mensagens de sucesso/erro apropriadas e manter a integridade da interface.
+- **RF08**: O sistema deve atualizar corretamente o estoque dos produtos ao criar movimentações de entrada (aumentar) e saída (diminuir).
+- **RF09**: Todas as operações devem exibir mensagens de sucesso/erro apropriadas e manter a integridade da interface.
 
 ## 3. Casos de Teste
 
@@ -55,6 +58,10 @@ A tabela abaixo detalha os casos de teste, mapeados aos requisitos funcionais. C
 | CT16 | Navegar para a página anterior            | Página 2 carregada                                   | 1. Clicar em "Anterior".                                             | Página 1 carregada, URL com "page=1".                             | Implementado | RF06                  |
 | CT17 | Alterar itens por página                  | Página de movimentações carregada                    | 1. Selecionar 20 itens por página.                                   | Lista atualizada, URL com "limite=20".                            | Implementado | RF06                  |
 | CT18 | Imprimir detalhes sem erros               | Página de movimentações carregada, dados presentes   | 1. Clicar na linha, clicar em "Imprimir".                            | Botão clicável, sem alertas de erro.                              | Implementado | RF07                  |
+| CT19 | Verificar aumento de estoque em entrada   | Usuário logado, produto com estoque conhecido        | 1. Criar movimentação de entrada com quantidade específica.          | Estoque do produto aumentado na quantidade informada.             | Implementado | RF08                  |
+| CT20 | Verificar redução de estoque em saída     | Usuário logado, produto com estoque suficiente       | 1. Criar movimentação de saída com quantidade específica.            | Estoque do produto reduzido na quantidade informada.              | Implementado | RF08                  |
+| CT21 | Buscar produto por nome e selecionar      | Modal de cadastro aberto, produto adicionado         | 1. Digitar nome do produto, selecionar do dropdown.                  | Produto selecionado e código preenchido automaticamente.          | Implementado | RF03                  |
+| CT22 | Exibir mensagem quando não há resultados  | Página de movimentações carregada                    | 1. Filtrar por termo inexistente.                                    | Mensagem "Nenhuma movimentação encontrada" exibida.               | Implementado | RF05                  |
 
 ## 4. Ambiente de Teste
 
@@ -63,7 +70,10 @@ A tabela abaixo detalha os casos de teste, mapeados aos requisitos funcionais. C
   - Cypress: Versão 13+.
   - Node.js: Versão 18+.
   - Docker: Para executar a API backend (porta 5011) e frontend (porta 3000).
-- **Dados de Teste**: Movimentação de exemplo - Tipo: entrada/saída, Destino: "Destino Teste [timestamp]", Produto: código "TEST123". Limpeza automática via `after()` hook.
+- **Dados de Teste**: 
+  - Movimentação de exemplo - Tipo: entrada/saída, Destino: "Destino Teste [timestamp]", Produto: código válido do sistema.
+  - Usuários de teste: 'GER0001' / 'Gerente@123' para testes de estoque.
+  - Limpeza automática via `after()` hook para movimentações criadas durante os testes.
 
 ## 5. Riscos e Mitigações
 
@@ -71,19 +81,22 @@ A tabela abaixo detalha os casos de teste, mapeados aos requisitos funcionais. C
 - **Risco**: Falhas de rede/API. **Mitigação**: Intercepts no Cypress para simular respostas.
 - **Risco**: Mudanças na UI quebrando seletores. **Mitigação**: Uso de `data-test` attributes.
 
-## 6. Execução
+## 6. Execução e Resultados
 
 - **Pré-requisitos**:
-
   - Ambiente Docker rodando (backend na porta 5011, frontend na porta 3000).
   - Dependências instaladas: `npm install`.
   - Cypress configurado com variáveis de ambiente (FRONTEND_URL, API_URL).
 
 - **Modo Interativo**:
-
   - Comando: `npx cypress open`.
   - Abre a interface do Cypress; selecione o arquivo `movimentacoes.cy.ts` para executar testes passo a passo.
 
 - **Execução Específica**:
+  - Para um teste específico: `npx cypress run --spec cypress/e2e/movimentacoes/movimentacoes.cy.ts`.
 
-  - Para um teste específico, adicione no terminal: `npx cypress run --spec cypress/e2e/movimentacoes/movimentacoes.cy.ts`.
+- **Status dos Testes**:
+  - 22 casos de teste implementados e funcionais
+  - 5 grupos de teste organizados por funcionalidade
+  - Cobertura completa de todos os requisitos funcionais
+  - Validação de estoque implementada para entrada e saída

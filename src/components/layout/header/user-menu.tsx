@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useUserProfile } from "@/contexts/UserProfileContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -11,25 +13,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
-import { useSession } from "next-auth/react";
 
 export default function UserMenu() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
-
-  const handleLogout = () => {
-    setOpen(false);
-    router.push("/logout");
-  };
-
   const { data: session } = useSession();
+  const { fotoPerfil } = useUserProfile();
+
   const userName: string = session?.user?.nome_usuario || "Usuário";
+  
+  // Gerar iniciais do nome para o fallback
   const userAbbreviation: string = userName
     .split(" ")
     .map((word) => word.charAt(0))
     .join("")
     .toUpperCase()
     .slice(0, 2);
+
+  const handleLogout = () => {
+    setOpen(false);
+    router.push("/logout");
+  };
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -40,7 +44,7 @@ export default function UserMenu() {
           </div>
 
           <Avatar className="h-10 w-10">
-            <AvatarImage src="/avatar.png" alt="User Avatar" />
+            <AvatarImage src={fotoPerfil || "/foto-perfil.jpeg"} alt="User Avatar" />
             <AvatarFallback className="text-blue-700">{userAbbreviation}</AvatarFallback>
           </Avatar>
 
